@@ -22,14 +22,25 @@
 
 #include <stdint.h>
 
+void CC_TileLayer_SetRegister(uint8_t index, uint8_t reg, uint16_t value);
+uint16_t CC_TileLayer_GetRegister(uint8_t index, uint8_t reg);
+
 // Bulk copy tile map data.
-void CC_TileLayer_SetData(uint8_t index, void* data, uint32_t size);
+void CC_TileLayer_SetData(const void* data,
+                          uint8_t index,
+                          uint16_t offset,
+                          uint16_t size);
+
+void CC_TileLayer_GetData(uint8_t index,
+                          uint16_t offset,
+                          uint16_t size,
+                          void* data);
 
 // Set the tile at a location (x, y) in the tile layer.
 void CC_TileLayer_SetDataAt(uint8_t index,
-                           uint16_t value,
-                           uint32_t x,
-                           uint32_t y);
+                            uint16_t value,
+                            uint32_t x,
+                            uint32_t y);
 
 // Set translation offset of the tile layer in world space.
 void CC_TileLayer_SetOffset(uint8_t index, uint16_t x, uint16_t y);

@@ -29,11 +29,23 @@
 void CC_Init();
 void CC_Cleanup();
 
-// Bulk copy raw data to VRAM.
-void CC_SetVramData(uint32_t vram_offset, void* src_data, uint32_t size);
+void CC_SetRegister(uint8_t reg, uint16_t value);
+uint16_t CC_GetRegister(uint8_t reg);
+
+// Bulk copy raw data to/from VRAM.
+void CC_SetVRAMData(const void* data, uint32_t offset, uint32_t size);
+void CC_GetVRAMData(uint32_t offset, uint32_t size, void* data);
 
 // Bulk copy palette data, with each entry packed to four bytes.
-void CC_SetPaletteData(uint8_t index, void* data, uint16_t size);
+void CC_SetPaletteData(const void* data,
+                       uint8_t index,
+                       uint16_t offset,
+                       uint16_t size);
+
+void CC_GetPaletteData(uint8_t index,
+                       uint16_t offset,
+                       uint16_t size,
+                       void* data);
 
 // Set one palette entry in the palette indicated by |index|.
 void CC_SetPaletteEntry(uint8_t index, uint8_t r, uint8_t g,uint8_t b);

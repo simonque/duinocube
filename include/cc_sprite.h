@@ -22,6 +22,10 @@
 
 #include <stdint.h>
 
+// Sprite register access.
+void CC_Sprite_SetRegister(uint16_t index, uint8_t reg, uint16_t value);
+uint16_t CC_Sprite_GetRegister(uint16_t index, uint8_t reg);
+
 // Set the location of the sprite in world space.
 void CC_Sprite_SetLocation(uint16_t index, uint16_t x, uint16_t y);
 
