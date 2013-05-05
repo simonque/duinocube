@@ -21,6 +21,7 @@
 #include "cc_core.h"
 #include "cc_sprite.h"
 #include "cc_tile_layer.h"
+#include "registers.h"
 
 // ChronoCube memory map
 // TODO: this should be read from dedicated info registers rather than
@@ -70,11 +71,6 @@ static volatile uint16_t* tilemaps16[NUM_TILE_LAYERS];
 static volatile uint8_t* sprites[NUM_SPRITES];
 static volatile uint16_t* sprites16[NUM_SPRITES];
 
-// Memory control register.
-#define REG_MEM_CTRL               5
-#define REG_ENABLE_VRAM_OFFSET     0
-#define REG_BANK_OFFSET            8
-
 // Initializes ChronoCube memory pointers.
 static void InitMemory() {
   registers = (uint16_t*)(MEMORY_BASE + REGISTERS_BASE);
@@ -121,11 +117,11 @@ void CC_TileLayer_SetData(const void* data,
                           uint16_t offset,
                           uint16_t size) {
   // Switch memory banks.
-  CC_SetRegister(REG_MEM_CTRL, (TILEMAP_BANK << REG_BANK_OFFSET));
+  CC_SetRegister(CC_REG_MEM_CTRL, (TILEMAP_BANK << CC_REG_BANK_OFFSET));
 
   memcpy(tilemaps[index] + offset, data, size);
 
-  CC_SetRegister(REG_MEM_CTRL, 0);
+  CC_SetRegister(CC_REG_MEM_CTRL, 0);
 }
 
 void CC_TileLayer_GetData(uint8_t index,
@@ -133,15 +129,14 @@ void CC_TileLayer_GetData(uint8_t index,
                           uint16_t size,
                           void* data) {
   // Switch memory banks.
-  CC_SetRegister(REG_MEM_CTRL, (TILEMAP_BANK << REG_BANK_OFFSET));
+  CC_SetRegister(CC_REG_MEM_CTRL, (TILEMAP_BANK << CC_REG_BANK_OFFSET));
 
   memcpy(data, tilemaps[index] + offset, size);
 
-  CC_SetRegister(REG_MEM_CTRL, 0);
+  CC_SetRegister(CC_REG_MEM_CTRL, 0);
 }
 
 void CC_TileLayer_SetRegister(uint8_t index, uint8_t reg, uint16_t value) {
-if (reg == 0) printf("tile_regs[%d] = 0x%04x\n", index, tile_regs[index]);
   tile_regs[index][reg] = value;
 }
 
@@ -186,8 +181,9 @@ void CC_SetVRAMData(const void* data, uint32_t offset, uint32_t size) {
     // Determine which bank to access, and set the bank.
     uint8_t bank = (offset + bytes_copied) / VRAM_BANK_SIZE + VRAM_BANK_BASE;
     uint16_t bank_offset = (offset + bytes_copied) % VRAM_BANK_SIZE;
-    CC_SetRegister(REG_MEM_CTRL,
-                   (1 << REG_ENABLE_VRAM_OFFSET) | (bank << REG_BANK_OFFSET));
+    CC_SetRegister(CC_REG_MEM_CTRL,
+                   (1 << CC_REG_ENABLE_VRAM_OFFSET) |
+                       (bank << CC_REG_BANK_OFFSET));
 
     uint16_t copy_size = VRAM_BANK_SIZE - bank_offset;
     if (bytes_copied + copy_size > size)
@@ -196,7 +192,7 @@ void CC_SetVRAMData(const void* data, uint32_t offset, uint32_t size) {
     bytes_copied += copy_size;
   }
   // Reset the memory control register.
-  CC_SetRegister(REG_MEM_CTRL, 0);
+  CC_SetRegister(CC_REG_MEM_CTRL, 0);
 }
 
 void CC_GetVRAMData(uint32_t offset, uint32_t size, void* data) {
@@ -211,8 +207,8 @@ void CC_GetVRAMData(uint32_t offset, uint32_t size, void* data) {
     // Determine which bank to access, and set the bank.
     uint8_t bank = (offset + bytes_copied) / VRAM_BANK_SIZE + VRAM_BANK_BASE;
     uint16_t bank_offset = (offset + bytes_copied) % VRAM_BANK_SIZE;
-    CC_SetRegister(REG_MEM_CTRL,
-                   (1 << REG_ENABLE_VRAM_OFFSET) | (bank << REG_BANK_OFFSET));
+    CC_SetRegister(CC_REG_MEM_CTRL,
+                   (1 << CC_REG_ENABLE_VRAM_OFFSET) | (bank << CC_REG_BANK_OFFSET));
 
     uint16_t copy_size = VRAM_BANK_SIZE - bank_offset;
     if (bytes_copied + copy_size > size)
@@ -221,5 +217,5 @@ void CC_GetVRAMData(uint32_t offset, uint32_t size, void* data) {
     bytes_copied += copy_size;
   }
   // Reset the memory control register.
-  CC_SetRegister(REG_MEM_CTRL, 0);
+  CC_SetRegister(CC_REG_MEM_CTRL, 0);
 }
