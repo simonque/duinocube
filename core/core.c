@@ -88,10 +88,17 @@ static void InitMemory() {
         (uint16_t*)(MEMORY_BASE + TILE_REG_BASE + i * TILE_REG_ADDR_STEP);
     tilemaps[i] = (uint8_t*)(MEMORY_BASE + TILEMAP_BASE + i * TILEMAP_SIZE);
     tilemaps16[i] = (uint16_t*)(MEMORY_BASE + TILEMAP_BASE + i * TILEMAP_SIZE);
+    memset(tile_regs[i], 0, TILE_REG_ADDR_STEP);
+
+    // Switch memory banks.
+    CC_SetRegister(CC_REG_MEM_CTRL, (TILEMAP_BANK << CC_REG_BANK_OFFSET));
+    memset(tilemaps[i], 0, TILEMAP_SIZE);
+    CC_SetRegister(CC_REG_MEM_CTRL, 0);
   }
   for (i = 0; i < NUM_SPRITES; ++i) {
     sprites[i] = (uint8_t*)(MEMORY_BASE + SPRITE_BASE + i * SPRITE_SIZE);
     sprites16[i] = (uint16_t*)(MEMORY_BASE + SPRITE_BASE + i * SPRITE_SIZE);
+    memset(sprites[i], 0, SPRITE_SIZE);
   }
 }
 
