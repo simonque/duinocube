@@ -56,6 +56,8 @@
 #define TILE_ENABLE_WRAP_X       8
 #define TILE_ENABLE_WRAP_Y       9
 #define TILE_ENABLE_FLIP        10
+#define TILE_PALETTE_START      12
+#define TILE_PALETTE_END        15
 
 // TILE_CTRL1
 #define TILE_HSIZE_0             0
