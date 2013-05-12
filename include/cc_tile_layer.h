@@ -22,6 +22,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void CC_TileLayer_SetRegister(uint8_t index, uint8_t reg, uint16_t value);
 uint16_t CC_TileLayer_GetRegister(uint8_t index, uint8_t reg);
 
@@ -68,5 +72,9 @@ void CC_TileLayer_SetAlpha(uint8_t index, uint8_t alpha);
 
 // Select a palette for tile layer.
 void CC_TileLayer_SetPalette(uint8_t index, uint8_t palette_index);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 #endif  // _CC_TILE_LAYER_H_

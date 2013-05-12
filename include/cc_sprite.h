@@ -22,6 +22,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Sprite register access.
 void CC_Sprite_SetRegister(uint16_t index, uint8_t reg, uint16_t value);
 uint16_t CC_Sprite_GetRegister(uint16_t index, uint8_t reg);
@@ -62,5 +66,10 @@ void CC_Sprite_SetDataOffset(uint16_t index, uint16_t data_offset);
 
 // Specify horizontal, vertical, and diagonal flipping.
 void CC_Sprite_SetFlip(uint16_t index, uint8_t flip_flags);
+
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 #endif  // _CC_SPRITE_H_

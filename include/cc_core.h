@@ -25,6 +25,10 @@
 #include "cc_sprite.h"
 #include "cc_tile_layer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Setup and cleanup functions for ChronoCube.
 void CC_Init();
 void CC_Cleanup();
@@ -70,5 +74,9 @@ void CC_RendererCleanup();
 
 // Main ChronoCube emulator function.  Draws to screen.
 void CC_RendererDraw();
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 #endif  // _CC_CORE_H_
