@@ -71,6 +71,8 @@ static volatile uint16_t* tilemaps16[NUM_TILE_LAYERS];
 static volatile uint8_t* sprites[NUM_SPRITES];
 static volatile uint16_t* sprites16[NUM_SPRITES];
 
+#include <stdio.h>
+
 // Initializes ChronoCube memory pointers.
 static void InitMemory() {
   registers = (uint16_t*)(MEMORY_BASE + REGISTERS_BASE);
@@ -144,6 +146,7 @@ void CC_TileLayer_GetData(uint8_t index,
 }
 
 void CC_TileLayer_SetRegister(uint8_t index, uint8_t reg, uint16_t value) {
+//printf("%s(%u, %u, 0x%04x)\n", __func__, index, reg, value);
   tile_regs[index][reg] = value;
 }
 
