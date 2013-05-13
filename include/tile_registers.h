@@ -47,6 +47,7 @@
 
 // TILE_CTRL0
 #define TILE_LAYER_ENABLED       0
+#define TILE_ENABLE_8x8          1
 #define TILE_ENABLE_8_BIT        2
 #define TILE_ENABLE_NOP          3
 #define TILE_ENABLE_SCROLL       4
