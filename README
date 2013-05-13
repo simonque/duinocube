@@ -1,0 +1,7 @@
+ChronoCube Library
+==================
+
+Contains software interface, development tools, and examples for working with
+the ChronoCube hardware.
+
+Currently developing for Atmel AVR only.
