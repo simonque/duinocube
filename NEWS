@@ -1,0 +1,21 @@
+Release history
+===============
+
+NOTE: These versions are meant to be compatible with the corresponding hardware
+version found in the main ChronoCube repo:
+
+  https://github.com/eecsninja/chronocube
+
+0.1.0  --  12 May 2013
+    Initial release version.
+    - Basic library code.
+    - Tools
+        = tmx2dat: reads tilemap data from TMX files.
+        = bmp2raw: reads raw pixel and palette data from BMP files.
+        = bin2c: converts data file into data array in C.
+    - Demos
+        = readback: writes values to ChronoCube registers and memory and reads
+          them back.
+        = landscape: Scrolling landscape and sprites demo.  Tests most features
+          of the current ChronoCube release.
+    - Some emulator code that does not work.
