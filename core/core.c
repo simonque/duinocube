@@ -32,6 +32,8 @@
 #define SPRITE_BASE              0x2000
 #define TILEMAP_BASE             0x4000
 
+#define NUM_REGISTERS                16
+
 #define VRAM_BASE                0x4000  // This is banked memory.
 #define VRAM_BANK_SIZE           0x4000
 #define VRAM_BANK_BASE                2  // VRAM starts at this bank.
@@ -75,7 +77,11 @@ static volatile uint16_t* sprites16[NUM_SPRITES];
 
 // Initializes ChronoCube memory pointers.
 static void InitMemory() {
+  int i;
+
   registers = (uint16_t*)(MEMORY_BASE + REGISTERS_BASE);
+  for (i = 0 ; i < NUM_REGISTERS; ++i)
+    CC_SetRegister(i, 0);
 
   palette = (uint8_t*)(MEMORY_BASE + PALETTE_BASE);
   palette16 = (uint16_t*)(MEMORY_BASE + PALETTE_BASE);
@@ -84,7 +90,6 @@ static void InitMemory() {
   tilemap = (uint8_t*)(MEMORY_BASE + TILEMAP_BASE);
   tilemap16 = (uint16_t*)(MEMORY_BASE + TILEMAP_BASE);
 
-  int i;
   for (i = 0; i < NUM_TILE_LAYERS; ++i) {
     tile_regs[i] =
         (uint16_t*)(MEMORY_BASE + TILE_REG_BASE + i * TILE_REG_ADDR_STEP);
