@@ -25,7 +25,6 @@
 #include "system.h"
 
 #include "registers.h"
-#include "sprite_registers.h"
 #include "tile_registers.h"
 
 #include "data/tileset.raw.h"
@@ -39,21 +38,18 @@
 #include "data/cloud.raw.h"
 #include "data/clouds.tmx.layer0.h"
 
-#include "data/cecil.raw.h"
-#include "data/cecil.pal.h"
-
 #define PALETTE_SIZE    1024
-#define NUM_PALETTES       3
+
 static void setup_palettes(void) {
   uint16_t i, palette;
   uint8_t buf[PALETTE_SIZE];
-  const uint8_t* palettes[NUM_PALETTES] = {
+  const uint8_t* palettes[] = {
       palette_data,
       cloud_bmp_pal_data8,
-      cecil_bmp_pal_data8
   };
 
-  for (palette = 0; palette < NUM_PALETTES; ++palette) {
+  for (palette = 0; palette < sizeof(palettes) / sizeof(palettes[0]);
+       ++palette) {
     for (i = 0; i < PALETTE_SIZE; ++i)
       buf[i] = pgm_read_byte(palettes[palette] + i);
     CC_SetPaletteData(buf, palette, 0, PALETTE_SIZE);
@@ -105,9 +101,6 @@ static void setup_vram(void) {
 
   copy_vram_pgm(cloud_bmp_raw_data8, offset, CLOUD_BMP_RAW_DATA_SIZE);
   offset += CLOUD_BMP_RAW_DATA_SIZE;
-
-  copy_vram_pgm(cecil_bmp_raw_data8, offset, CECIL_BMP_RAW_DATA_SIZE);
-  offset += CECIL_BMP_RAW_DATA_SIZE;
 }
 
 int main (void) {
@@ -131,31 +124,6 @@ int main (void) {
   }
   CC_TileLayer_SetRegister(3, TILE_DATA_OFFSET, TILESET8_BMP_RAW_DATA_SIZE);
   CC_TileLayer_SetRegister(3, TILE_CTRL0, tile_ctrl0_value | (1 << 12));
-
-  // Draw some sprites in various orientations.
-#define NUM_SPRITES_DRAWN 8
-  for (i = 0; i < NUM_SPRITES_DRAWN; ++i) {
-    uint16_t sprite_ctrl0_value = (1 << SPRITE_ENABLED) |
-                                  (1 << SPRITE_ENABLE_TRANSP) |
-                                  ((i & 1) << SPRITE_ENABLE_SCROLL) |
-                                  (2 << SPRITE_PALETTE_START);
-    if (i & 1)
-      sprite_ctrl0_value |= (1 << SPRITE_FLIP_X);
-    if (i & 2)
-      sprite_ctrl0_value |= (1 << SPRITE_FLIP_Y);
-    if (i & 4)
-      sprite_ctrl0_value |= (1 << SPRITE_FLIP_XY);
-
-    CC_Sprite_SetRegister(i, SPRITE_CTRL0, sprite_ctrl0_value);
-    CC_Sprite_SetRegister(i, SPRITE_CTRL1,
-                          (1 << SPRITE_HSIZE_0) | (1 << SPRITE_VSIZE_1));
-    CC_Sprite_SetRegister(i, SPRITE_DATA_OFFSET, 0x4000 + 16 * 32);
-    CC_Sprite_SetRegister(i, SPRITE_COLOR_KEY, 0xff);
-    CC_Sprite_SetRegister(i, SPRITE_OFFSET_X, i * 3 - 10);
-    CC_Sprite_SetRegister(i, SPRITE_OFFSET_Y, i * 32 + 512 - 16);
-  }
-
-  CC_SetRegister(CC_REG_SPRITE_Z, 3);
 
   printf("Done with setup\n");
 
