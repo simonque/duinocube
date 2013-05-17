@@ -27,6 +27,7 @@
 #include "tile_registers.h"
 
 #include "system.h"
+#include "spipad.h"
 
 #include "font_8x8.h"
 #include "data/spectrum.raw.h"
@@ -153,8 +154,69 @@ static void setup_tile_layers(void) {
 extern uint8_t __bss_end;
 extern uint8_t __stack;
 
+enum {
+  MENU_INVADERS,
+  MENU_TETRIS,
+  MENU_LANDSCAPE,
+  MENU_SPRITES,
+  NUM_MENU_ITEMS,
+};
+
+#define SCREEN_WIDTH    320
+
+#define TEXT_SIZE         8
+#define TITLE_X          (SCREEN_WIDTH / TEXT_SIZE / 2)
+#define TITLE_Y           3
+
+#define MENU_X           TITLE_X
+#define MENU_Y_START     15
+#define MENU_Y_STEP       3
+
+#define TEXT_MAP_WIDTH   64
+
+void render_text(const char* text, int x, int y, int centered) {
+  if (centered)
+    x -= strlen(text) / 2;
+  CC_TileLayer_SetData(text, TEXT_LAYER_INDEX, x + y * TEXT_MAP_WIDTH,
+                       strlen(text));
+}
+
+static const char* kMenuText[] = {
+  "Space Invaders",
+  "Tetris",
+  "Landscape demo",
+  "Sprites demo"
+};
+
+static void setup_text(void) {
+  render_text("CHRONOCUBE", TITLE_X, TITLE_Y, 1);
+  render_text("An open source graphics renderer", TITLE_X, TITLE_Y + 2, 1);
+  render_text("by Simon Que", TITLE_X, TITLE_Y + 4, 1);
+
+  render_text("Use UP/DOWN to choose one:", MENU_X, MENU_Y_START - MENU_Y_STEP,
+              1);
+
+  for (int i = 0; i < sizeof(kMenuText) / sizeof(kMenuText[0]); ++i)
+    render_text(kMenuText[i], MENU_X, MENU_Y_START + i * MENU_Y_STEP, 1);
+}
+
+static void erase_menu_selectors(int select) {
+  render_text("   ", MENU_X - strlen(kMenuText[select]) / 2 - 4,
+              MENU_Y_START + MENU_Y_STEP * select, 1);
+  render_text("   ", MENU_X + strlen(kMenuText[select]) / 2 + 3,
+              MENU_Y_START + MENU_Y_STEP * select, 1);
+}
+
+static void draw_menu_selectors(int select) {
+  render_text("==>", MENU_X - strlen(kMenuText[select]) / 2 - 4,
+              MENU_Y_START + MENU_Y_STEP * select, 1);
+  render_text("<==", MENU_X + strlen(kMenuText[select]) / 2 + 3,
+              MENU_Y_START + MENU_Y_STEP * select, 1);
+}
+
 int main (void) {
   system_init();
+  spipad_init();
   CC_Init();
 
   printf("Stack ranges from %u to %u\n", &__bss_end, &__stack);
@@ -162,15 +224,41 @@ int main (void) {
   setup_palette();
   setup_vram();
   setup_tilemap();
+  setup_text();
   setup_tile_layers();
 
   int color_cycle_count = 0;
   int color_cycle_offset = 0;
 
-  // TODO: draw menu.
+  int menu_selection = 0;
+  SpiPadButtons buttons;
+  memset(&buttons, 0, sizeof(buttons));
 
   while (1) {
     while(!(CC_GetRegister(CC_REG_OUTPUT_STATUS) & (1 << CC_REG_VBLANK)));
+
+    erase_menu_selectors(menu_selection);
+
+    SpiPadButtons new_buttons = spipad_read();
+    if (!buttons.UP && new_buttons.UP) {
+      if (menu_selection == 0)
+        menu_selection = NUM_MENU_ITEMS;
+      --menu_selection;
+      buttons.UP = 1;
+    } else if (buttons.UP && !new_buttons.UP) {
+      buttons.UP = 0;
+    }
+
+    if (!buttons.DOWN && new_buttons.DOWN) {
+      ++menu_selection;
+      if (menu_selection == NUM_MENU_ITEMS)
+        menu_selection = 0;
+      buttons.DOWN = 1;
+    } else if (buttons.DOWN && !new_buttons.DOWN) {
+      buttons.DOWN = 0;
+    }
+
+    draw_menu_selectors(menu_selection);
 
     if(++color_cycle_count >= COLOR_CYCLE_PERIOD) {
       color_cycle_count = 0;
