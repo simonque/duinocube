@@ -22,6 +22,8 @@
 
 #include <stdint.h>
 
+#include "DuinoCube_defs.h"
+
 class DuinoCube {
  public:
   // Initialize and teardown functions.
