@@ -20,7 +20,15 @@
 #ifndef _CC_SYSTEM_H_
 #define _CC_SYSTEM_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Sets up system-specific bits.
 void system_init(void);
 
+#ifdef __cplusplus
+}  // extern "C"
 #endif
+
+#endif  // defined (_CC_SYSTEM_H_)
