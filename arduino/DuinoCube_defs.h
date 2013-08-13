@@ -77,4 +77,10 @@
 #define TILEMAP(index)    (TILEMAP_BASE + (index) * TILEMAP_SIZE)
 #define TILEMAP_BANK            1  // Tilemaps are in this memory bank.
 
+// VRAM definitions.
+#define VRAM_BASE          0x4000
+#define VRAM_BANK_SIZE     0x4000
+#define VRAM_BANK_BEGIN         2  // VRAM spans several 16-KB banks.
+#define VRAM_BANK_END           4
+
 #endif  // __DUINOCUBE_DEFS_H__

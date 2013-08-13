@@ -6,6 +6,7 @@ static void test_registers();
 static void test_palettes();
 static void test_sprites();
 static void test_tilemaps();
+static void test_vram();
 
 void setup() {
   Serial.begin(115200);
@@ -17,6 +18,7 @@ void loop() {
   test_palettes();
   test_sprites();
   test_tilemaps();
+  test_vram();
   Serial.print("Done testing...\n");
   while(true); 
 }
@@ -237,6 +239,58 @@ static void test_tilemaps() {
         Serial.print("Mismatch in tilemap readback. ");
         Serial.print("Tilemap ");
         Serial.print(index);
+        Serial.print(", offset [0x");
+        Serial.print(offset + buf_offset * 2, HEX);
+        Serial.print("], expected [0x");
+        Serial.print(expected, HEX);
+        Serial.print("], actual [0x");
+        Serial.print(value, HEX);
+        Serial.print("]\n");
+        ++num_errors;
+        if (num_errors >= MAX_ERRORS_PER_TEST)
+          return;
+      }
+    }
+  }
+}
+
+static void test_vram() {
+  Serial.print("Testing VRAM.\n");
+
+  // Enable VRAM access.
+  DC.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
+
+  word buf[32];
+  int num_errors = 0;
+  for (int bank = VRAM_BANK_BEGIN+1; bank < VRAM_BANK_END; ++bank) {
+    for (int offset = 0; offset < VRAM_BANK_SIZE; offset += sizeof(buf)) {
+      for(int buf_offset = 0;
+          buf_offset < sizeof(buf) / sizeof(buf[0]);
+          ++buf_offset) {
+        buf[buf_offset] = get_test_value(bank + offset + buf_offset);
+      }
+
+      // Select the bank and write to it.
+      DC.writeWord(REG_MEM_BANK, bank);
+      DC.writeData(VRAM_BASE + offset, buf, sizeof(buf));
+
+      // Read it back.
+      memset(buf, 0, sizeof(buf));
+      DC.readData(VRAM_BASE + offset, buf, sizeof(buf));
+
+      DC.writeWord(REG_MEM_BANK, 0);
+
+      for(int buf_offset = 0;
+          buf_offset < sizeof(buf) / sizeof(buf[0]);
+          ++buf_offset) {
+        word value = buf[buf_offset];
+        word expected = get_test_value(bank + offset + buf_offset);
+        if (value == expected)
+          continue;
+
+        Serial.print("Mismatch in VRAM readback. ");
+        Serial.print("Bank ");
+        Serial.print(bank);
         Serial.print(", offset [0x");
         Serial.print(offset + buf_offset * 2, HEX);
         Serial.print("], expected [0x");
