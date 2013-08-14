@@ -30,6 +30,9 @@
 #define REG_OUTPUT_CTRL    0x000c
 #define REG_MODE_CTRL      0x000e
 
+// SYS_CTRL register fields.
+#define REG_SYS_CTRL_VRAM_ACCESS      0     // Enable MPU access to VRAM.
+
 // Tile layer registers.
 #define TILE_REG_BASE      0x0800
 #define NUM_TILE_REGISTERS     16
