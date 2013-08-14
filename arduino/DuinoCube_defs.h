@@ -62,7 +62,7 @@
 // Sprites.
 #define SPRITE_BASE        0x2000
 #define NUM_SPRITES           256
-#define NUM_SPRITE_REGS        32  // Number of registers per sprite.
+#define NUM_SPRITE_REGS        16  // Number of registers per sprite.
 #define SPRITE_REG(index, reg)  \
             (SPRITE_BASE + (index) * NUM_SPRITE_REGS * 2 + (reg) * 2)
 #define SPRITE_CTRL_0         0x0
