@@ -38,6 +38,18 @@
                                  // At 16 MHz with F = F_osc / 2, that's 2.5
                                  // SPI cycles.
 
+// Shared RAM opcodes.
+#define RAM_ST_READ          5   // Read/write status register.
+#define RAM_ST_WRITE         1
+#define RAM_READ             3   // Read/write memory.
+#define RAM_WRITE            2
+
+#define RAM_SEQUENTIAL    0x40   // Sets sequential access mode.
+
+// Addresses of RPC input and output args in shared memory.
+#define INPUT_ARG_ADDR       0x0000
+#define OUTPUT_ARG_ADDR      0x0080
+
 extern SPIClass SPI;
 
 uint8_t DuinoCube::s_ss_pin;
@@ -66,6 +78,18 @@ void DuinoCube::begin(uint8_t ss_pin, uint8_t sys_ss_pin) {
   pinMode(sys_ss_pin, OUTPUT);
 
   resetRPCServer();
+  writeRPCCommandStatus(MCU_RPC_NONE);
+
+  // Set up the shared RAM for sequential access.
+  digitalWrite(sys_ss_pin, LOW);
+
+  SPI.transfer(OP_ACCESS_RAM);
+  SPI.setBitOrder(MSBFIRST);
+  SPI.transfer(RAM_ST_WRITE);
+  SPI.transfer(RAM_SEQUENTIAL);
+  SPI.setBitOrder(LSBFIRST);
+
+  digitalWrite(sys_ss_pin, HIGH);
 }
 
 void DuinoCube::writeData(uint16_t addr, const void* data, uint16_t size) {
@@ -144,6 +168,27 @@ uint16_t DuinoCube::readWord(uint16_t addr) {
   return value_16;
 }
 
+uint16_t DuinoCube::rpcHello(uint16_t buf_addr) {
+  RPC_HelloArgs args;
+  args.in.command  = RPC_CMD_HELLO;
+  args.in.buf_addr = buf_addr;
+  uint16_t status =
+      rpcExec(&args.in, sizeof(args.in), &args.out, sizeof(args.out));
+
+  return status;
+}
+
+uint16_t DuinoCube::rpcInvert(uint16_t buf_addr, uint16_t size) {
+  RPC_InvertArgs args;
+  args.in.command  = RPC_CMD_INVERT;
+  args.in.buf_addr = buf_addr;
+  args.in.size     = size;
+  uint16_t status =
+      rpcExec(&args.in, sizeof(args.in), &args.out, sizeof(args.out));
+
+  return status;
+}
+
 void DuinoCube::resetRPCServer() {
   digitalWrite(s_sys_ss_pin, LOW);
   for (uint8_t i = 0; i < NUM_RESET_CYCLES; ++i)
@@ -167,19 +212,73 @@ uint8_t DuinoCube::readRPCServerStatus() {
   return result;
 }
 
-int DuinoCube::rpcHello(uint16_t buf_addr) {
-  RPC_HelloArgs args;
-  args.in.buf_addr = buf_addr;
-  int status = rpcExec(RPC_CMD_HELLO, &args, sizeof(args));
-
-  return status;
+void DuinoCube::waitForRPCServerStatus(uint8_t status) {
+  // Must read the same status twice in a row to avoid race conditions.
+  while (readRPCServerStatus() != status || readRPCServerStatus() != status);
 }
 
-int DuinoCube::rpcInvert(uint16_t buf_addr, uint16_t size) {
-  RPC_InvertArgs args;
-  args.in.buf_addr = buf_addr;
-  args.in.size     = size;
-  int status = rpcExec(RPC_CMD_INVERT, &args, sizeof(args));
+uint16_t DuinoCube::rpcExec(const void* in_args, uint8_t in_size,
+                            void* out_args, uint8_t out_size) {
+  // Wait for the server to be ready.
+  // TODO: add a timeout mechanism or fail immediately if not ready.
+  waitForRPCServerStatus(COP_RPC_READY);
 
-  return status;
+  // Write the command input args to memory.
+  writeSharedRAM(INPUT_ARG_ADDR, in_args, in_size);
+
+  // Issue the command and wait for acknowledgment.
+  // TODO: figure out why writing it only once will sometimes cause a hang.
+  writeRPCCommandStatus(MCU_RPC_ISSUED);
+  writeRPCCommandStatus(MCU_RPC_ISSUED);
+  waitForRPCServerStatus(COP_RPC_RECEIVED);
+
+  // Now wait for the RPC to complete.
+  writeRPCCommandStatus(MCU_RPC_WAITING);
+  writeRPCCommandStatus(MCU_RPC_WAITING);
+  waitForRPCServerStatus(COP_RPC_DONE);
+
+  // Clear the command status register.
+  writeRPCCommandStatus(MCU_RPC_NONE);
+  writeRPCCommandStatus(MCU_RPC_NONE);
+
+  readSharedRAM(OUTPUT_ARG_ADDR, out_args, out_size);
+
+  // The first word of the output is the status.
+  return *((const uint16_t*) out_args);
+}
+
+void DuinoCube::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
+  digitalWrite(s_sys_ss_pin, LOW);
+  SPI.transfer(OP_ACCESS_RAM);
+
+  // The SPI RAM uses MSB first mode.
+  SPI.setBitOrder(MSBFIRST);
+  SPI.transfer(RAM_READ);
+  SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
+
+  char* buf = (char*)data;
+  for (uint16_t i = 0; i < size; ++i)
+    buf[i] = SPI.transfer(0);
+
+  SPI.setBitOrder(LSBFIRST);
+  digitalWrite(s_sys_ss_pin, HIGH);
+}
+
+void DuinoCube::writeSharedRAM(uint16_t addr, const void* data, uint16_t size) {
+  digitalWrite(s_sys_ss_pin, LOW);
+  SPI.transfer(OP_ACCESS_RAM);
+
+  // The SPI RAM uses MSB first mode.
+  SPI.setBitOrder(MSBFIRST);
+  SPI.transfer(RAM_WRITE);
+  SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
+
+  const char* buf = (const char*)data;
+  for (uint16_t i = 0; i < size; ++i)
+    SPI.transfer(buf[i]);
+
+  SPI.setBitOrder(LSBFIRST);
+  digitalWrite(s_sys_ss_pin, HIGH);
 }

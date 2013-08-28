@@ -47,8 +47,8 @@ class DuinoCube {
 
   // RPC functions: see DuinoCube_rpc for descriptions.
   // All functions return a status.
-  static int rpcHello();
-  static int rpcInvert(uint16_t buf, uint16_t size);
+  static uint16_t rpcHello(uint16_t buf_addr);
+  static uint16_t rpcInvert(uint16_t buf_addr, uint16_t size);
 
  private:
   // Writes a byte to the RPC status register.
@@ -56,7 +56,16 @@ class DuinoCube {
   // Writes a byte to the coprocessor status register.
   static uint8_t readRPCServerStatus();
 
-  // TODO: add serial RAM access functions.
+  // Waits for the RPC Server status to become |status|.
+  static void waitForRPCServerStatus(uint8_t status);
+
+  // Executes an RPC function.
+  static uint16_t rpcExec(const void* in_args, uint8_t in_size,
+                          void* out_args, uint8_t out_size);
+
+  // Serial RAM access functions.
+  static void readSharedRAM(uint16_t addr, void* data, uint16_t size);
+  static void writeSharedRAM(uint16_t addr, const void* data, uint16_t size);
 
   static uint8_t s_ss_pin;      // Pin for selecting DuinoCube Core Shield.
   static uint8_t s_sys_ss_pin;  // Pin for selecting DuinoCube System Shield.
