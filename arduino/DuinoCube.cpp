@@ -166,3 +166,20 @@ uint8_t DuinoCube::readRPCServerStatus() {
 
   return result;
 }
+
+int DuinoCube::rpcHello(uint16_t buf_addr) {
+  RPC_HelloArgs args;
+  args.in.buf_addr = buf_addr;
+  int status = rpcExec(RPC_CMD_HELLO, &args, sizeof(args));
+
+  return status;
+}
+
+int DuinoCube::rpcInvert(uint16_t buf_addr, uint16_t size) {
+  RPC_InvertArgs args;
+  args.in.buf_addr = buf_addr;
+  args.in.size     = size;
+  int status = rpcExec(RPC_CMD_INVERT, &args, sizeof(args));
+
+  return status;
+}

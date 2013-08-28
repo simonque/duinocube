@@ -20,6 +20,8 @@
 #ifndef __DUINOCUBE_RPC_H___
 #define __DUINOCUBE_RPC_H__
 
+#include <stdint.h>
+
 // NOTE: These should match the verilog definitions in the chronocube repo.
 
 // RPC Client (Arduino) statuses.
@@ -51,5 +53,24 @@ enum {
   RPC_CMD_FILE_SEEK,            // Move file handle pointer.
 
 };  // enum
+
+typedef struct {
+  struct {
+    uint16_t buf_addr;          // Shared memory address of buffer.
+  } in;
+  struct {
+    // No outputs.
+  } out;
+} RPC_HelloArgs;
+
+typedef struct {
+  struct {
+    uint16_t buf_addr;          // Shared memory address of buffer.
+    uint16_t size;              // Length in bytes of data to invert.
+  } in;
+  struct {
+    // No outputs.
+  } out;
+} RPC_InvertArgs;
 
 #endif  // __DUINOCUBE_RPC_H__
