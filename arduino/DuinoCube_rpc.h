@@ -54,22 +54,30 @@ enum {
 
 };  // enum
 
+// RPC argument structures.
+// Note that each input arg struct contains a command field and each output arg
+// struct contains a status field.  This is used to simplify the RPC sequence so
+// that the command and status don't have to be written/read separately from the
+// other args.
+
 typedef struct {
   struct {
+    uint8_t command;
     uint16_t buf_addr;          // Shared memory address of buffer.
   } in;
   struct {
-    // No outputs.
+    uint16_t status;
   } out;
 } RPC_HelloArgs;
 
 typedef struct {
   struct {
+    uint8_t command;
     uint16_t buf_addr;          // Shared memory address of buffer.
     uint16_t size;              // Length in bytes of data to invert.
   } in;
   struct {
-    // No outputs.
+    uint16_t status;
   } out;
 } RPC_InvertArgs;
 

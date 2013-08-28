@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 #include "DuinoCube_defs.h"
+#include "DuinoCube_rpc.h"
 
 class DuinoCube {
  public:
