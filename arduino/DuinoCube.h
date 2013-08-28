@@ -28,7 +28,7 @@ class DuinoCube {
  public:
   // Initialize and teardown functions.
   static void begin();
-  static void begin(uint8_t ss_pin);
+  static void begin(uint8_t ss_pin, uint8_t sys_ss_pin);
   static void end();
 
   // Functions to read/write bytes and words.
@@ -41,8 +41,20 @@ class DuinoCube {
   static void readData(uint16_t addr, void* data, uint16_t size);
   static void writeData(uint16_t addr, const void* data, uint16_t size);
 
+  // TODO: these should be private or protected.  They're public for testing
+  // purposes.
+  // Resets the coprocessor.
+  static void resetRPCServer();
+  // Writes a byte to the RPC status register.
+  static void writeRPCCommandStatus(uint8_t value);
+  // Writes a byte to the coprocessor status register.
+  static uint8_t readRPCServerStatus();
+
+  // TODO: add serial RAM access functions.
+
  private:
-  static uint8_t s_ss_pin;    // Pin for selecting DuinoCube.
+  static uint8_t s_ss_pin;      // Pin for selecting DuinoCube Core Shield.
+  static uint8_t s_sys_ss_pin;  // Pin for selecting DuinoCube System Shield.
 };
 
 extern DuinoCube DC;

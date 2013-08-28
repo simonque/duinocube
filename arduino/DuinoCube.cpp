@@ -24,17 +24,30 @@
 
 #define WRITE_BIT_MASK      0x80
 
+// Default select pins.
 #define DEFAULT_SS_PIN      5
+#define DEFAULT_SYS_SS_PIN  4
+
+// SPI opcodes.
+#define OP_WRITE_COMMAND     1
+#define OP_READ_STATUS       2
+#define OP_ACCESS_RAM        3
+#define OP_RESET             7
+
+#define NUM_RESET_CYCLES     4   // Atmega 328 requires 2.5 us reset pulse.
+                                 // At 16 MHz with F = F_osc / 2, that's 2.5
+                                 // SPI cycles.
 
 extern SPIClass SPI;
 
 uint8_t DuinoCube::s_ss_pin;
+uint8_t DuinoCube::s_sys_ss_pin;
 
 void DuinoCube::begin() {
-  begin(DEFAULT_SS_PIN);
+  begin(DEFAULT_SS_PIN, DEFAULT_SYS_SS_PIN);
 }
 
-void DuinoCube::begin(uint8_t ss_pin) {
+void DuinoCube::begin(uint8_t ss_pin, uint8_t sys_ss_pin) {
   SPI.begin();
   SPI.setBitOrder(LSBFIRST);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
@@ -46,6 +59,13 @@ void DuinoCube::begin(uint8_t ss_pin) {
   // A rising edge on SS resets the SPI interface logic.
   digitalWrite(ss_pin, LOW);
   digitalWrite(ss_pin, HIGH);
+
+  // Set up the system shield.
+  s_sys_ss_pin = sys_ss_pin;
+  digitalWrite(sys_ss_pin, HIGH);
+  pinMode(sys_ss_pin, OUTPUT);
+
+  resetRPCServer();
 }
 
 void DuinoCube::writeData(uint16_t addr, const void* data, uint16_t size) {
@@ -122,4 +142,27 @@ uint16_t DuinoCube::readWord(uint16_t addr) {
   digitalWrite(s_ss_pin, HIGH);
 
   return value_16;
+}
+
+void DuinoCube::resetRPCServer() {
+  digitalWrite(s_sys_ss_pin, LOW);
+  for (uint8_t i = 0; i < NUM_RESET_CYCLES; ++i)
+    SPI.transfer(OP_RESET);
+  digitalWrite(s_sys_ss_pin, HIGH);
+}
+
+void DuinoCube::writeRPCCommandStatus(uint8_t value) {
+  digitalWrite(s_sys_ss_pin, LOW);
+  SPI.transfer(OP_WRITE_COMMAND);
+  SPI.transfer(value);
+  digitalWrite(s_sys_ss_pin, HIGH);
+}
+
+uint8_t DuinoCube::readRPCServerStatus() {
+  digitalWrite(s_sys_ss_pin, LOW);
+  SPI.transfer(OP_READ_STATUS);
+  uint8_t result = SPI.transfer(0);
+  digitalWrite(s_sys_ss_pin, HIGH);
+
+  return result;
 }
