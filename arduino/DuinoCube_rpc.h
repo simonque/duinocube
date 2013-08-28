@@ -33,4 +33,23 @@
 #define COP_RPC_RECEIVED          2
 #define COP_RPC_DONE              3
 
+// RPC command codes.
+enum {
+
+  // Test commands.
+  RPC_CMD_HELLO = 0x00,         // Test function that writes "hello world".
+  RPC_CMD_INVERT,               // Test function that inverts data.
+
+  // File I/O commands.
+  RPC_CMD_FILE_INIT = 0x10,     // Initialize the file system.
+  RPC_CMD_FILE_INFO,            // Gets the state of the file system.
+  RPC_CMD_FILE_OPEN,            // Open a file handle.
+  RPC_CMD_FILE_CLOSE,           // Close a file handle.
+  RPC_CMD_FILE_READ,            // Read data from a file handle.
+  RPC_CMD_FILE_WRITE,           // Write data to a file handle.
+  RPC_CMD_FILE_STATS,           // Get info about an open file and its handle.
+  RPC_CMD_FILE_SEEK,            // Move file handle pointer.
+
+};  // enum
+
 #endif  // __DUINOCUBE_RPC_H__
