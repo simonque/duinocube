@@ -22,6 +22,10 @@
 
 #include <stdint.h>
 
+// Addresses of RPC input and output args in shared memory.
+#define INPUT_ARG_ADDR       0x0000
+#define OUTPUT_ARG_ADDR      0x0080
+
 // RPC command codes.  These should be consistent with definitions in the
 // chronocube repo, for the purposes of RAM bus arbitration.
 enum {

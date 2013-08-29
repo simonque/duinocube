@@ -28,27 +28,9 @@
 #define DEFAULT_SS_PIN      5
 #define DEFAULT_SYS_SS_PIN  4
 
-// SPI opcodes.
-#define OP_WRITE_COMMAND     1
-#define OP_READ_STATUS       2
-#define OP_ACCESS_RAM        3
-#define OP_RESET             7
-
 #define NUM_RESET_CYCLES     4   // Atmega 328 requires 2.5 us reset pulse.
                                  // At 16 MHz with F = F_osc / 2, that's 2.5
                                  // SPI cycles.
-
-// Shared RAM opcodes.
-#define RAM_ST_READ          5   // Read/write status register.
-#define RAM_ST_WRITE         1
-#define RAM_READ             3   // Read/write memory.
-#define RAM_WRITE            2
-
-#define RAM_SEQUENTIAL    0x40   // Sets sequential access mode.
-
-// Addresses of RPC input and output args in shared memory.
-#define INPUT_ARG_ADDR       0x0000
-#define OUTPUT_ARG_ADDR      0x0080
 
 extern SPIClass SPI;
 

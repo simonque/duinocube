@@ -89,4 +89,20 @@
 #define VRAM_BANK_BEGIN         2  // VRAM spans several 16-KB banks.
 #define VRAM_BANK_END           4
 
+////////////////////// For system shield //////////////////////
+
+// SPI opcodes.
+#define OP_WRITE_COMMAND     1
+#define OP_READ_STATUS       2
+#define OP_ACCESS_RAM        3
+#define OP_RESET             7
+
+// Shared RAM opcodes.
+#define RAM_ST_READ          5   // Read/write status register.
+#define RAM_ST_WRITE         1
+#define RAM_READ             3   // Read/write memory.
+#define RAM_WRITE            2
+
+#define RAM_SEQUENTIAL    0x40   // Sets sequential access mode.
+
 #endif  // __DUINOCUBE_DEFS_H__
