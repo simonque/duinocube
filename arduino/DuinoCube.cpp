@@ -180,24 +180,14 @@ uint16_t DuinoCube::rpcHello(uint16_t buf_addr) {
   args.in.buf_addr = buf_addr;
   uint16_t status = rpcExec(RPC_CMD_HELLO, &args.in, sizeof(args.in), NULL, 0);
 
-  char buf[100];
-  readSharedRAM(buf_addr, buf, sizeof(buf));
-
   return status;
 }
 
 uint16_t DuinoCube::rpcInvert(uint16_t buf_addr, uint16_t size) {
-  writeSharedRAM(buf_addr, buf, sizeof(buf));
-
   RPC_InvertArgs args;
   args.in.buf_addr = buf_addr;
   args.in.size     = size;
   uint16_t status = rpcExec(RPC_CMD_INVERT, &args.in, sizeof(args.in), NULL, 0);
-
-  readSharedRAM(buf_addr, buf, sizeof(buf));
-
-  status = rpcExec(RPC_CMD_INVERT, &args.in, sizeof(args.in), NULL, 0);
-  readSharedRAM(buf_addr, buf, sizeof(buf));
 
   return status;
 }
