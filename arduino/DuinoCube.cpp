@@ -168,6 +168,13 @@ uint16_t DuinoCube::readWord(uint16_t addr) {
   return value_16;
 }
 
+void DuinoCube::resetRPCServer() {
+  digitalWrite(s_sys_ss_pin, LOW);
+  for (uint8_t i = 0; i < NUM_RESET_CYCLES; ++i)
+    SPI.transfer(OP_RESET);
+  digitalWrite(s_sys_ss_pin, HIGH);
+}
+
 uint16_t DuinoCube::rpcHello(uint16_t buf_addr) {
   RPC_HelloArgs args;
   args.in.buf_addr = buf_addr;
@@ -195,10 +202,39 @@ uint16_t DuinoCube::rpcInvert(uint16_t buf_addr, uint16_t size) {
   return status;
 }
 
-void DuinoCube::resetRPCServer() {
+void DuinoCube::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   digitalWrite(s_sys_ss_pin, LOW);
-  for (uint8_t i = 0; i < NUM_RESET_CYCLES; ++i)
-    SPI.transfer(OP_RESET);
+  SPI.transfer(OP_ACCESS_RAM);
+
+  // The SPI RAM uses MSB first mode.
+  SPI.setBitOrder(MSBFIRST);
+  SPI.transfer(RAM_READ);
+  SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
+
+  char* buf = (char*)data;
+  for (uint16_t i = 0; i < size; ++i)
+    buf[i] = SPI.transfer(0);
+
+  SPI.setBitOrder(LSBFIRST);
+  digitalWrite(s_sys_ss_pin, HIGH);
+}
+
+void DuinoCube::writeSharedRAM(uint16_t addr, const void* data, uint16_t size) {
+  digitalWrite(s_sys_ss_pin, LOW);
+  SPI.transfer(OP_ACCESS_RAM);
+
+  // The SPI RAM uses MSB first mode.
+  SPI.setBitOrder(MSBFIRST);
+  SPI.transfer(RAM_WRITE);
+  SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
+
+  const char* buf = (const char*)data;
+  for (uint16_t i = 0; i < size; ++i)
+    SPI.transfer(buf[i]);
+
+  SPI.setBitOrder(LSBFIRST);
   digitalWrite(s_sys_ss_pin, HIGH);
 }
 
@@ -252,40 +288,4 @@ uint16_t DuinoCube::rpcExec(uint8_t command,
 
   // TODO: implement status codes.
   return 0;
-}
-
-void DuinoCube::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
-  digitalWrite(s_sys_ss_pin, LOW);
-  SPI.transfer(OP_ACCESS_RAM);
-
-  // The SPI RAM uses MSB first mode.
-  SPI.setBitOrder(MSBFIRST);
-  SPI.transfer(RAM_READ);
-  SPI.transfer(highByte(addr));
-  SPI.transfer(lowByte(addr));
-
-  char* buf = (char*)data;
-  for (uint16_t i = 0; i < size; ++i)
-    buf[i] = SPI.transfer(0);
-
-  SPI.setBitOrder(LSBFIRST);
-  digitalWrite(s_sys_ss_pin, HIGH);
-}
-
-void DuinoCube::writeSharedRAM(uint16_t addr, const void* data, uint16_t size) {
-  digitalWrite(s_sys_ss_pin, LOW);
-  SPI.transfer(OP_ACCESS_RAM);
-
-  // The SPI RAM uses MSB first mode.
-  SPI.setBitOrder(MSBFIRST);
-  SPI.transfer(RAM_WRITE);
-  SPI.transfer(highByte(addr));
-  SPI.transfer(lowByte(addr));
-
-  const char* buf = (const char*)data;
-  for (uint16_t i = 0; i < size; ++i)
-    SPI.transfer(buf[i]);
-
-  SPI.setBitOrder(LSBFIRST);
-  digitalWrite(s_sys_ss_pin, HIGH);
 }
