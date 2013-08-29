@@ -78,7 +78,7 @@ void DuinoCube::begin(uint8_t ss_pin, uint8_t sys_ss_pin) {
   pinMode(sys_ss_pin, OUTPUT);
 
   resetRPCServer();
-  writeRPCCommandStatus(MCU_RPC_NONE);
+  writeRPCCommandStatus(RPC_CMD_NONE);
 
   // Set up the shared RAM for sequential access.
   digitalWrite(sys_ss_pin, LOW);
@@ -170,21 +170,27 @@ uint16_t DuinoCube::readWord(uint16_t addr) {
 
 uint16_t DuinoCube::rpcHello(uint16_t buf_addr) {
   RPC_HelloArgs args;
-  args.in.command  = RPC_CMD_HELLO;
   args.in.buf_addr = buf_addr;
-  uint16_t status =
-      rpcExec(&args.in, sizeof(args.in), &args.out, sizeof(args.out));
+  uint16_t status = rpcExec(RPC_CMD_HELLO, &args.in, sizeof(args.in), NULL, 0);
+
+  char buf[100];
+  readSharedRAM(buf_addr, buf, sizeof(buf));
 
   return status;
 }
 
 uint16_t DuinoCube::rpcInvert(uint16_t buf_addr, uint16_t size) {
+  writeSharedRAM(buf_addr, buf, sizeof(buf));
+
   RPC_InvertArgs args;
-  args.in.command  = RPC_CMD_INVERT;
   args.in.buf_addr = buf_addr;
   args.in.size     = size;
-  uint16_t status =
-      rpcExec(&args.in, sizeof(args.in), &args.out, sizeof(args.out));
+  uint16_t status = rpcExec(RPC_CMD_INVERT, &args.in, sizeof(args.in), NULL, 0);
+
+  readSharedRAM(buf_addr, buf, sizeof(buf));
+
+  status = rpcExec(RPC_CMD_INVERT, &args.in, sizeof(args.in), NULL, 0);
+  readSharedRAM(buf_addr, buf, sizeof(buf));
 
   return status;
 }
@@ -217,34 +223,35 @@ void DuinoCube::waitForRPCServerStatus(uint8_t status) {
   while (readRPCServerStatus() != status || readRPCServerStatus() != status);
 }
 
-uint16_t DuinoCube::rpcExec(const void* in_args, uint8_t in_size,
+uint16_t DuinoCube::rpcExec(uint8_t command,
+                            const void* in_args, uint8_t in_size,
                             void* out_args, uint8_t out_size) {
   // Wait for the server to be ready.
-  // TODO: add a timeout mechanism or fail immediately if not ready.
-  waitForRPCServerStatus(COP_RPC_READY);
+  // TODO: add a timeout mechanism or fail immediately if not ready?
+  waitForRPCServerStatus(RPC_CMD_NONE);
 
   // Write the command input args to memory.
-  writeSharedRAM(INPUT_ARG_ADDR, in_args, in_size);
+  if (in_args && in_size > 0)
+    writeSharedRAM(INPUT_ARG_ADDR, in_args, in_size);
 
   // Issue the command and wait for acknowledgment.
   // TODO: figure out why writing it only once will sometimes cause a hang.
-  writeRPCCommandStatus(MCU_RPC_ISSUED);
-  writeRPCCommandStatus(MCU_RPC_ISSUED);
-  waitForRPCServerStatus(COP_RPC_RECEIVED);
-
-  // Now wait for the RPC to complete.
-  writeRPCCommandStatus(MCU_RPC_WAITING);
-  writeRPCCommandStatus(MCU_RPC_WAITING);
-  waitForRPCServerStatus(COP_RPC_DONE);
+  writeRPCCommandStatus(command);
+  writeRPCCommandStatus(command);
+  waitForRPCServerStatus(command);
 
   // Clear the command status register.
-  writeRPCCommandStatus(MCU_RPC_NONE);
-  writeRPCCommandStatus(MCU_RPC_NONE);
+  writeRPCCommandStatus(RPC_CMD_NONE);
+  writeRPCCommandStatus(RPC_CMD_NONE);
 
-  readSharedRAM(OUTPUT_ARG_ADDR, out_args, out_size);
+  // Now wait for the RPC to complete.
+  waitForRPCServerStatus(RPC_CMD_NONE);
 
-  // The first word of the output is the status.
-  return *((const uint16_t*) out_args);
+  if (out_args && out_size > 0)
+    readSharedRAM(OUTPUT_ARG_ADDR, out_args, out_size);
+
+  // TODO: implement status codes.
+  return 0;
 }
 
 void DuinoCube::readSharedRAM(uint16_t addr, void* data, uint16_t size) {

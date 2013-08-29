@@ -60,7 +60,8 @@ class DuinoCube {
   static void waitForRPCServerStatus(uint8_t status);
 
   // Executes an RPC function.
-  static uint16_t rpcExec(const void* in_args, uint8_t in_size,
+  static uint16_t rpcExec(uint8_t command,
+                          const void* in_args, uint8_t in_size,
                           void* out_args, uint8_t out_size);
 
   // Serial RAM access functions.

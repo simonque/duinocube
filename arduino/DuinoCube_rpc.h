@@ -22,28 +22,18 @@
 
 #include <stdint.h>
 
-// NOTE: These should match the verilog definitions in the chronocube repo.
-
-// RPC Client (Arduino) statuses.
-#define MCU_RPC_NONE              0
-#define MCU_RPC_ISSUED            1
-#define MCU_RPC_WAITING           2
-
-// RPC Server (Coprocessor) statuses.
-#define COP_RPC_POWER_ON          0
-#define COP_RPC_READY             1
-#define COP_RPC_RECEIVED          2
-#define COP_RPC_DONE              3
-
-// RPC command codes.
+// RPC command codes.  These should be consistent with definitions in the
+// chronocube repo, for the purposes of RAM bus arbitration.
 enum {
 
+  RPC_CMD_NONE = 0x00,          // The NOP value for the command register.
+
   // Test commands.
-  RPC_CMD_HELLO = 0x00,         // Test function that writes "hello world".
+  RPC_CMD_HELLO = 0x10,         // Test function that writes "hello world".
   RPC_CMD_INVERT,               // Test function that inverts data.
 
   // File I/O commands.
-  RPC_CMD_FILE_INIT = 0x10,     // Initialize the file system.
+  RPC_CMD_FILE_INIT = 0x20,     // Initialize the file system.
   RPC_CMD_FILE_INFO,            // Gets the state of the file system.
   RPC_CMD_FILE_OPEN,            // Open a file handle.
   RPC_CMD_FILE_CLOSE,           // Close a file handle.
@@ -55,30 +45,22 @@ enum {
 };  // enum
 
 // RPC argument structures.
-// Note that each input arg struct contains a command field and each output arg
-// struct contains a status field.  This is used to simplify the RPC sequence so
-// that the command and status don't have to be written/read separately from the
-// other args.
 
+// For RPC_CMD_HELLO.
 typedef struct {
   struct {
-    uint8_t command;
     uint16_t buf_addr;          // Shared memory address of buffer.
   } in;
-  struct {
-    uint16_t status;
-  } out;
+  // No outputs.
 } RPC_HelloArgs;
 
+// For RPC_CMD_INVERT.
 typedef struct {
   struct {
-    uint8_t command;
     uint16_t buf_addr;          // Shared memory address of buffer.
     uint16_t size;              // Length in bytes of data to invert.
   } in;
-  struct {
-    uint16_t status;
-  } out;
+  // No outputs.
 } RPC_InvertArgs;
 
 #endif  // __DUINOCUBE_RPC_H__
