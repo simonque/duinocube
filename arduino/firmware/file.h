@@ -15,38 +15,23 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor firmware.
+// DuinoCube file system interface.
 
-#include <stdio.h>
+#ifndef __FILE_H__
+#define __FILE_H__
 
-#include <avr/io.h>
+// Initializes file system.
+void file_init();
 
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
+// Open a file using a free file handle, if one exists.  Returns handle number
+// in |handle|.
+int file_open(const char* filename, uint8_t mode, uint16_t* handle);
 
-#include "defines.h"
-#include "file.h"
-#include "rpc.h"
-#include "shmem.h"
-#include "spi.h"
-#include "uart.h"
+// Close a file handle indicated by |handle|.
+int file_close(uint16_t handle);
 
-int main() {
-  // Initialize microcontroller peripherals.
-  uart_init();
-  spi_init();
+// Basic file I/O.
+int file_read(uint16_t handle, void* dst, uint16_t size);
+int file_write(uint16_t handle, const void* src, uint16_t size);
 
-  // Initialize firmware components.
-  shmem_init();
-  file_init();
-  rpc_init();
-
-#if DEBUG
-  printf("\n\nSystem initialized.\n");
-#endif
-
-  // Start RPC server loop.
-  rpc_server_loop();
-
-  return 0;
-}
+#endif  // __FILE_H__
