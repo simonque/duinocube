@@ -43,7 +43,7 @@ void DuinoCube::begin() {
 
 void DuinoCube::begin(uint8_t ss_pin, uint8_t sys_ss_pin) {
   SPI.begin();
-  SPI.setBitOrder(LSBFIRST);
+  SPI.setBitOrder(MSBFIRST);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
   SPI.setDataMode(SPI_MODE0);
 
@@ -66,10 +66,8 @@ void DuinoCube::begin(uint8_t ss_pin, uint8_t sys_ss_pin) {
   digitalWrite(sys_ss_pin, LOW);
 
   SPI.transfer(OP_ACCESS_RAM);
-  SPI.setBitOrder(MSBFIRST);
   SPI.transfer(RAM_ST_WRITE);
   SPI.transfer(RAM_SEQUENTIAL);
-  SPI.setBitOrder(LSBFIRST);
 
   digitalWrite(sys_ss_pin, HIGH);
 }
@@ -179,7 +177,6 @@ void DuinoCube::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   SPI.transfer(OP_ACCESS_RAM);
 
   // The SPI RAM uses MSB first mode.
-  SPI.setBitOrder(MSBFIRST);
   SPI.transfer(RAM_READ);
   SPI.transfer(highByte(addr));
   SPI.transfer(lowByte(addr));
@@ -188,7 +185,6 @@ void DuinoCube::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   for (uint16_t i = 0; i < size; ++i)
     buf[i] = SPI.transfer(0);
 
-  SPI.setBitOrder(LSBFIRST);
   digitalWrite(s_sys_ss_pin, HIGH);
 }
 
@@ -197,7 +193,6 @@ void DuinoCube::writeSharedRAM(uint16_t addr, const void* data, uint16_t size) {
   SPI.transfer(OP_ACCESS_RAM);
 
   // The SPI RAM uses MSB first mode.
-  SPI.setBitOrder(MSBFIRST);
   SPI.transfer(RAM_WRITE);
   SPI.transfer(highByte(addr));
   SPI.transfer(lowByte(addr));
@@ -206,7 +201,6 @@ void DuinoCube::writeSharedRAM(uint16_t addr, const void* data, uint16_t size) {
   for (uint16_t i = 0; i < size; ++i)
     SPI.transfer(buf[i]);
 
-  SPI.setBitOrder(LSBFIRST);
   digitalWrite(s_sys_ss_pin, HIGH);
 }
 

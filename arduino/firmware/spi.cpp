@@ -30,8 +30,7 @@ void spi_init(void) {
           (1 << PORTB5);     // Enable SCK.
   SPCR = (1 << SPE) |     // Enable SPI.
          (1 << MSTR) |    // SPI master mode.
-         (1 << DORD);     // LSB first.
-                          // TODO: convert to MSB first.
+         (0 << DORD);     // MSB first.
 
   // Clock  speed of CPU clock / 2. (Max possible)
   SPCR |= (0 << SPR1) | (0 << SPR0);

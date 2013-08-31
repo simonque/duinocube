@@ -54,7 +54,6 @@ static void ram_write(uint16_t addr, const void* data, uint16_t len) {
   const char* buf = (const char*)data;
   spi_set_ss(DEV_SELECT_LOGIC);
   spi_tx(OP_ACCESS_RAM);
-  SPCR &= ~(1 << DORD);
 
   spi_tx(RAM_WRITE);
   spi_tx(addr >> 8);
@@ -63,7 +62,6 @@ static void ram_write(uint16_t addr, const void* data, uint16_t len) {
     spi_tx(buf[i]);
 
   spi_set_ss(DEV_SELECT_NONE);
-  SPCR |= (1 << DORD);
 }
 
 static void ram_read(uint16_t addr, void* data, uint16_t len) {
@@ -71,7 +69,6 @@ static void ram_read(uint16_t addr, void* data, uint16_t len) {
   spi_set_ss(DEV_SELECT_LOGIC);
   spi_tx(OP_ACCESS_RAM);
 
-  SPCR &= ~(1 << DORD);
   spi_tx(RAM_READ);
   spi_tx(addr >> 8);
   spi_tx((uint8_t) addr);
@@ -79,7 +76,6 @@ static void ram_read(uint16_t addr, void* data, uint16_t len) {
     buf[i] = spi_tx(0);
 
   spi_set_ss(DEV_SELECT_NONE);
-  SPCR |= (1 << DORD);
 }
 
 static void rpc_hello(RPC_HelloArgs* args) {
