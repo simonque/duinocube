@@ -15,36 +15,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor firmware.
+// DuinoCube shared memory functions.
 
-#include <stdio.h>
+#ifndef __SHMEM_H__
+#define __SHMEM_H__
 
-#include <avr/io.h>
+#include <stdint.h>
 
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
+// Set up shared memory.
+void shmem_init();
 
-#include "defines.h"
-#include "rpc.h"
-#include "shmem.h"
-#include "spi.h"
-#include "uart.h"
+// Shared memory access functions.
+void shmem_read(uint16_t addr, void* data, uint16_t len);
+void shmem_write(uint16_t addr, const void* data, uint16_t len);
 
-int main() {
-  // Initialize microcontroller peripherals.
-  uart_init();
-  spi_init();
-
-  // Initialize firmware components.
-  shmem_init();
-  rpc_init();
-
-#if DEBUG
-  printf("\n\nSystem initialized.\n");
-#endif
-
-  // Start RPC server loop.
-  rpc_server_loop();
-
-  return 0;
-}
+#endif  // __SHMEM_H__

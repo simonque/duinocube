@@ -15,36 +15,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor firmware.
+// DuinoCube remote procedure call functions.
 
-#include <stdio.h>
+#include <stdint.h>
 
-#include <avr/io.h>
+// Initializes RPC system.
+void rpc_init();
 
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
-
-#include "defines.h"
-#include "rpc.h"
-#include "shmem.h"
-#include "spi.h"
-#include "uart.h"
-
-int main() {
-  // Initialize microcontroller peripherals.
-  uart_init();
-  spi_init();
-
-  // Initialize firmware components.
-  shmem_init();
-  rpc_init();
-
-#if DEBUG
-  printf("\n\nSystem initialized.\n");
-#endif
-
-  // Start RPC server loop.
-  rpc_server_loop();
-
-  return 0;
-}
+// Runs the RPC server loop forever.
+void rpc_server_loop();
