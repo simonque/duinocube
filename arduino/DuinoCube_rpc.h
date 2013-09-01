@@ -26,6 +26,10 @@
 #define INPUT_ARG_ADDR       0x0000
 #define OUTPUT_ARG_ADDR      0x0080
 
+// The default buffer address and size for passing shared memory strings.
+#define STRING_BUF_ADDR      0x0100
+#define STRING_BUF_SIZE         256
+
 // RPC command codes.  These should be consistent with definitions in the
 // chronocube repo, for the purposes of RAM bus arbitration.
 enum {
