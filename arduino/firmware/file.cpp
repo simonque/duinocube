@@ -60,7 +60,7 @@ void file_init() {
 
 // TODO: return more descriptive status values.
 
-int file_open(const char* filename, uint8_t mode, uint16_t* handle) {
+uint16_t file_open(const char* filename, uint16_t mode, uint16_t* handle) {
   // Get the first free file handle.
   uint16_t i = 0;
   while (i < MAX_NUM_FILE_HANDLES && file_handle_active[i])
@@ -77,7 +77,7 @@ int file_open(const char* filename, uint8_t mode, uint16_t* handle) {
   return 0;
 }
 
-int file_close(uint16_t handle) {
+uint16_t file_close(uint16_t handle) {
   // Do not close an invalid file handle.
   if (handle >= MAX_NUM_FILE_HANDLES)
     return 1;
@@ -88,7 +88,7 @@ int file_close(uint16_t handle) {
   return 0;
 }
 
-int file_read(uint16_t handle, void* dst, uint16_t size) {
+uint16_t file_read(uint16_t handle, void* dst, uint16_t size) {
   if (handle >= MAX_NUM_FILE_HANDLES)
     return 1;
 
@@ -99,7 +99,7 @@ int file_read(uint16_t handle, void* dst, uint16_t size) {
   return (size_read != size);
 }
 
-int file_write(uint16_t handle, const void* src, uint16_t size) {
+uint16_t file_write(uint16_t handle, const void* src, uint16_t size) {
   if (handle >= MAX_NUM_FILE_HANDLES)
     return 1;
 

@@ -20,18 +20,20 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#include <stdint.h>
+
 // Initializes file system.
 void file_init();
 
 // Open a file using a free file handle, if one exists.  Returns handle number
 // in |handle|.
-int file_open(const char* filename, uint8_t mode, uint16_t* handle);
+uint16_t file_open(const char* filename, uint16_t mode, uint16_t* handle);
 
 // Close a file handle indicated by |handle|.
-int file_close(uint16_t handle);
+uint16_t file_close(uint16_t handle);
 
 // Basic file I/O.
-int file_read(uint16_t handle, void* dst, uint16_t size);
-int file_write(uint16_t handle, const void* src, uint16_t size);
+uint16_t file_read(uint16_t handle, void* dst, uint16_t size);
+uint16_t file_write(uint16_t handle, const void* src, uint16_t size);
 
 #endif  // __FILE_H__
