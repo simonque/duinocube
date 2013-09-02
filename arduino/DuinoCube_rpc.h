@@ -50,6 +50,12 @@ enum {
   RPC_CMD_FILE_STATS,           // Get info about an open file and its handle.
   RPC_CMD_FILE_SEEK,            // Move file handle pointer.
 
+  // Shared memory allocation commands.
+  RPC_CMD_MEM_INIT,             // Initialize shared memory heap.
+  RPC_CMD_MEM_STAT,             // Get stats about shared memory heap.
+  RPC_CMD_MEM_ALLOC,            // Allocate memory from heap.
+  RPC_CMD_MEM_FREE,             // Free memory allocated from heap.
+
 };  // enum
 
 // RPC argument structures.
