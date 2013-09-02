@@ -77,4 +77,26 @@ typedef struct {
   // No outputs.
 } RPC_InvertArgs;
 
+class DuinoCubeRPC {
+ public:
+  static void begin();
+
+  // RPC test functions.
+  static uint16_t hello(uint16_t buf_addr);
+  static uint16_t invert(uint16_t buf_addr, uint16_t size);
+
+  // Writes a byte to the RPC status register.
+  static void writeCommand(uint8_t value);
+  // Writes a byte to the coprocessor status register.
+  static uint8_t readServerStatus();
+
+  // Waits for the RPC Server status to become |status|.
+  static void waitForServerStatus(uint8_t status);
+
+  // Executes an RPC function.
+  static uint16_t exec(uint8_t command,
+                       const void* in_args, uint8_t in_size,
+                       void* out_args, uint8_t out_size);
+};
+
 #endif  // __DUINOCUBE_RPC_H__

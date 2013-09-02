@@ -18,13 +18,15 @@
 // DuinoCube system shield RPC test.
 
 #include <DuinoCube.h>
+#include <DuinoCube_rpc.h>
 #include <SPI.h>
+
+static DuinoCubeRPC rpc;
 
 void setup() {
   Serial.begin(115200);
 
   DC.begin();
-  DC.resetRPCServer();
 }
 
 void loop() {
@@ -32,22 +34,22 @@ void loop() {
   char buf[256];
 
   // Call Hello(), should get a "hello world" string back.
-  DC.rpcHello(addr);
-  DC.readSharedRAM(addr, buf, sizeof(buf));
+  rpc.hello(addr);
+  DC.Sys.readSharedRAM(addr, buf, sizeof(buf));
   Serial.print("Hello() returned: ");
   Serial.println(buf);
 
   // Call Invert() to flip all the bits in a string.
   // Calling it twice will return the same string.
   const char str[] = "The quick brown fox jumps over the lazy dog.";
-  DC.writeSharedRAM(addr, str, strlen(str));
-  DC.rpcInvert(addr, strlen(str));
-  DC.readSharedRAM(addr, buf, strlen(str));
+  DC.Sys.writeSharedRAM(addr, str, strlen(str));
+  rpc.invert(addr, strlen(str));
+  DC.Sys.readSharedRAM(addr, buf, strlen(str));
   Serial.print("Invert(str) = ");
   Serial.println(buf);
 
-  DC.rpcInvert(addr, strlen(str));
-  DC.readSharedRAM(addr, buf, strlen(str));
+  rpc.invert(addr, strlen(str));
+  DC.Sys.readSharedRAM(addr, buf, strlen(str));
   Serial.print("Invert(Invert(str)) = ");
   Serial.println(buf);
 

@@ -15,26 +15,21 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// Main DuinoCube library for Arduino.
+// DuinoCube File I/O library for Arduino.
 
-#ifndef __DUINOCUBE_H__
-#define __DUINOCUBE_H__
+#ifndef __DUINOCUBE_FILE_H__
+#define __DUINOCUBE_FILE_H__
 
-#include "DuinoCube_core.h"
-#include "DuinoCube_system.h"
-#include "DuinoCube_file.h"
+#include <stdint.h>
 
-class DuinoCube {
+class DuinoCubeFile {
  public:
-  // Initializes all subsystems.
-  static void begin();
-
-  // Objects for accessing subsystems.
-  static DuinoCubeCore Core;
-  static DuinoCubeFile File;
-  static DuinoCubeSystem Sys;
+  // File I/O functions.
+  static uint16_t open(const char* filename, uint16_t mode);
+  static void close(uint16_t handle);
+  static uint16_t read(uint16_t handle, uint16_t dst_addr, uint16_t size);
+  static uint16_t write(uint16_t handle,
+                               uint16_t src_addr, uint16_t size);
 };
 
-extern DuinoCube DC;
-
-#endif  // __DUINOCUBE_H__
+#endif  // __DUINOCUBE_FILE_H__

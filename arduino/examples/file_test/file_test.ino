@@ -22,9 +22,7 @@
 
 void setup() {
   Serial.begin(115200);
-
   DC.begin();
-  DC.resetRPCServer();
 }
 
 void loop() {
@@ -34,7 +32,7 @@ void loop() {
 
   // Open the file.
   // TODO: add mode definitions.
-  uint16_t handle = DC.rpcFileOpen(filename, 0x01);
+  uint16_t handle = DC.File.open(filename, 0x01);
   uint16_t size_read;
   if (!handle) {
     Serial.println("Could not open file.");
@@ -42,18 +40,18 @@ void loop() {
     Serial.print("Opened file handle 0x");
     Serial.println(handle, HEX);
  
-    size_read = DC.rpcFileRead(handle, addr, sizeof(buf));
+    size_read = DC.File.read(handle, addr, sizeof(buf));
     Serial.print("Read ");
     Serial.print(size_read);
     Serial.println(" bytes from file.");
 
     // Copy the file contents into a buffer.
     memset(buf, 0, sizeof(buf));
-    DC.readSharedRAM(addr, buf, size_read);
+    DC.Sys.readSharedRAM(addr, buf, size_read);
     Serial.print("Read string: ");
     Serial.println(buf);
 
-    DC.rpcFileClose(handle);
+    DC.File.close(handle);
   }
 
   // TODO: Test other file operations.
