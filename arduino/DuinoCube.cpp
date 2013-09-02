@@ -172,6 +172,56 @@ uint16_t DuinoCube::rpcInvert(uint16_t buf_addr, uint16_t size) {
   return status;
 }
 
+uint16_t DuinoCube::rpcFileOpen(const char* filename, uint16_t mode) {
+  RPC_FileOpenArgs args;
+  args.in.filename_addr = STRING_BUF_ADDR;
+  args.in.mode          = mode;
+
+  // Copy the name string to shared memory (including null terminator).
+  writeSharedRAM(STRING_BUF_ADDR, filename, strlen(filename) + 1);
+
+  rpcExec(RPC_CMD_FILE_OPEN,
+          &args.in, sizeof(args.in),
+          &args.out, sizeof(args.out));
+
+  return args.out.handle;
+}
+
+void DuinoCube::rpcFileClose(uint16_t handle) {
+  RPC_FileCloseArgs args;
+  args.in.handle = handle;
+
+  rpcExec(RPC_CMD_FILE_CLOSE, &args.in, sizeof(args.in), NULL, 0);
+}
+
+uint16_t DuinoCube::rpcFileRead(
+    uint16_t handle, uint16_t dst_addr, uint16_t size) {
+  RPC_FileReadArgs args;
+  args.in.handle     = handle;
+  args.in.dst_addr   = dst_addr;
+  args.in.size       = size;
+
+  rpcExec(RPC_CMD_FILE_READ,
+          &args.in, sizeof(args.in),
+          &args.out, sizeof(args.out));
+
+  return args.out.size_read;
+}
+
+uint16_t DuinoCube::rpcFileWrite(
+    uint16_t handle, uint16_t src_addr, uint16_t size) {
+  RPC_FileWriteArgs args;
+  args.in.handle     = handle;
+  args.in.src_addr   = src_addr;
+  args.in.size       = size;
+
+  rpcExec(RPC_CMD_FILE_WRITE,
+          &args.in, sizeof(args.in),
+          &args.out, sizeof(args.out));
+
+  return args.out.size_written;
+}
+
 void DuinoCube::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   digitalWrite(s_sys_ss_pin, LOW);
   SPI.transfer(OP_ACCESS_RAM);

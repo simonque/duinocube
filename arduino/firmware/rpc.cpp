@@ -20,8 +20,10 @@
 #include <stdio.h>
 
 #include "DuinoCube_rpc.h"
+#include "DuinoCube_rpc_file.h"
 
 #include "defines.h"
+#include "rpc_file.h"
 #include "shmem.h"
 #include "spi.h"
 
@@ -77,6 +79,18 @@ static void rpc_exec(uint8_t command) {
     // No outputs to write.
     break;
   }
+  case RPC_CMD_FILE_OPEN:
+    rpc_file_open();
+    break;
+  case RPC_CMD_FILE_CLOSE:
+    rpc_file_close();
+    break;
+  case RPC_CMD_FILE_READ:
+    rpc_file_read();
+    break;
+  case RPC_CMD_FILE_WRITE:
+    rpc_file_write();
+    break;
   default:
     // Handle unrecognized command.
     break;

@@ -24,6 +24,7 @@
 
 #include "DuinoCube_defs.h"
 #include "DuinoCube_rpc.h"
+#include "DuinoCube_rpc_file.h"
 
 class DuinoCube {
  public:
@@ -49,6 +50,14 @@ class DuinoCube {
   // All functions return a status.
   static uint16_t rpcHello(uint16_t buf_addr);
   static uint16_t rpcInvert(uint16_t buf_addr, uint16_t size);
+
+  // RPC functions for file I/O.
+  static uint16_t rpcFileOpen(const char* filename, uint16_t mode);
+  static void rpcFileClose(uint16_t handle);
+  static uint16_t rpcFileRead(uint16_t handle,
+                              uint16_t dst_addr, uint16_t size);
+  static uint16_t rpcFileWrite(uint16_t handle,
+                               uint16_t src_addr, uint16_t size);
 
   // Serial RAM access functions.
   static void readSharedRAM(uint16_t addr, void* data, uint16_t size);
