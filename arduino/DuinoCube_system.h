@@ -40,9 +40,6 @@ class DuinoCubeSystem {
  public:
   static void begin(uint8_t ss_pin);
 
-  // Resets the coprocessor.
-  static void resetRPCServer();
-
   // Serial RAM access functions.
   static void readSharedRAM(uint16_t addr, void* data, uint16_t size);
   static void writeSharedRAM(uint16_t addr, const void* data, uint16_t size);
