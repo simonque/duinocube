@@ -21,8 +21,9 @@
 #define __DUINOCUBE_H__
 
 #include "DuinoCube_core.h"
-#include "DuinoCube_system.h"
 #include "DuinoCube_file.h"
+#include "DuinoCube_mem.h"
+#include "DuinoCube_system.h"
 
 class DuinoCube {
  public:
@@ -32,6 +33,7 @@ class DuinoCube {
   // Objects for accessing subsystems.
   static DuinoCubeCore Core;
   static DuinoCubeFile File;
+  static DuinoCubeMemory Mem;
   static DuinoCubeSystem Sys;
 };
 

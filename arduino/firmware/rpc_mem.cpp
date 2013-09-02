@@ -15,23 +15,33 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube shared memory functions.
+// DuinoCube remote procedure call functions for memory allocation.
 
-#ifndef __SHMEM_H__
-#define __SHMEM_H__
+#include "DuinoCube_mem.h"
+#include "DuinoCube_rpc_mem.h"
 
-#include <stdint.h>
+#include "shmem.h"
 
-// Set up shared memory.
-void shmem_init();
+#include "rpc_mem.h"
 
-// Shared memory access functions.
-void shmem_read(uint16_t addr, void* data, uint16_t len);
-void shmem_write(uint16_t addr, const void* data, uint16_t len);
+void rpc_mem_stat() {
+  RPC_MemStatArgs args;
+  shmem_stat(&args.out.total_free_size, &args.out.largest_free_size);
+  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+}
 
-// Shared memory allocation functions.
-void shmem_stat(uint16_t* total_free_size, uint16_t* largest_free_size);
-uint16_t shmem_alloc(uint16_t size);
-void shmem_free(uint16_t addr);
+void rpc_mem_alloc() {
+  RPC_MemAllocArgs args;
+  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
-#endif  // __SHMEM_H__
+  args.out.addr = shmem_alloc(args.in.size);
+
+  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+}
+
+void rpc_mem_free() {
+  RPC_MemFreeArgs args;
+  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+
+  shmem_free(args.in.addr);
+}

@@ -21,9 +21,11 @@
 
 #include "DuinoCube_rpc.h"
 #include "DuinoCube_rpc_file.h"
+#include "DuinoCube_rpc_mem.h"
 
 #include "defines.h"
 #include "rpc_file.h"
+#include "rpc_mem.h"
 #include "shmem.h"
 #include "spi.h"
 
@@ -90,6 +92,15 @@ static void rpc_exec(uint8_t command) {
     break;
   case RPC_CMD_FILE_WRITE:
     rpc_file_write();
+    break;
+  case RPC_CMD_MEM_STAT:
+    rpc_mem_stat();
+    break;
+  case RPC_CMD_MEM_ALLOC:
+    rpc_mem_alloc();
+    break;
+  case RPC_CMD_MEM_FREE:
+    rpc_mem_free();
     break;
   default:
     // Handle unrecognized command.
