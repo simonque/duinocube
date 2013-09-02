@@ -25,14 +25,14 @@
 // Initializes file system.
 void file_init();
 
-// Open a file using a free file handle, if one exists.  Returns handle number
-// in |handle|.
-uint16_t file_open(const char* filename, uint16_t mode, uint16_t* handle);
+// Open a file using a free file handle, if one exists.  Returns pointer to
+// handle, or NULL if it failed.
+uint16_t file_open(const char* filename, uint16_t mode);
 
 // Close a file handle indicated by |handle|.
-uint16_t file_close(uint16_t handle);
+void file_close(uint16_t handle);
 
-// Basic file I/O.
+// Basic file I/O.  Returns the number of bytes read/written.
 uint16_t file_read(uint16_t handle, void* dst, uint16_t size);
 uint16_t file_write(uint16_t handle, const void* src, uint16_t size);
 
