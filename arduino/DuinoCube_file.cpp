@@ -39,8 +39,8 @@ uint16_t DuinoCubeFile::open(const char* filename, uint16_t mode) {
   sys.writeSharedRAM(STRING_BUF_ADDR, filename, strlen(filename) + 1);
 
   rpc.exec(RPC_CMD_FILE_OPEN,
-              &args.in, sizeof(args.in),
-              &args.out, sizeof(args.out));
+           &args.in, sizeof(args.in),
+           &args.out, sizeof(args.out));
 
   return args.out.handle;
 }
