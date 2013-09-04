@@ -142,6 +142,9 @@ void rpc_server_loop() {
     printf("Executing command.\n");
 #endif
     rpc_exec(command);
+#ifdef DEBUG
+    printf("Done executing command.\n\n");
+#endif
 
     // Finish the RPC operation.
     write_server_status(RPC_CMD_NONE);
