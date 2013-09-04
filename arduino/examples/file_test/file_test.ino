@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube system shield RPC test.
+// DuinoCube system shield file I/O test.
 
 #include <DuinoCube.h>
 #include <SPI.h>
