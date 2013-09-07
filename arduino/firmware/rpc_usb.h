@@ -15,26 +15,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor USB host module header.
+// DuinoCube remote procedure call functions for USB host.
 
-#ifndef __USB_H__
-#define __USB_H__
+#ifndef __RPC_USB_H__
+#define __RPC_USB_H__
 
-#include <stdint.h>
+void rpc_usb_read_joystick();
 
-struct USB_JoystickState {
-  uint16_t buttons;     // Each bit represents the state of a joystick button.
-                        // pressed = 1, released = 0.
-  int16_t x, y;         // Joystick axis values.
-};
-
-// Initializes the USB host.
-void usb_init();
-
-// Run the USB host task routine.
-void usb_update();
-
-// Read USB joystick position and button states.
-void usb_read_joystick(USB_JoystickState* state);
-
-#endif  // __USB_H__
+#endif  // __RPC_USB_H__

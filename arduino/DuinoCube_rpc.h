@@ -50,6 +50,11 @@ enum {
   RPC_CMD_MEM_ALLOC,            // Allocate memory from heap.
   RPC_CMD_MEM_FREE,             // Free memory allocated from heap.
 
+  // USB and Joystick commands.
+  RPC_CMD_USB_INIT = 0x40,      // Initialize USB host.
+  RPC_CMD_USB_STATUS,           // Get USB device status.
+  RPC_CMD_USB_READ_JOYSTICK,    // Get USB joystick and button state.
+
 };  // enum
 
 // RPC argument structures.

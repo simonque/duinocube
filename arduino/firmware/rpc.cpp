@@ -22,12 +22,15 @@
 #include "DuinoCube_rpc.h"
 #include "DuinoCube_rpc_file.h"
 #include "DuinoCube_rpc_mem.h"
+#include "DuinoCube_rpc_usb.h"
 
 #include "defines.h"
 #include "rpc_file.h"
 #include "rpc_mem.h"
+#include "rpc_usb.h"
 #include "shmem.h"
 #include "spi.h"
+#include "usb.h"
 
 #include "rpc.h"
 
@@ -102,6 +105,11 @@ static void rpc_exec(uint8_t command) {
   case RPC_CMD_MEM_FREE:
     rpc_mem_free();
     break;
+
+  case RPC_CMD_USB_READ_JOYSTICK:
+    rpc_usb_read_joystick();
+    break;
+
   default:
     // Handle unrecognized command.
     break;
@@ -113,6 +121,13 @@ void rpc_init() {
   // added in the future.
 }
 
+// Function to run when not executing any RPC commands.
+static void rpc_idle() {
+  // Poll USB.
+  // TODO: Separate this from RPC.
+  usb_update();
+}
+
 void rpc_server_loop() {
   while (true) {
     // Set RPC status to ready.
@@ -120,8 +135,10 @@ void rpc_server_loop() {
 
     // Read in RPC client status.
     // Read it again to make sure the value is steady.
-    while (read_client_command() == RPC_CMD_NONE ||
-           read_client_command() == RPC_CMD_NONE);
+    do {
+      rpc_idle();
+    } while (read_client_command() == RPC_CMD_NONE ||
+             read_client_command() == RPC_CMD_NONE);
 
     // Read the command and update the status register to indicate that the
     // command was received.

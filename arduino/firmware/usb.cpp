@@ -41,13 +41,13 @@ static void joystick_update_stick(uint8_t axis, uint8_t value) {
 #ifdef DEBUG
     printf("Updating joystick stick: X = %d\n", value);
 #endif
-    joystick_state.dx = value;
+    joystick_state.x = value;
     break;
   case JOYSTICK_AXIS_Y:
 #ifdef DEBUG
     printf("Updating joystick stick: Y = %d\n", value);
 #endif
-    joystick_state.dx = value;
+    joystick_state.y = value;
     break;
   default:
 #ifdef DEBUG
