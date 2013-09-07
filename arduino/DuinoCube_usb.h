@@ -15,30 +15,22 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// Main DuinoCube library for Arduino.
+// DuinoCube USB library for Arduino.
 
-#ifndef __DUINOCUBE_H__
-#define __DUINOCUBE_H__
+#ifndef __DUINOCUBE_USB_H__
+#define __DUINOCUBE_USB_H__
 
-#include "DuinoCube_core.h"
-#include "DuinoCube_file.h"
-#include "DuinoCube_mem.h"
-#include "DuinoCube_system.h"
-#include "DuinoCube_usb.h"
+#include <stdint.h>
 
-class DuinoCube {
- public:
-  // Initializes all subsystems.
-  static void begin();
-
-  // Objects for accessing subsystems.
-  static DuinoCubeCore Core;
-  static DuinoCubeFile File;
-  static DuinoCubeMemory Mem;
-  static DuinoCubeSystem Sys;
-  static DuinoCubeUSB USB;
+struct JoystickState {
+  uint16_t buttons;     // Button states, one bit set for each button pressed.
+  int16_t x, y;         // Position of stick.
 };
 
-extern DuinoCube DC;
+class DuinoCubeUSB {
+ public:
+  // Returns joystick button/stick values.
+  static JoystickState readJoystick();
+};
 
-#endif  // __DUINOCUBE_H__
+#endif  // __DUINOCUBE_USB_H__
