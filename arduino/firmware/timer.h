@@ -15,40 +15,20 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor firmware.
+// Internal timer system.
 
-#include <stdio.h>
+#ifndef __TIMER_H__
+#define __TIMER_H__
 
-#include <avr/io.h>
+#include <stdint.h>
 
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
+// Set up the timer.
+void timer_init();
 
-#include "defines.h"
-#include "file.h"
-#include "rpc.h"
-#include "shmem.h"
-#include "spi.h"
-#include "timer.h"
-#include "uart.h"
+// Reset the timer counter.
+void timer_reset();
 
-int main() {
-  // Initialize microcontroller peripherals.
-  uart_init();
-  spi_init();
-  timer_init();
+// Return the number of milliseconds since the last reset.
+uint16_t timer_get_ms();
 
-  // Initialize firmware components.
-  shmem_init();
-  file_init();
-  rpc_init();
-
-#if DEBUG
-  printf("\n\nSystem initialized.\n");
 #endif
-
-  // Start RPC server loop.
-  rpc_server_loop();
-
-  return 0;
-}

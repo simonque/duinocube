@@ -46,17 +46,6 @@ static int get_handle_index(const FIL* handle) {
 }
 
 void file_init() {
-  // Enable the 10 ms timer for FatFS.
-  TCCR0B |= (1 << CS02) | (1 << CS00);  // speed = F_CPU / 1024.
-  OCR0A = 200;                          // 10 ms interrupt at 20 MHz.
-  TIMSK0 |= (1 << OCIE0A);    // Enable interrupt for timer match A.
-
-  sei();    // Enable interrupts.
-
-#ifdef DEBUG
-  printf("SD card timer initialized\n");
-#endif
-
   // Clear the file handle states.
   for (int i = 0; i < MAX_NUM_FILE_HANDLES; ++i)
     file_handle_active[i] = false;
@@ -142,9 +131,4 @@ uint16_t file_write(uint16_t handle, const void* src, uint16_t size) {
 #endif
 
   return size_written;
-}
-
-// Timer interrupt handler for file system.
-ISR(TIMER0_COMPA_vect) {
-  disk_timerproc();
 }
