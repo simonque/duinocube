@@ -6,8 +6,8 @@
 // Copyright (C) 2011 Mike McCauley
 // $Id: USBJoystick.cpp,v 1.2 2012/01/19 00:09:54 mikem Exp mikem $
 
+#include "Usb.h"
 #include "USBJoystick.h"
-#include <Usb.h>
 
 USB Usb;
 

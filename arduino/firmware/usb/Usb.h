@@ -3,8 +3,8 @@
 #ifndef _usb_h_
 #define _usb_h_
 
-#include <Max3421e.h>
 #include "ch9.h"
+#include "Max3421e.h"
 
 extern uint16_t millis();
 
