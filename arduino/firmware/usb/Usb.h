@@ -3,10 +3,16 @@
 #ifndef _usb_h_
 #define _usb_h_
 
+#include "timer.h"
+
 #include "ch9.h"
 #include "Max3421e.h"
 
-extern uint16_t millis();
+// millis() is an Arduino function.  Redefine it as a wrapper around the local
+// millisecond timer count function.
+inline uint16_t millis() {
+  return timer_get_ms();
+}
 
 #ifndef NULL
 #define NULL              0
