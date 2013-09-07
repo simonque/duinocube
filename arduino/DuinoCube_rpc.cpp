@@ -111,4 +111,3 @@ uint16_t DuinoCubeRPC::exec(uint8_t command,
   // TODO: implement status codes.
   return 0;
 }
-
