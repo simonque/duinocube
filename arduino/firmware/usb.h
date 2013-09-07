@@ -15,43 +15,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor firmware.
+// DuinoCube coprocessor USB host module header.
 
-#include <stdio.h>
+#ifndef __USB_H__
+#define __USB_H__
 
-#include <avr/io.h>
+#include <stdint.h>
 
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
+struct USB_JoystickState {
+  uint16_t buttons;     // Each bit represents the state of a joystick button.
+                        // pressed = 1, released = 0.
+  int16_t dx, dy;       // Joystick axis values.
+};
 
-#include "defines.h"
-#include "file.h"
-#include "rpc.h"
-#include "shmem.h"
-#include "spi.h"
-#include "timer.h"
-#include "uart.h"
-#include "usb.h"
+// Initializes the USB host.
+void usb_init();
 
-int main() {
-  // Initialize microcontroller peripherals.
-  uart_init();
-  spi_init();
-  timer_init();
+// Run the USB host task routine.
+void usb_update();
 
-  // Initialize firmware components.
-  shmem_init();
-  file_init();
-  usb_init();
+// Read USB joystick position and button states.
+void usb_read_joystick(USB_JoystickState* state);
 
-  rpc_init();
-
-#if DEBUG
-  printf("\n\nSystem initialized.\n");
-#endif
-
-  // Start RPC server loop.
-  rpc_server_loop();
-
-  return 0;
-}
+#endif  // __USB_H__
