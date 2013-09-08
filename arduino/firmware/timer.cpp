@@ -17,6 +17,8 @@
 
 // Internal timer system.
 
+#include <stdio.h>
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -25,6 +27,8 @@
 #include "timer.h"
 
 static uint16_t ms_counter;
+
+static uint8_t interrupts_enabled = 0;
 
 void timer_init() {
   // Enable ~10 ms timer for FatFS.
@@ -41,15 +45,42 @@ void timer_init() {
 
   timer_reset();
 
+  interrupts_enabled = 1;
   sei();                 // Enable global interrupts.
 }
 
 void timer_reset() {
+  uint8_t reenable_interrupts = 0;
+  if (interrupts_enabled) {
+    cli();
+    interrupts_enabled = 0;
+    reenable_interrupts = 1;
+  }
+
   ms_counter = 0;
+
+  if (reenable_interrupts) {
+    interrupts_enabled = 1;
+    sei();
+  }
 }
 
 uint16_t timer_get_ms() {
-  return ms_counter;
+  uint8_t reenable_interrupts = 0;
+  if (interrupts_enabled) {
+    cli();
+    interrupts_enabled = 0;
+    reenable_interrupts = 1;
+  }
+
+  uint16_t count = ms_counter;
+
+  if (reenable_interrupts) {
+    interrupts_enabled = 1;
+    sei();
+  }
+
+  return count;
 }
 
 // Interrupt handler for FatFS.
