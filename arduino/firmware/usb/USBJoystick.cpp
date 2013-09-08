@@ -97,22 +97,21 @@ boolean USBJoystick::device_init()
 
 void USBJoystick::run()
 {
-    unsigned long current_t = millis();
-    static unsigned long next_t = 0;
-    if (current_t > next_t)
-    {
-	Usb.Task();
-	
-	if (Usb.getUsbTaskState() == USB_STATE_CONFIGURING) 
-	{  
-	    //wait for addressing state
-	    if (device_init())
-		Usb.setUsbTaskState(USB_STATE_RUNNING);
-	}
-	else if (Usb.getUsbTaskState() == USB_STATE_RUNNING) 
-	    poll();
-	next_t = current_t + USBJOYSTICK_POLL_INTERVAL;
+  static uint16_t current_t = 0;
+  static uint16_t next_t_delay = 0;
+  if (millis_since(current_t) >= next_t_delay) {
+    Usb.Task();
+
+    if (Usb.getUsbTaskState() == USB_STATE_CONFIGURING) {
+      //wait for addressing state
+      if (device_init())
+        Usb.setUsbTaskState(USB_STATE_RUNNING);
+    } else if (Usb.getUsbTaskState() == USB_STATE_RUNNING) {
+      poll();
     }
+    next_t_delay = USBJOYSTICK_POLL_INTERVAL;
+    current_t = millis();
+  }
 }
 
 void USBJoystick::poll()

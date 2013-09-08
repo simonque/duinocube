@@ -14,6 +14,12 @@ inline uint16_t millis() {
   return timer_get_ms();
 }
 
+// Computes the number of milliseconds since an initial timer reading.  Accounts
+// for wraparound.  Does not work for large gaps (more than 2^16 ms).
+inline uint16_t millis_since(uint16_t initial_time_ms) {
+  return millis() - initial_time_ms;
+}
+
 #ifndef NULL
 #define NULL              0
 #endif
