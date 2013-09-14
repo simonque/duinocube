@@ -44,7 +44,7 @@ static void test_registers() {
        offset < sizeof(main_regs_to_read) / sizeof(main_regs_to_read[0]);
        ++offset) {
     int reg = main_regs_to_read[offset];
-    DC.writeWord(reg, get_test_value(reg));
+    DC.Core.writeWord(reg, get_test_value(reg));
   }
 
   for (int offset = 0;
@@ -52,7 +52,7 @@ static void test_registers() {
        ++offset) {
     int reg = main_regs_to_read[offset];
 
-    word value = DC.readWord(reg);
+    word value = DC.Core.readWord(reg);
     word expected = get_test_value(reg);
     if (value != expected) {
       Serial.print("Mismatch in register readback. ");
@@ -65,7 +65,7 @@ static void test_registers() {
       Serial.print("]\n");
     }
     // Reset register.
-    DC.writeWord(reg, 0);
+    DC.Core.writeWord(reg, 0);
   }
   const int tile_regs_to_read[] = {
     TILE_CTRL_0,
@@ -80,7 +80,7 @@ static void test_registers() {
          offset < sizeof(tile_regs_to_read) / sizeof(tile_regs_to_read[0]);
          ++offset) {
       int reg = tile_regs_to_read[offset];
-      DC.writeWord(TILE_LAYER_REG(index, reg), get_test_value(index + reg));
+      DC.Core.writeWord(TILE_LAYER_REG(index, reg), get_test_value(index + reg));
     }
 
     for (int offset = 0;
@@ -88,7 +88,7 @@ static void test_registers() {
          ++offset) {
       int reg = tile_regs_to_read[offset];
 
-      word value = DC.readWord(TILE_LAYER_REG(index, reg));
+      word value = DC.Core.readWord(TILE_LAYER_REG(index, reg));
       word expected = get_test_value(index + reg);
       if (value != expected) {
         Serial.print("Mismatch in tile register readback. ");
@@ -103,7 +103,7 @@ static void test_registers() {
         Serial.print("]\n");
       } else {
         // Reset register.
-        DC.writeWord(TILE_LAYER_REG(index, reg), 0);
+        DC.Core.writeWord(TILE_LAYER_REG(index, reg), 0);
       }
     }
   }
@@ -130,11 +130,11 @@ static void test_palettes() {
       palette[entry].g = get_test_value(index + entry + 1);
       palette[entry].b = get_test_value(index + entry + 2);
     }
-    DC.writeData(PALETTE(index), palette, sizeof(palette));
+    DC.Core.writeData(PALETTE(index), palette, sizeof(palette));
 
     // Read back the data.
     memset(palette, 0, sizeof(palette));
-    DC.readData(PALETTE(index), palette, sizeof(palette));
+    DC.Core.readData(PALETTE(index), palette, sizeof(palette));
 
     // For each palette entry.
     for (int entry = 0; entry < NUM_PALETTE_ENTRIES; ++entry) {
@@ -179,11 +179,11 @@ static void test_sprites() {
   int num_errors = 0;
   for (int index = 0; index < NUM_SPRITES; ++index) {
     for (int reg = 0; reg < NUM_SPRITE_REGS; ++reg)
-      DC.writeWord(SPRITE_REG(index, reg), get_test_value(reg + index));
+      DC.Core.writeWord(SPRITE_REG(index, reg), get_test_value(reg + index));
 
     for (int reg = 0; reg < NUM_SPRITE_REGS; ++reg) {
-      word value = DC.readWord(SPRITE_REG(index, reg));
-      DC.writeWord(SPRITE_REG(index, reg), 0);
+      word value = DC.Core.readWord(SPRITE_REG(index, reg));
+      DC.Core.writeWord(SPRITE_REG(index, reg), 0);
       word expected = get_test_value(reg + index);
       if (value == expected)
         continue;
@@ -220,13 +220,13 @@ static void test_tilemaps() {
       }
 
       // Enable memory bank 1.
-      DC.writeWord(REG_MEM_BANK, TILEMAP_BANK);
-      DC.writeData(TILEMAP(index) + offset, buf, sizeof(buf));
+      DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
+      DC.Core.writeData(TILEMAP(index) + offset, buf, sizeof(buf));
 
       // Read back the data.
       memset(buf, 0, sizeof(buf));
-      DC.readData(TILEMAP(index) + offset, buf, sizeof(buf));
-      DC.writeWord(REG_MEM_BANK, 0);
+      DC.Core.readData(TILEMAP(index) + offset, buf, sizeof(buf));
+      DC.Core.writeWord(REG_MEM_BANK, 0);
      
       for(int buf_offset = 0;
           buf_offset < sizeof(buf) / sizeof(buf[0]);
@@ -258,7 +258,7 @@ static void test_vram() {
   Serial.print("Testing VRAM.\n");
 
   // Enable VRAM access.
-  DC.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
+  DC.Core.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
 
   word buf[32];
   int num_errors = 0;
@@ -271,14 +271,14 @@ static void test_vram() {
       }
 
       // Select the bank and write to it.
-      DC.writeWord(REG_MEM_BANK, bank);
-      DC.writeData(VRAM_BASE + offset, buf, sizeof(buf));
+      DC.Core.writeWord(REG_MEM_BANK, bank);
+      DC.Core.writeData(VRAM_BASE + offset, buf, sizeof(buf));
 
       // Read it back.
       memset(buf, 0, sizeof(buf));
-      DC.readData(VRAM_BASE + offset, buf, sizeof(buf));
+      DC.Core.readData(VRAM_BASE + offset, buf, sizeof(buf));
 
-      DC.writeWord(REG_MEM_BANK, 0);
+      DC.Core.writeWord(REG_MEM_BANK, 0);
 
       for(int buf_offset = 0;
           buf_offset < sizeof(buf) / sizeof(buf[0]);
