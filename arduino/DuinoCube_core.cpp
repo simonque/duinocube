@@ -40,8 +40,8 @@ void DuinoCubeCore::begin(uint8_t ss_pin) {
 void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
   digitalWrite(s_ss_pin, LOW);
 
-  SPI.transfer(lowByte(addr));
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
+  SPI.transfer(lowByte(addr));
 
   const uint8_t* data8 = static_cast<const uint8_t*>(data);
   for (const uint8_t* data_end = data8 + size; data8 < data_end; ++data8)
@@ -53,8 +53,8 @@ void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
 void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
   digitalWrite(s_ss_pin, LOW);
 
-  SPI.transfer(lowByte(addr));
   SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
 
   uint8_t* data8 = static_cast<uint8_t*>(data);
   for (uint8_t* data_end = data8 + size; data8 < data_end; ++data8)
@@ -66,8 +66,8 @@ void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
 void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
   digitalWrite(s_ss_pin, LOW);
 
-  SPI.transfer(lowByte(addr));
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
+  SPI.transfer(lowByte(addr));
   SPI.transfer(data);
 
   digitalWrite(s_ss_pin, HIGH);
@@ -76,8 +76,8 @@ void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
 uint8_t DuinoCubeCore::readByte(uint16_t addr) {
   digitalWrite(s_ss_pin, LOW);
 
-  SPI.transfer(lowByte(addr));
   SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
   uint8_t result = SPI.transfer(0);
 
   digitalWrite(s_ss_pin, HIGH);
@@ -88,8 +88,8 @@ uint8_t DuinoCubeCore::readByte(uint16_t addr) {
 void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
   digitalWrite(s_ss_pin, LOW);
 
-  SPI.transfer(lowByte(addr));
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
+  SPI.transfer(lowByte(addr));
   SPI.transfer(lowByte(data));
   SPI.transfer(highByte(data));
 
@@ -99,8 +99,8 @@ void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
 uint16_t DuinoCubeCore::readWord(uint16_t addr) {
   digitalWrite(s_ss_pin, LOW);
 
-  SPI.transfer(lowByte(addr));
   SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
   union {
     uint16_t value_16;
     uint8_t value_8[2];
