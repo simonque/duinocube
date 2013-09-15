@@ -17,13 +17,12 @@
 
 // DuinoCube file system interface.
 
-#include <stdio.h>
-
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
 #include "fatfs/diskio.h"
 #include "fatfs/ff.h"
+#include "printf.h"
 #include "spi.h"
 
 #include "file.h"
@@ -45,6 +44,11 @@ static int get_handle_index(const FIL* handle) {
   return -1;
 }
 
+const char file_init_str0[] PROGMEM =
+    "Unable to initialize file system. disk_initialize() returned status %d\n";
+const char file_init_str1[] PROGMEM =
+    "Unable to mount file system. f_mount() returned status %d.\n";
+
 void file_init() {
   // Clear the file handle states.
   for (int i = 0; i < MAX_NUM_FILE_HANDLES; ++i)
@@ -54,8 +58,7 @@ void file_init() {
   int status = disk_initialize(0);
 #ifdef DEBUG
   if (status != RES_OK) {
-    fprintf(stderr, "Unable to initialize file system. disk_initialize() "
-            "returned status %d\n", status);
+    fprintf_P(stderr, file_init_str0, status);
     return;
   }
 #endif  // defined(DEBUG)
@@ -63,12 +66,12 @@ void file_init() {
   status = f_mount(0, &fatfs);
 #ifdef DEBUG
   if (status != FR_OK) {
-    fprintf(stderr, "Unable to mount file system. f_mount() returned status"
-            " %d.\n",
-            status);
+    fprintf_P(stderr, file_init_str1, status);
   }
 #endif  // defined(DEBUG)
 }
+
+const char file_open_str0[] PROGMEM = "f_open(%s, 0x%x) returned %d.\n";
 
 uint16_t file_open(const char* filename, uint16_t mode) {
   // Get the first free file handle.
@@ -82,7 +85,7 @@ uint16_t file_open(const char* filename, uint16_t mode) {
   int status = f_open(&file_handles[index], filename, mode);
   if (status != FR_OK) {
 #ifdef DEBUG
-    fprintf(stderr, "f_open(%s, 0x%x) returned %d.\n", filename, mode, status);
+    fprintf_P(stderr, file_open_str0, filename, mode, status);
 #endif  // defined(DEBUG)
     return (uint16_t) NULL;
   }
@@ -98,6 +101,9 @@ void file_close(uint16_t handle) {
     file_handle_active[index] = false;
 }
 
+const char file_read_str0[] PROGMEM =
+    "f_read() of %u bytes returned status %d, handle 0x%x\n";
+
 uint16_t file_read(uint16_t handle, void* dst, uint16_t size) {
   FIL* file = (FIL*) handle;
   int index = get_handle_index(file);
@@ -108,12 +114,14 @@ uint16_t file_read(uint16_t handle, void* dst, uint16_t size) {
   int status = f_read(file, dst, size, &size_read);
 #ifdef DEBUG
   if (status != FR_OK) {
-    fprintf(stderr, "f_read() of %u bytes returned status %d\n",
-            size_read, status);
+    fprintf_P(stderr, file_read_str0, size_read, status, handle);
   }
 #endif
   return size_read;
 }
+
+const char file_write_str0[] PROGMEM =
+    "f_write() of %u bytes returned status %d\n";
 
 uint16_t file_write(uint16_t handle, const void* src, uint16_t size) {
   FIL* file = (FIL*) handle;
@@ -125,8 +133,7 @@ uint16_t file_write(uint16_t handle, const void* src, uint16_t size) {
   int status = f_write(file, src, size, &size_written);
 #ifdef DEBUG
   if (status != FR_OK) {
-    fprintf(stderr, "f_write() of %u bytes returned status %d\n",
-            size_written, status);
+    fprintf_P(stderr, file_write_str0, size_written, status);
   }
 #endif
 

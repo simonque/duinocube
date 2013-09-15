@@ -15,44 +15,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor firmware.
+// Custom printf system that reads from progmem.
 
-#include <avr/io.h>
-
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
-
-#include "defines.h"
-#include "file.h"
 #include "printf.h"
-#include "rpc.h"
-#include "shmem.h"
-#include "spi.h"
-#include "timer.h"
-#include "uart.h"
-#include "usb.h"
 
-const char main_str0[] PROGMEM = "\n\nSystem initialized.\n";
+#define PRINTF_BUF_SIZE     128
 
-int main() {
-  // Initialize microcontroller peripherals.
-  uart_init();
-  spi_init();
-  timer_init();
-
-  // Initialize firmware components.
-  shmem_init();
-  file_init();
-  usb_init();
-
-  rpc_init();
-
-#if DEBUG
-  printf_P(main_str0);
-#endif
-
-  // Start RPC server loop.
-  rpc_server_loop();
-
-  return 0;
-}
+char printf_buffer[PRINTF_BUF_SIZE];

@@ -17,12 +17,12 @@
 
 // DuinoCube shared memory functions.
 
-#include <stdio.h>
 #include <string.h>
 
 #include "DuinoCube_mem.h"
 
 #include "defines.h"
+#include "printf.h"
 #include "spi.h"
 
 #include "shmem.h"
@@ -43,13 +43,15 @@ struct HeapBlock {
 #define NUM_HEAP_BLOCKS (SHARED_MEMORY_HEAP_SIZE / SHARED_MEMORY_BLOCK_SIZE)
 static HeapBlock heap_blocks[NUM_HEAP_BLOCKS];
 
+const char shmem_init_str0[] PROGMEM =
+    "Shared memory heap initialized with %u bytes: \n";
+
 void shmem_init() {
   // Initialize the heap.
   memset(heap_blocks, 0, sizeof(heap_blocks));
   heap_blocks[0].num_blocks_in_region = NUM_HEAP_BLOCKS;
 #ifdef DEBUG
-  printf("Shared memory heap initialized with %u bytes: \n",
-         SHARED_MEMORY_HEAP_SIZE);
+  printf_P(shmem_init_str0, SHARED_MEMORY_HEAP_SIZE);
 #endif
 }
 
@@ -146,13 +148,17 @@ uint16_t shmem_alloc(uint16_t size) {
   return i * SHARED_MEMORY_BLOCK_SIZE + SHARED_MEMORY_HEAP_START;
 }
 
+const char shmem_free_str0[] PROGMEM = "%s: Invalid address: 0x%04x\n";
+const char shmem_free_str1[] PROGMEM =
+    "%s: Not an allocated head block: 0x%04x\n";
+
 void shmem_free(uint16_t addr) {
   // Do not attempt to free a non-aligned address.
   // Do not attempt to free a non-heap address.
   if (addr % SHARED_MEMORY_BLOCK_SIZE != 0 ||
       addr < SHARED_MEMORY_HEAP_START) {
 #ifdef DEBUG
-    printf("%s: Invalid address: 0x%04x\n", __func__, addr);
+    printf_P(shmem_free_str0, __func__, addr);
 #endif
     return;
   }
@@ -162,7 +168,7 @@ void shmem_free(uint16_t addr) {
   // region in the heap.
   if (!heap_blocks[block_index].is_allocated) {
 #ifdef DEBUG
-    printf("%s: Not an allocated head block: 0x%04x\n", __func__, addr);
+    printf_P(shmem_free_str1, __func__, addr);
 #endif
     return;
   }

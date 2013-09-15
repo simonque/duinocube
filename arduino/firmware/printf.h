@@ -15,44 +15,25 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube coprocessor firmware.
+// Custom printf definition file.
 
-#include <avr/io.h>
+#ifndef __PRINTF_F__
+#define __PRINTF_F__
 
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
+#include <stdio.h>
 
-#include "defines.h"
-#include "file.h"
-#include "printf.h"
-#include "rpc.h"
-#include "shmem.h"
-#include "spi.h"
-#include "timer.h"
-#include "uart.h"
-#include "usb.h"
+#include <avr/pgmspace.h>
 
-const char main_str0[] PROGMEM = "\n\nSystem initialized.\n";
+// This is the RAM buffer into which strings are copied from program memory.
+extern char printf_buffer[];
 
-int main() {
-  // Initialize microcontroller peripherals.
-  uart_init();
-  spi_init();
-  timer_init();
+// Custom printf and fprintf macros for printing strings from program memory.
+#define fprintf_P(file, str, ...) { \
+    memcpy_PF(printf_buffer, (uint_farptr_t)str, \
+              strlen_PF((uint_farptr_t)str) + 1); \
+    fprintf(file, printf_buffer, ##__VA_ARGS__); \
+  }
 
-  // Initialize firmware components.
-  shmem_init();
-  file_init();
-  usb_init();
+#define printf_P(str, ...) fprintf_P(stdout, str, ##__VA_ARGS__)
 
-  rpc_init();
-
-#if DEBUG
-  printf_P(main_str0);
-#endif
-
-  // Start RPC server loop.
-  rpc_server_loop();
-
-  return 0;
-}
+#endif  // __PRINTF_F__

@@ -17,14 +17,13 @@
 
 // DuinoCube remote procedure call functions.
 
-#include <stdio.h>
-
 #include "DuinoCube_rpc.h"
 #include "DuinoCube_rpc_file.h"
 #include "DuinoCube_rpc_mem.h"
 #include "DuinoCube_rpc_usb.h"
 
 #include "defines.h"
+#include "printf.h"
 #include "rpc_file.h"
 #include "rpc_mem.h"
 #include "rpc_usb.h"
@@ -52,10 +51,13 @@ static void write_server_status(uint8_t value) {
   spi_set_ss(DEV_SELECT_NONE);
 }
 
+const char rpc_hello_str0[] PROGMEM = "Hello world.";
+
 // Test function that writes a string to a buffer.
 static void rpc_hello(RPC_HelloArgs* args) {
-  // TODO: put this into progmem.
-  const char str[20] = "Hello world.";
+  char str[20];
+  for (size_t i = 0; i < sizeof(str); ++i)
+    str[i] = pgm_read_byte(rpc_hello_str0);
   shmem_write(args->in.buf_addr, str, sizeof(str));
 }
 
@@ -128,6 +130,10 @@ static void rpc_idle() {
   usb_update();
 }
 
+const char rpc_server_loop_str0[] PROGMEM = "Received command code: 0x%02x\n";
+const char rpc_server_loop_str1[] PROGMEM = "Executing command.\n";
+const char rpc_server_loop_str2[] PROGMEM = "Done executing command.\n\n";
+
 void rpc_server_loop() {
   while (true) {
     // Set RPC status to ready.
@@ -148,7 +154,7 @@ void rpc_server_loop() {
     write_server_status(command);
 
 #ifdef DEBUG
-    printf("Received command code: 0x%02x\n", command);
+    printf_P(rpc_server_loop_str0, command);
 #endif
 
     // Wait for MCU to clear the command register.
@@ -156,11 +162,11 @@ void rpc_server_loop() {
           read_client_command() != RPC_CMD_NONE);
 
 #ifdef DEBUG
-    printf("Executing command.\n");
+    printf_P(rpc_server_loop_str1);
 #endif
     rpc_exec(command);
 #ifdef DEBUG
-    printf("Done executing command.\n\n");
+    printf_P(rpc_server_loop_str2);
 #endif
 
     // Finish the RPC operation.

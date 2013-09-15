@@ -17,11 +17,11 @@
 
 // DuinoCube coprocessor USB host functions.
 
-#include <stdio.h>
 #include <string.h>
 
 #include <avr/io.h>
 
+#include "printf.h"
 #include "usb/Usb.h"
 #include "usb/USBJoystick.h"
 
@@ -32,6 +32,12 @@ static USBJoystick joystick;    // For USB joystick.
 
 USB_JoystickState joystick_state;   // Last known joystick state.
 
+const char joystick_update_stick_str0[] PROGMEM = "Updating joystick stick: ";
+const char joystick_update_stick_str1[] PROGMEM = "X = %d\n";
+const char joystick_update_stick_str2[] PROGMEM = "Y = %d\n";
+const char joystick_update_stick_str3[] PROGMEM =
+    "Unknown joystick axis changed: %u, value: %u\n";
+
 // Callbacks for updating joystick values.
 #define JOYSTICK_AXIS_X      0
 #define JOYSTICK_AXIS_Y      1
@@ -39,27 +45,32 @@ static void joystick_update_stick(uint8_t axis, uint8_t value) {
   switch(axis) {
   case JOYSTICK_AXIS_X:
 #ifdef DEBUG
-    printf("Updating joystick stick: X = %d\n", value);
+    printf_P(joystick_update_stick_str0);
+    printf_P(joystick_update_stick_str1, value);
 #endif
     joystick_state.x = value;
     break;
   case JOYSTICK_AXIS_Y:
 #ifdef DEBUG
-    printf("Updating joystick stick: Y = %d\n", value);
+    printf_P(joystick_update_stick_str0);
+    printf_P(joystick_update_stick_str2, value);
 #endif
     joystick_state.y = value;
     break;
   default:
 #ifdef DEBUG
-    printf("Unknown joystick axis changed: %u, value: %u\n", axis, value);
+    printf_P(joystick_update_stick_str3, axis, value);
 #endif
     break;
   }
 }
 
+const char joystick_update_button_str0[] PROGMEM =
+    "Updating joystick button: [%u] = %u\n";
+
 static void joystick_update_button(uint8_t button, uint8_t value) {
 #ifdef DEBUG
-  printf("Updating joystick button: [%u] = %u\n", button, value);
+  printf_P(joystick_update_button_str0, button, value);
 #endif
   // Set or clear the corresponding button bit in the current state.
   if (value)
@@ -72,11 +83,13 @@ static void joystick_update_hat(uint8_t hat, uint8_t value) {
   // TODO: Support joystick hat.
 }
 
+const char usb_init_str0[] PROGMEM = "USB powered on.\n";
+
 void usb_init() {
   usb.powerOn();
 
 #ifdef DEBUG
-  printf("USB powered on.\n");
+  printf_P(usb_init_str0);
 #endif
 
   // Set up USB joystick.
