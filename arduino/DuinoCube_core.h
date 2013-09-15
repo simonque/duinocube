@@ -24,6 +24,11 @@
 
 #include "DuinoCube_defs.h"
 
+enum {
+  CORE_BUS_MODE_MAIN,   // Main SPI bus has access to Core.
+  CORE_BUS_MODE_ALT,    // Secondary SPI bus has access to Core.
+};  // enum
+
 class DuinoCubeCore {
  public:
   // Initialize and teardown functions.
@@ -38,6 +43,9 @@ class DuinoCubeCore {
   // Functions to read/write block data.
   static void readData(uint16_t addr, void* data, uint16_t size);
   static void writeData(uint16_t addr, const void* data, uint16_t size);
+
+  // Set bus access to the Core memory space.
+  static void setBusMode(uint16_t mode);
 
  public:
   static uint8_t s_ss_pin;      // Pin for selecting DuinoCube Core Shield.

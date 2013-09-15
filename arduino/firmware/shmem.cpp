@@ -71,15 +71,28 @@ void shmem_read(uint16_t addr, void* data, uint16_t len) {
 
 void shmem_write(uint16_t addr, const void* data, uint16_t len) {
   const char* buf = (const char*)data;
-  spi_set_ss(DEV_SELECT_LOGIC);
-  spi_tx(OP_ACCESS_RAM);
 
-  spi_tx(RAM_WRITE);
-  spi_tx(addr >> 8);
-  spi_tx((uint8_t) addr);
-  for (uint16_t i = 0; i < len; ++i)
-    spi_tx(buf[i]);
+  if (addr < SHARED_MEMORY_SIZE) {
+    // Writing to generic shared memory.
+    spi_set_ss(DEV_SELECT_LOGIC);
+    spi_tx(OP_ACCESS_RAM);
 
+    spi_tx(RAM_WRITE);
+    spi_tx(addr >> 8);
+    spi_tx((uint8_t) addr);
+    for (uint16_t i = 0; i < len; ++i)
+      spi_tx(buf[i]);
+  } else {
+    // Writing to core memory space.
+    // TODO: get rid of magic number.
+    spi_set_ss(DEV_SELECT_FPGA);
+    addr = (addr - SHARED_MEMORY_SIZE) | 0x8000;
+
+    spi_tx(addr >> 8);
+    spi_tx((uint8_t) addr);
+    for (uint16_t i = 0; i < len; ++i)
+      spi_tx(buf[i]);
+  }
   spi_set_ss(DEV_SELECT_NONE);
 }
 

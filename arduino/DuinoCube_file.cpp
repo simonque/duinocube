@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "DuinoCube_core.h"
 #include "DuinoCube_rpc.h"
 #include "DuinoCube_rpc_file.h"
 #include "DuinoCube_system.h"
@@ -27,6 +28,7 @@
 #include "DuinoCube_file.h"
 
 // Local handles to other DuinoCube classes.
+static DuinoCubeCore core;
 static DuinoCubeSystem sys;
 static DuinoCubeRPC rpc;
 
@@ -78,6 +80,17 @@ uint16_t DuinoCubeFile::write(
            &args.out, sizeof(args.out));
 
   return args.out.size_written;
+}
+
+uint16_t DuinoCubeFile::readToCore(
+    uint16_t handle, uint16_t dst_addr, uint16_t size) {
+  // The Core memory space is at 0x8000, from the coprocessor's point of view.
+  // TODO: get rid of magic number.
+  // TODO: consider a better memory mapping scheme.
+  core.setBusMode(CORE_BUS_MODE_ALT);
+  uint16_t size_read = read(handle, dst_addr | 0x8000, size);
+  core.setBusMode(CORE_BUS_MODE_MAIN);
+  return size_read;
 }
 
 uint32_t DuinoCubeFile::size(uint16_t handle) {

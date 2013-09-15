@@ -29,6 +29,7 @@ class DuinoCubeFile {
   static void close(uint16_t handle);
   static uint16_t read(uint16_t handle, uint16_t dst_addr, uint16_t size);
   static uint16_t write(uint16_t handle, uint16_t src_addr, uint16_t size);
+  static uint16_t readToCore(uint16_t handle, uint16_t dst_addr, uint16_t size);
 
   // Returns the size of the file in bytes.
   static uint32_t size(uint16_t handle);

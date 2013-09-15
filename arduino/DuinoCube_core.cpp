@@ -125,3 +125,23 @@ uint16_t DuinoCubeCore::readWord(uint16_t addr) {
 
   return value_16;
 }
+
+void DuinoCubeCore::setBusMode(uint16_t mode) {
+  uint8_t bus_state = 0;
+
+  switch (mode) {
+  case CORE_BUS_MODE_MAIN:
+    bus_state = SPI_BUS_STATE_MAIN_BUS;
+    break;
+  case CORE_BUS_MODE_ALT:
+    bus_state = SPI_BUS_STATE_ALT_BUS;
+    break;
+  default:
+    // Do nothing.
+    return;
+  }
+
+  digitalWrite(s_ss_pin, LOW);
+  SPI.transfer(bus_state);
+  digitalWrite(s_ss_pin, HIGH);
+}
