@@ -105,7 +105,7 @@ uint16_t file_read(uint16_t handle, void* dst, uint16_t size) {
     return 0;
 
   UINT size_read = 0;
-  int status = f_read(&file_handles[handle], dst, size, &size_read);
+  int status = f_read(file, dst, size, &size_read);
 #ifdef DEBUG
   if (status != FR_OK) {
     fprintf(stderr, "f_read() of %u bytes returned status %d\n",
