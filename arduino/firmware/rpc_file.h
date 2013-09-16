@@ -28,5 +28,7 @@ void rpc_file_open();
 void rpc_file_close();
 void rpc_file_read();
 void rpc_file_write();
+void rpc_file_size();
+void rpc_file_seek();
 
 #endif  // __RPC_FILE_H__

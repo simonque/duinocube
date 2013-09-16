@@ -41,7 +41,7 @@ enum {
   RPC_CMD_FILE_CLOSE,           // Close a file handle.
   RPC_CMD_FILE_READ,            // Read data from a file handle.
   RPC_CMD_FILE_WRITE,           // Write data to a file handle.
-  RPC_CMD_FILE_STATS,           // Get info about an open file and its handle.
+  RPC_CMD_FILE_SIZE,            // Get the file size in bytes.
   RPC_CMD_FILE_SEEK,            // Move file handle pointer.
 
   // Shared memory allocation commands.

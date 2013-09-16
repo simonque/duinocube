@@ -114,3 +114,19 @@ void rpc_file_write() {
 
   shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }
+
+void rpc_file_size() {
+  RPC_FileSizeArgs args;
+  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+
+  args.out.size = file_size(args.in.handle);
+
+  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+}
+
+void rpc_file_seek() {
+  RPC_FileSeekArgs args;
+  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+
+  file_seek(args.in.handle, args.in.offset);
+}

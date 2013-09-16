@@ -28,8 +28,13 @@ class DuinoCubeFile {
   static uint16_t open(const char* filename, uint16_t mode);
   static void close(uint16_t handle);
   static uint16_t read(uint16_t handle, uint16_t dst_addr, uint16_t size);
-  static uint16_t write(uint16_t handle,
-                               uint16_t src_addr, uint16_t size);
+  static uint16_t write(uint16_t handle, uint16_t src_addr, uint16_t size);
+
+  // Returns the size of the file in bytes.
+  static uint32_t size(uint16_t handle);
+  // Move the file access pointer to |offset| bytes from the start.  It can also
+  // increase the file size.
+  static void seek(uint16_t handle, uint32_t offset);
 };
 
 #endif  // __DUINOCUBE_FILE_H__

@@ -98,6 +98,13 @@ static void rpc_exec(uint8_t command) {
   case RPC_CMD_FILE_WRITE:
     rpc_file_write();
     break;
+  case RPC_CMD_FILE_SIZE:
+    rpc_file_size();
+    break;
+  case RPC_CMD_FILE_SEEK:
+    rpc_file_seek();
+    break;
+
   case RPC_CMD_MEM_STAT:
     rpc_mem_stat();
     break;

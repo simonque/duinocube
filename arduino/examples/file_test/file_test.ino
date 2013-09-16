@@ -45,10 +45,30 @@ void loop() {
     Serial.print(size_read);
     Serial.println(" bytes from file.");
 
+    uint32_t expected_size = DC.File.size(handle);
+    if (expected_size == size_read) {
+      Serial.println("Size read matches expected size.");
+    } else {
+      Serial.print("Size mismatch, expected: ");
+      Serial.print(expected_size);
+      Serial.println(" bytes.");
+    }
+
     // Copy the file contents into a buffer.
     memset(buf, 0, sizeof(buf));
     DC.Sys.readSharedRAM(addr, buf, size_read);
     Serial.print("Read string: ");
+    Serial.println(buf);
+
+    // Clear the shared memory.
+    memset(buf, 0, sizeof(buf));
+    DC.Sys.writeSharedRAM(addr, buf, sizeof(buf));
+
+    // Reset the file pointer halfway and do it again.
+    DC.File.seek(handle, size_read / 2);
+    DC.File.read(handle, addr, sizeof(buf));
+    DC.Sys.readSharedRAM(addr, buf, size_read);
+    Serial.print("Half string: ");
     Serial.println(buf);
 
     DC.File.close(handle);

@@ -139,3 +139,11 @@ uint16_t file_write(uint16_t handle, const void* src, uint16_t size) {
 
   return size_written;
 }
+
+uint32_t file_size(uint16_t handle) {
+  return f_size((FIL*) handle);
+}
+
+void file_seek(uint16_t handle, uint32_t offset) {
+  f_lseek((FIL*) handle, offset);
+}

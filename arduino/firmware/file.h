@@ -36,4 +36,10 @@ void file_close(uint16_t handle);
 uint16_t file_read(uint16_t handle, void* dst, uint16_t size);
 uint16_t file_write(uint16_t handle, const void* src, uint16_t size);
 
+// Gets size of file.
+uint32_t file_size(uint16_t handle);
+
+// Move file access pointer.
+void file_seek(uint16_t handle, uint32_t offset);
+
 #endif  // __FILE_H__

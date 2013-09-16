@@ -64,4 +64,20 @@ struct RPC_FileWriteArgs {
   } out;
 };
 
+struct RPC_FileSizeArgs {
+  struct {
+    uint16_t handle;            // File handle.
+  } in;
+  struct {
+    uint32_t size;              // Number of bytes in file.
+  } out;
+};
+
+struct RPC_FileSeekArgs {
+  struct {
+    uint16_t handle;            // File handle.
+    uint32_t offset;            // Offset to seek.
+  } in;
+};
+
 #endif  // __DUINOCUBE_RPC_FILE_H__

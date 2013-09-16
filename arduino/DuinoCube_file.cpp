@@ -79,3 +79,22 @@ uint16_t DuinoCubeFile::write(
 
   return args.out.size_written;
 }
+
+uint32_t DuinoCubeFile::size(uint16_t handle) {
+  RPC_FileSizeArgs args;
+  args.in.handle = handle;
+
+  rpc.exec(RPC_CMD_FILE_SIZE,
+           &args.in, sizeof(args.in),
+           &args.out, sizeof(args.out));
+
+  return args.out.size;
+}
+
+void DuinoCubeFile::seek(uint16_t handle, uint32_t offset) {
+  RPC_FileSeekArgs args;
+  args.in.handle = handle;
+  args.in.offset = offset;
+
+  rpc.exec(RPC_CMD_FILE_SEEK, &args.in, sizeof(args.in), NULL, 0);
+}
