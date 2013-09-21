@@ -262,7 +262,7 @@ static void test_vram() {
 
   word buf[32];
   int num_errors = 0;
-  for (int bank = VRAM_BANK_BEGIN+1; bank < VRAM_BANK_END; ++bank) {
+  for (int bank = VRAM_BANK_BEGIN; bank < VRAM_BANK_END; ++bank) {
     for (int offset = 0; offset < VRAM_BANK_SIZE; offset += sizeof(buf)) {
       for(int buf_offset = 0;
           buf_offset < sizeof(buf) / sizeof(buf[0]);
