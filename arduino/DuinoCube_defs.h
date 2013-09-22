@@ -89,4 +89,91 @@
 #define VRAM_BANK_BEGIN         2  // VRAM spans several 16-KB banks.
 #define VRAM_BANK_END           4
 
+
+// ==== Main register fields ====
+// TODO: Add more defs here.
+
+// REG_OUTPUT_STATUS
+#define REG_HSYNC               0
+#define REG_VSYNC               1
+#define REG_HBLANK              2
+#define REG_VBLANK              3
+
+
+// ==== Tile layer register fields ====
+
+// TILE_CTRL0
+#define TILE_LAYER_ENABLED       0
+#define TILE_ENABLE_8x8          1
+#define TILE_ENABLE_8_BIT        2
+#define TILE_ENABLE_NOP          3
+#define TILE_ENABLE_SCROLL       4
+#define TILE_ENABLE_TRANSP       5
+#define TILE_ENABLE_ALPHA        6
+#define TILE_ENABLE_COLOR        7
+#define TILE_ENABLE_WRAP_X       8
+#define TILE_ENABLE_WRAP_Y       9
+#define TILE_ENABLE_FLIP        10
+#define TILE_PALETTE_START      12
+#define TILE_PALETTE_END        15
+
+// TILE_CTRL1
+#define TILE_HSIZE_0             0
+#define TILE_HSIZE_1             1
+#define TILE_VSIZE_0             2
+#define TILE_VSIZE_1             3
+#define TILE_LAYER_HSIZE_0       4
+#define TILE_LAYER_HSIZE_1       5
+#define TILE_LAYER_VSIZE_0       6
+#define TILE_LAYER_VSIZE_1       7
+
+// TILE_DATA_OFFSET
+#define TILE_INDEX_OFFSET_START  0
+#define TILE_INDEX_OFFSET_END    7
+#define TILE_IMAGE_OFFSET_START  8
+#define TILE_IMAGE_OFFSET_END   15
+
+// TILE_NOP_VALUE
+#define TILE_NOP_VALUE_START     0
+#define TILE_NOP_VALUE_END      12
+
+// TILE_TRANSP_VALUE
+#define TILE_TRANSP_VALUE_START  0
+#define TILE_TRANSP_VALUE_END    7
+
+
+// ==== Sprite register fields ====
+
+// SPRITE_CTRL0
+#define SPRITE_ENABLED             0
+#define SPRITE_ENABLE_SCROLL       4
+#define SPRITE_ENABLE_TRANSP       5
+#define SPRITE_ENABLE_ALPHA        6
+#define SPRITE_ENABLE_COLOR        7
+#define SPRITE_FLIP_X              8
+#define SPRITE_FLIP_Y              9
+#define SPRITE_FLIP_XY            10
+
+#define SPRITE_PALETTE_START      12
+#define SPRITE_PALETTE_END        15
+#define SPRITE_PALETTE_WIDTH  (SPRITE_PALETTE_END - SPRITE_PALETTE_START + 1)
+
+// SPRITE_CTRL1
+#define SPRITE_HSIZE_0             0
+#define SPRITE_HSIZE_1             1
+#define SPRITE_VSIZE_0             2
+#define SPRITE_VSIZE_1             3
+#define SPRITE_LAYER_HSIZE_0       4
+#define SPRITE_LAYER_HSIZE_1       5
+#define SPRITE_LAYER_VSIZE_0       6
+#define SPRITE_LAYER_VSIZE_1       7
+
+// SPRITE_REF_XY
+#define SPRITE_REF_XY_X_START      0
+#define SPRITE_REF_XY_X_END        5
+#define SPRITE_REF_XY_X_WIDTH (SPRITE_REF_XY_X_END - SPRITE_REF_XY_X_START + 1)
+#define SPRITE_REF_XY_Y_START      8
+#define SPRITE_REF_XY_Y_END       13
+#define SPRITE_REF_XY_Y_WIDTH (SPRITE_REF_XY_Y_END - SPRITE_REF_XY_Y_START + 1)
+
 #endif  // __DUINOCUBE_DEFS_H__
