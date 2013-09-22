@@ -108,6 +108,10 @@ static void draw() {
     DC.File.close(handle);
   }
 
+  // Turn off sprites so they don't interfere with the landscape demo.
+  for (int i = 0; i < NUM_SPRITES; ++i)
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0), 0);
+
   // Set up tile layer registers.
   // TODO: explain value.
   word tile_ctrl0_value =
