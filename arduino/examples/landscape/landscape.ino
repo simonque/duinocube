@@ -99,7 +99,7 @@ static void draw() {
     uint16_t file_size = DC.File.size(handle);
     printf("File %s is 0x%x bytes\n", filename, file_size);
     DC.Core.writeWord(REG_MEM_BANK, VRAM_BANK_BEGIN);
-    DC.Core.writeWord(REG_SYS_CTRL, 1);
+    DC.Core.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
     printf("Wrote 0x%x bytes to 0x%x\n",
            DC.File.readToCore(handle, addr, file_size), addr);
     DC.Core.writeWord(REG_MEM_BANK, 0);
@@ -110,7 +110,11 @@ static void draw() {
 
   // Set up tile layer registers.
   // TODO: explain value.
-  word tile_ctrl0_value = (1 << 0) | (1 << 3) | (1 << 5) | (1 << 10);
+  word tile_ctrl0_value =
+      (1 << TILE_LAYER_ENABLED) |
+      (1 << TILE_ENABLE_NOP) |
+      (1 << TILE_ENABLE_TRANSP) |
+      (1 << TILE_ENABLE_FLIP);
 
   struct TileLayerInfo {
     uint16_t ctrl0, empty, color_key, offset;
@@ -152,9 +156,9 @@ void loop() {
 
   const int step = 8;
   for (uint16_t i = 0; ; i += step) {
-    // Wait for the next Vblank.
-    // TODO: explain magic numbers.
-    while(!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << 3)));
+    // Wait for the start of the next Vblank.  So first wait for non-Vblanking,
+    // and then wait for Vblank.
+    while(!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
     // Calculate the next scroll values during the non-Vblank area, where there
     // is more time.
@@ -163,7 +167,7 @@ void loop() {
     uint16_t clouds_x = (i / 8);
     uint16_t clouds_y = -(i / 16);
 
-    while(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << 3)) ;
+    while(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)) ;
 
     // Scroll the camera.
     DC.Core.writeWord(REG_SCROLL_X, scroll_x);
