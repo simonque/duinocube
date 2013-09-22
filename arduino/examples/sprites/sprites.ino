@@ -64,19 +64,28 @@ static uint16_t* sprites_offsets[] = { &sprites16_offset, &sprites32_offset };
 #define abs(x) (((x) > 0) ? (x) : -(x))
 #define sign(x) (((x) >= 0) ? 1 : -1)
 
-// TODO: Increase the number of sprites.  The Arduino Uno has only 2KB of RAM.
-// Need to find a creative way to increase the sprite count without exceeding.
-// that limit.
-#define NUM_SPRITES_DRAWN           64
+#define NUM_SPRITES_DRAWN          256
 
-struct Sprite {
+// Contains the location of a sprite.
+struct SpriteLocation {
   int16_t x, y;                // Location.
-  int16_t dx, dy;              // Sprite speed.
-  int16_t step_x, step_y;      // |dx| and |dy| steps are taken per frame.
+};
+static SpriteLocation sprite_locations[NUM_SPRITES_DRAWN];
+
+// Contains data used to keep track of a sprite's movement.
+// This is separate from the location struct because there is not enough memory
+// on the Arduino Uno to store both for the max number of sprites.  So the
+// movement data will have to be stored in the DuinoCube's shared memory.
+// The fields are chosen as int8_t's to be as small as possible, to reduce time
+// spent copying to/from shared memory.
+struct SpriteMovement {
+  int8_t dx, dy;              // Sprite speed.
+  int8_t step_x, step_y;      // |dx| and |dy| steps are taken per frame.
                                // When the step counter reaches |FRAME_RATE|,
                                // the location is updated by one.
 };
-static Sprite sprites[NUM_SPRITES_DRAWN];
+// Address in shared memory for storing sprite movement data.
+static uint16_t sprite_movement_addr;
 
 // Copy graphics data from file system to Core.
 static void load_data() {
@@ -143,19 +152,35 @@ static void setup_sprites() {
   DC.Core.writeWord(REG_SCROLL_X, 0);
   DC.Core.writeWord(REG_SCROLL_Y, 0);
 
-  for (int i = 0; i < NUM_SPRITES_DRAWN; ++i) {
+  // Allocate movement data.
+  sprite_movement_addr =
+      DC.Mem.alloc(sizeof(SpriteMovement) * NUM_SPRITES_DRAWN);
+  if (!sprite_movement_addr) {
+    printf("Unable to allocate %u bytes for sprite movement data.\n",
+           sizeof(SpriteMovement) * NUM_SPRITES_DRAWN);
+    return;
+  }
+
+  uint16_t addr = sprite_movement_addr;
+  for (int i = 0; i < NUM_SPRITES_DRAWN; ++i, addr += sizeof(SpriteMovement)) {
     // Randomly generate some sprites.
-    Sprite& sprite = sprites[i];
+    SpriteLocation& sprite = sprite_locations[i];
     sprite.x = rand() % WORLD_SIZE;
     sprite.y = rand() % WORLD_SIZE;
-    sprite.dx = rand() % (MAX_SPEED - MIN_SPEED) + MIN_SPEED;
-    sprite.dy = rand() % (MAX_SPEED - MIN_SPEED) + MIN_SPEED;
+
+    // Select speed and direction for each sprite.
+    SpriteMovement movement;
+    movement.dx = rand() % (MAX_SPEED - MIN_SPEED) + MIN_SPEED;
+    movement.dy = rand() % (MAX_SPEED - MIN_SPEED) + MIN_SPEED;
     if (rand() % 2)
-        sprite.dx *= -1;
+      movement.dx *= -1;
     if (rand() % 2)
-        sprite.dy *= -1;
-    sprite.step_x = 0;
-    sprite.step_y = 0;
+      movement.dy *= -1;
+    movement.step_x = 0;
+    movement.step_y = 0;
+
+    // Store movement data in shared memory.
+    DC.Sys.writeSharedRAM(addr, &movement, sizeof(movement));
   }
 
   for (int i = 0; i < NUM_SPRITES_DRAWN; ++i) {
@@ -193,10 +218,15 @@ static void setup_sprites() {
     }
 
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_COLOR_KEY), 0xff);
-    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprites[i].x);
-    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprites[i].y);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite_locations[i].x);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprite_locations[i].y);
   }
 }
+
+// Read multiple sprite movement structs at a time, to reduce the time spent
+// sending control bytes vs data bytes.
+#define NUM_MOVEMENTS_TO_READ    64
+SpriteMovement movements[NUM_MOVEMENTS_TO_READ];
 
 extern uint8_t __bss_end;   // End of statically allocated memory.
 extern uint8_t __stack;     // Where local variables are allocated.
@@ -217,48 +247,85 @@ void setup() {
   setup_sprites();
 }
 
+// For measuring the time spent in each cycle.  Important to know if loop()
+// takes 1 or 2 frames.
+#define DEBUG
+
 void loop() {
+#ifdef DEBUG
+  static uint32_t t0 = 0;
+#endif
+
   // Wait for the next non-Vblank period.
   while(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
+
+#ifdef DEBUG
+  uint32_t t1 = millis();
+#endif
 
   // Continuously move the sprites.
   // Update the sprite location values for the next frame.  Compute this
   // during the non-blanking period.  Note that the actual sprites are NOT
   // being updated here, as they are being drawn to the screen.
-  for (int i = 0; i < NUM_SPRITES_DRAWN; ++i) {
-    Sprite& sprite = sprites[i];
-    sprite.step_x += sprite.dx;
-    sprite.step_y += sprite.dy;
-    while (abs(sprite.step_x) >= FRAME_RATE) {
-      sprite.step_x -= sign(sprite.step_x) * FRAME_RATE;
-      sprite.x += sign(sprite.dx);
+  uint16_t addr = sprite_movement_addr;
+  for (int i = 0; i < NUM_SPRITES_DRAWN; ++i, addr += sizeof(SpriteMovement)) {
+    // Load movement data from shared memory.
+    if (i % NUM_MOVEMENTS_TO_READ == 0)
+      DC.Sys.readSharedRAM(addr, movements, sizeof(movements));
+    SpriteMovement& movement = movements[i % NUM_MOVEMENTS_TO_READ];
+
+    // Update the location and movement counter.
+    SpriteLocation& location = sprite_locations[i];
+    movement.step_x += movement.dx;
+    movement.step_y += movement.dy;
+    while (abs(movement.step_x) >= FRAME_RATE) {
+      movement.step_x -= sign(movement.step_x) * FRAME_RATE;
+      location.x += sign(movement.dx);
     }
-    while (abs(sprite.step_y) >= FRAME_RATE) {
-      sprite.step_y -= sign(sprite.step_y) * FRAME_RATE;
-      sprite.y += sign(sprite.dy);
+    while (abs(movement.step_y) >= FRAME_RATE) {
+      movement.step_y -= sign(movement.step_y) * FRAME_RATE;
+      location.y += sign(movement.dy);
     }
+
+    // Write the updated movement data back to shared memory.
+    DC.Sys.writeSharedRAM(addr, &movement, sizeof(movement));
 
     // Adjust the sprites if they move off screen -- shift them to the other
     // side so they re-enter the visible area quickly.  This way they spend
     // less time in the off-screen area, so the on-sprite density is higher.
-    if (sprite.x > SCREEN_WIDTH && sprite.dx > 0)
-      sprite.x -= (SCREEN_WIDTH + MAX_SPRITE_SIZE);
-    if (sprite.x < -MAX_SPRITE_SIZE && sprite.dx < 0)
-      sprite.x += (SCREEN_WIDTH + MAX_SPRITE_SIZE);
+    if (location.x > SCREEN_WIDTH && movement.dx > 0)
+      location.x -= (SCREEN_WIDTH + MAX_SPRITE_SIZE);
+    if (location.x < -MAX_SPRITE_SIZE && movement.dx < 0)
+      location.x += (SCREEN_WIDTH + MAX_SPRITE_SIZE);
 
-    if (sprite.y > SCREEN_HEIGHT && sprite.dy > 0)
-      sprite.y -= (SCREEN_HEIGHT + MAX_SPRITE_SIZE);
-    else if (sprite.y < -MAX_SPRITE_SIZE && sprite.dy < 0)
-      sprite.y += (SCREEN_HEIGHT + MAX_SPRITE_SIZE);
+    if (location.y > SCREEN_HEIGHT && movement.dy > 0)
+      location.y -= (SCREEN_HEIGHT + MAX_SPRITE_SIZE);
+    else if (location.y < -MAX_SPRITE_SIZE && movement.dy < 0)
+      location.y += (SCREEN_HEIGHT + MAX_SPRITE_SIZE);
   }
+#ifdef DEBUG
+  uint32_t t2 = millis();
+  printf("Computation time: %lu ms\n", t2 - t1);
+#endif
 
   // Wait for the next Vblank.
   while(!DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
 
+#ifdef DEBUG
+  uint32_t t3 = millis();
+#endif
+
   // Write the new sprite location values to sprite registers.
   for (int i = 0; i < NUM_SPRITES_DRAWN; ++i) {
-    Sprite& sprite = sprites[i];
-    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);
-    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprite.y);
+    SpriteLocation& location = sprite_locations[i];
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), location.x);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), location.y);
   }
+#ifdef DEBUG
+  uint32_t t4 = millis();
+  printf("Update time: %lu ms\n", t3 - t1);
+
+  printf("Cycle time: %lu ms\n", t4 - t0);
+  t0 = t4;
+#endif
 }
