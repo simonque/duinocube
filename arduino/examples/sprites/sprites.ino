@@ -257,7 +257,7 @@ void loop() {
 #endif
 
   // Wait for the next non-Vblank period.
-  while(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
+  while (DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
 
 #ifdef DEBUG
   uint32_t t1 = millis();
@@ -309,7 +309,7 @@ void loop() {
 #endif
 
   // Wait for the next Vblank.
-  while(!DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
+  while (!DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
 
 #ifdef DEBUG
   uint32_t t3 = millis();
