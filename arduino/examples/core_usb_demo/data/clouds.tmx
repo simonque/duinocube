@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="32" height="32" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="platform" tilewidth="16" tileheight="16">
+  <image source="platform.png" width="192" height="304"/>
+ </tileset>
+ <tileset firstgid="229" name="cloud" tilewidth="16" tileheight="16">
+  <image source="cloud.bmp" trans="ff00ff" width="128" height="32"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztljkOgDAQA/10Xguk4XoBk4I+YqVNEB7JtaMU45XMqBRpWslCZpLZfdF3koPsZEvuj+B/M8ZEwBvCH8Ij1Sfp4A3hD+ER4ZPqlWa+/Pa/0WunKqXjTj07mdlpTAR79T2+ycfkBtjUTCM=
+  </data>
+ </layer>
+</map>

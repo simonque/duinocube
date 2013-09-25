@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="32" height="32" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="Desert" tilewidth="16" tileheight="16">
+  <image source="tileset8.bmp" width="128" height="96" trans="#0000FF"/>
+ </tileset>
+ <layer name="Ground" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJzt17EKgDAMhOEMog6iTtap7/+YXiGBIIJTE5EbvvkvdLi2ikjtaIUN9s4d9p8dUOBM6hMRfcEIk5oT+rYFfg8iz+P7i3bv54nqmyJx++T7g3Yj79+2mHtMRPR/9ubIeG80b//PC5FSdMk=
+  </data>
+ </layer>
+ <layer name="Buildings" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztlssOgyAQRce6UlfalTVtUh+LVvuPfnqHkGmQqECiQ2u5ydkBh0xgACBETTplJBj9o8JnL7+aCDkh8QZrlcjFgQpJQNYv28B/R2oHmp38LfJEOk9+se4NzPU4qn8Aeb5envxL6OeC26/Xhdu/d/0fIOtrS+/op165Rmw5jrg6+Gmva2SW4+bmmZIjhYGz5bi5eSH+or/dFbNf7R2iT/Ye/fR+BX/w/6Nf/BO477/+dnPf/2/NG0C3H64=
+  </data>
+ </layer>
+ <layer name="Objects" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztl0kOgCAMRXsTuxJX4pE8ikfxqJaFiWmYVEpxeEmjIOF3EEQAgI4MQYeezJANAnOPnr7OM8aSTQL6pbCsjawdyh2PtRW4X1T/RcMPrs/zrInEenC0FGMOvYKm9F4Qqi3vl3oHUhqu75h36RoY1t71asQf8+PnO7RS+7t+IMBaWg8Tz4/rlMYi2XzGh5x5HVe+Xb4zYAy8oKGFDdzHxtWilfVUgjFwzeFp5603cuY/qPaZQ5sNBogKtA==
+  </data>
+ </layer>
+</map>
