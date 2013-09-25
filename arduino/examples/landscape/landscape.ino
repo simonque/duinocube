@@ -139,6 +139,8 @@ static void draw() {
                       layer_info[i].color_key);
     DC.Core.writeWord(TILE_LAYER_REG(i, TILE_DATA_OFFSET),
                       layer_info[i].offset);
+    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_OFFSET_X), 0);
+    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_OFFSET_Y), 0);
   }
 }
 
