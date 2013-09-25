@@ -79,8 +79,8 @@ static SpriteLocation sprite_locations[NUM_SPRITES_DRAWN];
 // The fields are chosen as int8_t's to be as small as possible, to reduce time
 // spent copying to/from shared memory.
 struct SpriteMovement {
-  int8_t dx, dy;              // Sprite speed.
-  int8_t step_x, step_y;      // |dx| and |dy| steps are taken per frame.
+  int8_t dx, dy;               // Sprite speed.
+  int8_t step_x, step_y;       // |dx| and |dy| steps are taken per frame.
                                // When the step counter reaches |FRAME_RATE|,
                                // the location is updated by one.
 };
