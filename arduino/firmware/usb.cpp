@@ -27,6 +27,8 @@
 
 #include "usb.h"
 
+#define UINT8_MAX     ((uint8_t)(~0))
+
 static USB usb;                 // For USB host.
 static USBJoystick joystick;    // For USB joystick.
 
@@ -96,6 +98,9 @@ void usb_init() {
 
   // Clear the joystick state.
   memset(&joystick_state, 0, sizeof(joystick_state));
+  // Center the cached joystick value.
+  joystick_state.x = UINT8_MAX / 2;
+  joystick_state.y = UINT8_MAX / 2;
 
   // Specify callbacks to update joystick state.
   joystick.setStickValueDidChangeCallback(joystick_update_stick);
