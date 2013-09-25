@@ -259,7 +259,7 @@ void loop() {
   const int step = 8;
   for (uint16_t i = 0; ; i += step) {
     // Wait for visible, non-vblanked region to do computations.
-    while((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+    while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
     // Read user input.
     JoystickState joystick = DC.USB.readJoystick();
@@ -333,7 +333,7 @@ void loop() {
     uint16_t clouds_y = -(i / 16);
 
     // Wait for Vblank.
-    while(!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+    while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
     // Scroll the camera.
     DC.Core.writeWord(REG_SCROLL_X, scroll_x);

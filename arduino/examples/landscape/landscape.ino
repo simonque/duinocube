@@ -162,7 +162,7 @@ void loop() {
   for (uint16_t i = 0; ; i += step) {
     // Wait for the start of the next Vblank.  So first wait for non-Vblanking,
     // and then wait for Vblank.
-    while(!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+    while (DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
 
     // Calculate the next scroll values during the non-Vblank area, where there
     // is more time.
@@ -171,7 +171,7 @@ void loop() {
     uint16_t clouds_x = (i / 8);
     uint16_t clouds_y = -(i / 16);
 
-    while(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)) ;
+    while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK))) ;
 
     // Scroll the camera.
     DC.Core.writeWord(REG_SCROLL_X, scroll_x);
