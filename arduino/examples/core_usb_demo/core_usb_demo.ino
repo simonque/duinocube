@@ -242,21 +242,37 @@ void setup() {
 #define BUTTON_L2  11
 #define BUTTON_R2  12
 
-#define SPRITE_SIZE          1024        // 32x32 sprite.
+#define SCREEN_WIDTH          320       // Screen dimensions.
+#define SCREEN_HEIGHT         240       // TODO: de-hardcode this.
+
+#define SPRITE_WIDTH           32       // Dimensions of 32x32 sprite.
+#define SPRITE_HEIGHT          32
+#define SPRITE_SIZE        (SPRITE_WIDTH * SPRITE_HEIGHT)
 #define NUM_SPRITE_IMAGES       4
 
 #define UINT8_MAX     ((uint8_t)(~0))
+
+#define MAX_MOVEMENT_SPEED      3
 
 void loop() {
   // Start camera at (0, 0).
   DC.Core.writeWord(REG_SCROLL_X, 0);
   DC.Core.writeWord(REG_SCROLL_Y, 0);
 
-  uint16_t scroll_x = 0;
-  uint16_t scroll_y = 0;
+  int16_t scroll_x = 0;
+  int16_t scroll_y = 0;
 
-  uint16_t prev_buttons = 0;
+  JoystickState prev_joystick;
+  prev_joystick.buttons = 0;
+  prev_joystick.x = UINT8_MAX / 2;
+  prev_joystick.y = UINT8_MAX / 2;
+
   uint16_t old_flip_flags = 0;
+
+  int8_t dx = 0;
+  int8_t dy = 0;
+
+  uint8_t sprite_z = 3;
 
   const int step = 8;
   for (uint16_t i = 0; ; i += step) {
@@ -269,19 +285,19 @@ void loop() {
     // The four main control buttons select the orientation.
     uint16_t new_flip_flags = old_flip_flags;
     if ((joystick.buttons & (1 << BUTTON_1)) &&
-        !(prev_buttons & (1 << BUTTON_1))) {
+        !(prev_joystick.buttons & (1 << BUTTON_1))) {
       new_flip_flags = 0;
     }
     if ((joystick.buttons & (1 << BUTTON_2)) &&
-        !(prev_buttons & (1 << BUTTON_2))) {
+        !(prev_joystick.buttons & (1 << BUTTON_2))) {
       new_flip_flags = (1 << SPRITE_FLIP_Y) | (1 << SPRITE_FLIP_XY);
     }
     if ((joystick.buttons & (1 << BUTTON_3)) &&
-        !(prev_buttons & (1 << BUTTON_3))) {
+        !(prev_joystick.buttons & (1 << BUTTON_3))) {
       new_flip_flags = (1 << SPRITE_FLIP_Y);
     }
     if ((joystick.buttons & (1 << BUTTON_4)) &&
-        !(prev_buttons & (1 << BUTTON_4))) {
+        !(prev_joystick.buttons & (1 << BUTTON_4))) {
       new_flip_flags = (1 << SPRITE_FLIP_XY);
     }
     if (old_flip_flags != new_flip_flags)
@@ -302,11 +318,11 @@ void loop() {
     int sprite_image_index =
         (player_sprite.offset - sprites_offset) / SPRITE_SIZE;
     if ((joystick.buttons & (1 << BUTTON_L1)) &&
-        !(prev_buttons & (1 << BUTTON_L1))) {
+        !(prev_joystick.buttons & (1 << BUTTON_L1))) {
       --sprite_image_index;
     }
     if ((joystick.buttons & (1 << BUTTON_R1)) &&
-        !(prev_buttons & (1 << BUTTON_R1))) {
+        !(prev_joystick.buttons & (1 << BUTTON_R1))) {
       ++sprite_image_index;
     }
     // Adjust for valid image index values.
@@ -314,21 +330,64 @@ void loop() {
         (sprite_image_index + NUM_SPRITE_IMAGES) % NUM_SPRITE_IMAGES;
     player_sprite.offset = sprites_offset + sprite_image_index * SPRITE_SIZE;
 
-    // TODO: Allow L2 and R2 buttons to change sprite Z-level.
-
-    // Save the current button joystick for the next cycle.
-    prev_buttons = joystick.buttons;
+    // L2 and R2 buttons to change sprite Z-level.
+    if ((joystick.buttons & (1 << BUTTON_R2)) &&
+        !(prev_joystick.buttons & (1 << BUTTON_R2)) &&
+        sprite_z < NUM_TILE_LAYERS - 1) {
+      ++sprite_z;
+    } else if ((joystick.buttons & (1 << BUTTON_L2)) &&
+               !(prev_joystick.buttons & (1 << BUTTON_L2)) &&
+               sprite_z > 0) {
+      --sprite_z;
+    }
 
     // Directional pad moves sprite.
-    if (joystick.x == 0)
-      --player_sprite.x;
-    else if (joystick.x == UINT8_MAX)
-      ++player_sprite.x;
+    if (joystick.x == 0) {
+      // Use acceleration.
+      if (prev_joystick.x != joystick.x)
+        dx = -1;
+      else if (dx > -MAX_MOVEMENT_SPEED)
+        --dx;
+      player_sprite.x += dx;
+    }
+    else if (joystick.x == UINT8_MAX) {
+      // Use acceleration.
+      if (prev_joystick.x != joystick.x)
+        dx = 1;
+      else if (dx < MAX_MOVEMENT_SPEED)
+        ++dx;
+      player_sprite.x += dx;
+    }
 
-    if (joystick.y == 0)
-      --player_sprite.y;
-    else if (joystick.y == UINT8_MAX)
-      ++player_sprite.y;
+    if (joystick.y == 0) {
+      // Use acceleration.
+      if (prev_joystick.y != joystick.y)
+        dy = -1;
+      else if (dy > -MAX_MOVEMENT_SPEED)
+        --dy;
+      player_sprite.y += dy;
+    }
+    else if (joystick.y == UINT8_MAX) {
+      // Use acceleration.
+      if (prev_joystick.y != joystick.y)
+        dy = 1;
+      else if (dy < MAX_MOVEMENT_SPEED)
+        ++dy;
+      player_sprite.y += dy;
+    }
+
+    // Save the current joystick state for the next cycle.
+    prev_joystick = joystick;
+
+    if (player_sprite.x < scroll_x)
+      scroll_x = player_sprite.x;
+    else if (player_sprite.x >= scroll_x + SCREEN_WIDTH - SPRITE_WIDTH)
+      scroll_x = player_sprite.x + SPRITE_WIDTH - SCREEN_WIDTH;
+
+    if (player_sprite.y < scroll_y)
+      scroll_y = player_sprite.y;
+    else if (player_sprite.y >= scroll_y + SCREEN_HEIGHT - SPRITE_HEIGHT)
+      scroll_y = player_sprite.y + SPRITE_HEIGHT - SCREEN_HEIGHT;
 
     // Update the cloud movement.
     uint16_t clouds_x = (i / 8);
@@ -350,5 +409,6 @@ void loop() {
     DC.Core.writeWord(SPRITE_REG(0, SPRITE_DATA_OFFSET), player_sprite.offset);
     DC.Core.writeWord(SPRITE_REG(0, SPRITE_OFFSET_X), player_sprite.x);
     DC.Core.writeWord(SPRITE_REG(0, SPRITE_OFFSET_Y), player_sprite.y);
+    DC.Core.writeWord(16, sprite_z);
   }
 }
