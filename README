@@ -1,7 +1,30 @@
-ChronoCube Library
-==================
+DuinoCube Library
+=================
+By Simon Que
 
-Contains software interface, development tools, and examples for working with
-the ChronoCube hardware.
+Contains the Arduino library for DuinoCube, plus all related software code.
 
-Currently developing for Atmel AVR only.
+Contents:
+
+  DuinoCube/  Arduino library for using DuinoCube.  In the Arduino editor, add
+              this library to the Arduino environment using Sketch -> Import
+              Library -> Add library.
+
+  examples/   Sample Arduino sketches that test the various parts of DuinoCube
+              as well as DuinoCube as a whole.  Use them as an example for
+              writing your own apps.
+
+  firmware/   Code that runs on the DuinoCube coprocessor.  There is no need to
+              deal with this code unless you want to customize the coprocessor.
+              When building, make sure to add the DuinoCube/ folder as an
+              include path.
+
+  utils/      Tools for game development with DuinoCube.  Includes programs such
+              as:
+                - bin2c: Converts a file's data into a C array.  No longer
+                         useful for DuinoCube if you have the SD card feature.
+                - bmp2raw: Converts a bitmap file to raw pixel data and palette
+                           data.  Compile with EasyBMP library in third-party
+                           repo.
+                - tmx2dat: Converts Tiled map files (TMX) to raw tile map files.
+                           Compile with TmxParser library in third-party repo.
