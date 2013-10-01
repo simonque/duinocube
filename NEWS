@@ -1,6 +1,9 @@
 Release history
 ===============
 
+0.2.1  --   1 Oct 2013
+    - Reset the core bus to main mode before each access.
+
 0.2.0  --  29 Sep 2013
     - Added DuinoCube code:
         = Arduino library.
