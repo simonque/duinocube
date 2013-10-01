@@ -45,6 +45,11 @@ void DuinoCubeCore::begin(uint8_t ss_pin) {
 }
 
 void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
+  // TODO: There's some glitch that causes the bus mode to be set to the
+  // coprocessor bus occasionally.  It causes lockups.  To avoid it, set the
+  // bus mode to the main bus every time, in each Core access function.
+  setBusMode(CORE_BUS_MODE_MAIN);
+
   digitalWrite(s_ss_pin, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
@@ -59,6 +64,8 @@ void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
 }
 
 void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
+  setBusMode(CORE_BUS_MODE_MAIN);
+
   digitalWrite(s_ss_pin, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
@@ -73,6 +80,8 @@ void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
 }
 
 void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
+  setBusMode(CORE_BUS_MODE_MAIN);
+
   digitalWrite(s_ss_pin, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
@@ -84,6 +93,8 @@ void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
 }
 
 uint8_t DuinoCubeCore::readByte(uint16_t addr) {
+  setBusMode(CORE_BUS_MODE_MAIN);
+
   digitalWrite(s_ss_pin, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
@@ -97,6 +108,8 @@ uint8_t DuinoCubeCore::readByte(uint16_t addr) {
 }
 
 void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
+  setBusMode(CORE_BUS_MODE_MAIN);
+
   digitalWrite(s_ss_pin, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
@@ -109,6 +122,8 @@ void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
 }
 
 uint16_t DuinoCubeCore::readWord(uint16_t addr) {
+  setBusMode(CORE_BUS_MODE_MAIN);
+
   digitalWrite(s_ss_pin, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
