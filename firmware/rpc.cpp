@@ -17,6 +17,8 @@
 
 // DuinoCube remote procedure call functions.
 
+#include <string.h>
+
 #include "DuinoCube_rpc.h"
 #include "DuinoCube_rpc_file.h"
 #include "DuinoCube_rpc_mem.h"
@@ -56,8 +58,9 @@ const char rpc_hello_str0[] PROGMEM = "Hello world.";
 // Test function that writes a string to a buffer.
 static void rpc_hello(RPC_HelloArgs* args) {
   char str[20];
-  for (size_t i = 0; i < sizeof(str); ++i)
-    str[i] = pgm_read_byte(rpc_hello_str0);
+  memset(str, 0, sizeof(str));
+  for (size_t i = 0; i < sizeof(str) && pgm_read_byte(rpc_hello_str0[i]); ++i)
+    str[i] = pgm_read_byte(rpc_hello_str0 + i);
   shmem_write(args->in.buf_addr, str, sizeof(str));
 }
 
