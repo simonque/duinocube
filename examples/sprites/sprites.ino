@@ -323,7 +323,7 @@ void loop() {
   }
 #ifdef DEBUG
   uint32_t t4 = millis();
-  printf("Update time: %lu ms\n", t3 - t1);
+  printf("Update time: %lu ms\n", t4 - t3);
 
   printf("Cycle time: %lu ms\n", t4 - t0);
   t0 = t4;
