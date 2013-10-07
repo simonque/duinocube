@@ -251,6 +251,10 @@ void setup() {
 // takes 1 or 2 frames.
 #define DEBUG
 
+// Compare the debug comments with and without this define to see how much of a
+// speedup comes from using fast sprite location updates.
+#define FAST_SPRITE_LOCATIONS
+
 void loop() {
 #ifdef DEBUG
   static uint32_t t0 = 0;
@@ -316,11 +320,16 @@ void loop() {
 #endif
 
   // Write the new sprite location values to sprite registers.
+#ifdef FAST_SPRITE_LOCATIONS
+  DC.Core.writeData(SPRITE_XY_BASE, sprite_locations, sizeof(sprite_locations));
+#else
   for (int i = 0; i < NUM_SPRITES_DRAWN; ++i) {
     SpriteLocation& location = sprite_locations[i];
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), location.x);
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), location.y);
   }
+#endif
+
 #ifdef DEBUG
   uint32_t t4 = millis();
   printf("Update time: %lu ms\n", t4 - t3);
