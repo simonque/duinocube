@@ -19,7 +19,7 @@ void loop() {
   test_sprites();
   test_tilemaps();
   test_vram();
-  Serial.print("Done testing...\n");
+  printf("Done testing...\n");
   while(true); 
 }
 
@@ -31,7 +31,7 @@ word get_test_value(word value) {
 }
 
 static void test_registers() {
-  Serial.print("Testing registers.\n");
+  printf("Testing registers.\n");
   const int NUM_REGISTERS = 16;
 
   const int main_regs_to_read[] = {
@@ -55,14 +55,8 @@ static void test_registers() {
     word value = DC.Core.readWord(reg);
     word expected = get_test_value(reg);
     if (value != expected) {
-      Serial.print("Mismatch in register readback. ");
-      Serial.print("Register [0x");
-      Serial.print(reg, HEX);
-      Serial.print("], expected [0x");
-      Serial.print(expected, HEX);
-      Serial.print("], actual [0x");
-      Serial.print(value, HEX);
-      Serial.print("]\n");
+      printf("Mismatch in register readback. Register [0x%x], expected [0x%x], "
+             " actual [0x%x]\n", reg, expected, value);
     }
     // Reset register.
     DC.Core.writeWord(reg, 0);
@@ -87,20 +81,12 @@ static void test_registers() {
          offset < sizeof(tile_regs_to_read) / sizeof(tile_regs_to_read[0]);
          ++offset) {
       int reg = tile_regs_to_read[offset];
-
       word value = DC.Core.readWord(TILE_LAYER_REG(index, reg));
       word expected = get_test_value(index + reg);
       if (value != expected) {
-        Serial.print("Mismatch in tile register readback. ");
-        Serial.print("Tile layer ");
-        Serial.print(index);
-        Serial.print(", Register [0x");
-        Serial.print(reg, HEX);
-        Serial.print("], expected [0x");
-        Serial.print(expected, HEX);
-        Serial.print("], actual [0x");
-        Serial.print(value, HEX);
-        Serial.print("]\n");
+        printf("Mismatch in tile register readback. Tile layer %d, "
+               "Register [0x%x], expected [0x%x], actual [0x%x]\n",
+               index, reg, expected, value);
       } else {
         // Reset register.
         DC.Core.writeWord(TILE_LAYER_REG(index, reg), 0);
@@ -110,7 +96,7 @@ static void test_registers() {
 }
 
 static void test_palettes() {
-  Serial.print("Testing palettes.\n");
+  printf("Testing palettes.\n");
   struct PaletteEntry {
     byte r, g, b;
     byte padding;
@@ -145,28 +131,16 @@ static void test_palettes() {
       if (single_entry == palette[entry])
         continue;
 
-      Serial.print("Mismatch in palette entry readback. ");
-      Serial.print("Palette ");
-      Serial.print(index);
-      Serial.print(", Entry [0x");
-      Serial.print(entry, HEX);
-      Serial.print("], expected [0x");
-      Serial.print(single_entry.r, HEX);
-      Serial.print(", 0x");
-      Serial.print(single_entry.g, HEX);
-      Serial.print(", 0x");
-      Serial.print(single_entry.b, HEX);
-      Serial.print(", 0x");
-      Serial.print(single_entry.padding, HEX);
-      Serial.print("], actual [0x");
-      Serial.print(palette[entry].r, HEX);
-      Serial.print(", 0x");
-      Serial.print(palette[entry].g, HEX);
-      Serial.print(", 0x");
-      Serial.print(palette[entry].b, HEX);
-      Serial.print(", 0x");
-      Serial.print(palette[entry].padding, HEX);
-      Serial.print("]\n");
+      printf("Mismatch in palette entry readback. Palette %d, Entry [0x%x]\n",
+             index, entry);
+/*  NOTE: This causes a printing glitch for some unknown reason.  Disabling.
+      printf(" expected [0x%x, 0x%x, 0x%x, 0x%x],"
+             " actual [0x%x, 0x%x, 0x%x, 0x%x]\n",
+             single_entry.r, single_entry.g, single_entry.b,
+             single_entry.padding,
+             palette[entry].r, palette[entry].g, palette[entry].b,
+             palette[entry].padding);
+*/
       ++num_errors;
       if (num_errors >= MAX_ERRORS_PER_TEST)
         return;
@@ -175,7 +149,7 @@ static void test_palettes() {
 }
 
 static void test_sprites() {
-  Serial.print("Testing sprites.\n");
+  printf("Testing sprites.\n");
   int num_errors = 0;
   for (int index = 0; index < NUM_SPRITES; ++index) {
     for (int reg = 0; reg < NUM_SPRITE_REGS; ++reg)
@@ -188,17 +162,8 @@ static void test_sprites() {
       if (value == expected)
         continue;
 
-      Serial.print("Mismatch in sprite register readback. ");
-      Serial.print("Sprite ");
-      Serial.print(index);
-      Serial.print(", Register [0x");
-      Serial.print(reg, HEX);
-      Serial.print("], expected [0x");
-      Serial.print(expected, HEX);
-      Serial.print("], actual [0x");
-      Serial.print(value, HEX);
-      Serial.print("]\n");
-
+      printf("Mismatch in sprite register readback. Sprite %d, Register [0x%x]"
+             ", expected [0x%x], actual [0x%x]\n", index, reg, expected, value);
       ++num_errors;
       if (num_errors >= MAX_ERRORS_PER_TEST)
         return;
@@ -207,7 +172,7 @@ static void test_sprites() {
 }
 
 static void test_tilemaps() {
-  Serial.print("Testing tilemaps.\n");
+  printf("Testing tilemaps.\n");
   int num_errors = 0;
   word buf[32];
 
@@ -236,16 +201,9 @@ static void test_tilemaps() {
         if (value == expected)
           continue;
 
-        Serial.print("Mismatch in tilemap readback. ");
-        Serial.print("Tilemap ");
-        Serial.print(index);
-        Serial.print(", offset [0x");
-        Serial.print(offset + buf_offset * 2, HEX);
-        Serial.print("], expected [0x");
-        Serial.print(expected, HEX);
-        Serial.print("], actual [0x");
-        Serial.print(value, HEX);
-        Serial.print("]\n");
+        printf("Mismatch in tilemap readback. Tilemap %d, offset [0x%x], "
+               "expected [0x%x], actual [0x%x]\n", index,
+               offset + buf_offset * 2, expected, value, 0, 0);
         ++num_errors;
         if (num_errors >= MAX_ERRORS_PER_TEST)
           return;
@@ -255,7 +213,7 @@ static void test_tilemaps() {
 }
 
 static void test_vram() {
-  Serial.print("Testing VRAM.\n");
+  printf("Testing VRAM.\n");
 
   // Enable VRAM access.
   DC.Core.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
@@ -288,16 +246,9 @@ static void test_vram() {
         if (value == expected)
           continue;
 
-        Serial.print("Mismatch in VRAM readback. ");
-        Serial.print("Bank ");
-        Serial.print(bank);
-        Serial.print(", offset [0x");
-        Serial.print(offset + buf_offset * 2, HEX);
-        Serial.print("], expected [0x");
-        Serial.print(expected, HEX);
-        Serial.print("], actual [0x");
-        Serial.print(value, HEX);
-        Serial.print("]\n");
+        printf("Mismatch in VRAM readback. Bank %d, offset [0x%x], expected "
+               "[0x%x], actual [0x%x]\n", bank, offset + buf_offset * 2,
+               expected, value);
         ++num_errors;
         if (num_errors >= MAX_ERRORS_PER_TEST)
           return;

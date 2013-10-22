@@ -36,8 +36,7 @@ void loop() {
   // Call Hello(), should get a "hello world" string back.
   rpc.hello(addr);
   DC.Sys.readSharedRAM(addr, buf, sizeof(buf));
-  Serial.print("Hello() returned: ");
-  Serial.println(buf);
+  printf("Hello() returned: %s\n", buf);
 
   // Call Invert() to flip all the bits in a string.
   // Calling it twice will return the same string.
@@ -46,13 +45,11 @@ void loop() {
   DC.Sys.writeSharedRAM(addr, str, string_length);
   rpc.invert(addr, string_length);
   DC.Sys.readSharedRAM(addr, buf, string_length);
-  Serial.print("Invert(str) = ");
-  Serial.println(buf);
+  printf("Invert(str) = %s\n", buf);
 
   rpc.invert(addr, string_length);
   DC.Sys.readSharedRAM(addr, buf, string_length);
-  Serial.print("Invert(Invert(str)) = ");
-  Serial.println(buf);
+  printf("Invert(Invert(str)) = %s", buf);
 
   while(1);
 }

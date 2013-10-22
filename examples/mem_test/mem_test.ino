@@ -33,7 +33,7 @@ void loop() {
   test_alloc();
   test_access();
 
-  Serial.println("End of test.");
+  printf("End of test.\n");
   while(1);
 }
 
