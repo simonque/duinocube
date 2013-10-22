@@ -323,7 +323,7 @@ void loop() {
 #endif
 
   // Wait for the next Vblank.
-  while (!DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
+  while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
 #if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t3 = millis();
