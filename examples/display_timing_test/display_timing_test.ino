@@ -20,17 +20,8 @@
 #include <DuinoCube.h>
 #include <SPI.h>
 
-static FILE uart_stdout;  // For linking UART to printf, etc.
-static int uart_putchar (char c, FILE *stream) {
-  Serial.write(c);
-  return 0;
-}
-
 void setup() {
   Serial.begin(115200);
-  fdev_setup_stream(&uart_stdout, uart_putchar, NULL,
-  _FDEV_SETUP_WRITE);
-  stdout = &uart_stdout;
 
   DC.begin();
 }

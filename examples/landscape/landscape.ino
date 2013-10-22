@@ -38,12 +38,6 @@ const char* layer_files[] = {
   "data/clouds.lay",
 };
 
-static FILE uart_stdout;  // For linking UART to printf, etc.
-static int uart_putchar (char c, FILE *stream) {
-  Serial.write(c);
-  return 0;
-}
-
 static void draw() {
   DC.Core.writeWord(REG_MEM_BANK, 0);
   DC.Core.writeWord(REG_SYS_CTRL, 0);
@@ -146,9 +140,6 @@ static void draw() {
 
 void setup() {
   Serial.begin(115200);
-  fdev_setup_stream(&uart_stdout, uart_putchar, NULL,
-  _FDEV_SETUP_WRITE);
-  stdout = &uart_stdout;
 
   DC.begin();
 

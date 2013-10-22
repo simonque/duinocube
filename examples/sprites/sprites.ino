@@ -44,12 +44,6 @@ const char* palette_files[] = {
   "data/sprites.pal",
 };
 
-static FILE uart_stdout;  // For linking UART to printf, etc.
-static int uart_putchar (char c, FILE *stream) {
-  Serial.write(c);
-  return 0;
-}
-
 static uint16_t sprites16_offset = 0;
 static uint16_t sprites32_offset = 0;
 static uint16_t* sprites_offsets[] = { &sprites16_offset, &sprites32_offset };
@@ -251,9 +245,6 @@ extern uint8_t __stack;     // Where local variables are allocated.
 
 void setup() {
   Serial.begin(115200);
-  fdev_setup_stream(&uart_stdout, uart_putchar, NULL,
-  _FDEV_SETUP_WRITE);
-  stdout = &uart_stdout;
 
   // This shows the amount of unallocated memory.  It is helpful in optimizing
   // data storage to fit in the available space.

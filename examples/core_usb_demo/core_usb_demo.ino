@@ -40,12 +40,6 @@ const char* layer_files[] = {
   "data/clouds.lay",
 };
 
-static FILE uart_stdout;  // For linking UART to printf, etc.
-static int uart_putchar (char c, FILE *stream) {
-  Serial.write(c);
-  return 0;
-}
-
 // The order of these should match the order of image data being loaded.
 static uint16_t landscape_offset, clouds_offset, sprites_offset;
 static uint16_t* vram_offsets[] = {
@@ -220,9 +214,6 @@ static void draw() {
 
 void setup() {
   Serial.begin(115200);
-  fdev_setup_stream(&uart_stdout, uart_putchar, NULL,
-  _FDEV_SETUP_WRITE);
-  stdout = &uart_stdout;
 
   DC.begin();
 
