@@ -20,6 +20,20 @@
 #include <DuinoCube.h>
 #include <SPI.h>
 
+// Universal #define for debugging logging.
+#define DEBUG
+
+// Enable this to print stats about loading data from file system.
+#define LOG_LOADING
+
+// For measuring the time spent in each cycle.  Important to know if loop()
+// takes 1 or 2 frames.
+#define LOG_TIMING
+
+// Compare the debug comments with and without this define to see how much of a
+// speedup comes from using fast sprite location updates.
+#define FAST_SPRITE_LOCATIONS
+
 // Files to load.
 const char* image_files[] = {
   "data/sprite16.raw",
@@ -102,9 +116,11 @@ static void load_data() {
       continue;
     }
     uint16_t file_size = DC.File.size(handle);
+#if defined(DEBUG) && defined(LOG_LOADING)
     printf("File %s is 0x%x bytes\n", filename, file_size);
     printf("Wrote 0x%x bytes to 0x%x\n",
            DC.File.readToCore(handle, PALETTE(i), file_size), PALETTE(i));
+#endif
     DC.File.close(handle);
   }
 
@@ -119,11 +135,13 @@ static void load_data() {
       continue;
     }
     uint16_t file_size = DC.File.size(handle);
-    printf("File %s is 0x%x bytes\n", filename, file_size);
     DC.Core.writeWord(REG_MEM_BANK, VRAM_BANK_BEGIN);
     DC.Core.writeWord(REG_SYS_CTRL, 1);
+#if defined(DEBUG) && defined(LOG_LOADING)
+    printf("File %s is 0x%x bytes\n", filename, file_size);
     printf("Wrote 0x%x bytes to 0x%x\n",
            DC.File.readToCore(handle, addr, file_size), addr);
+#endif
     DC.Core.writeWord(REG_MEM_BANK, 0);
     DC.Core.writeWord(REG_SYS_CTRL, 0);
 
@@ -247,23 +265,15 @@ void setup() {
   setup_sprites();
 }
 
-// For measuring the time spent in each cycle.  Important to know if loop()
-// takes 1 or 2 frames.
-#define DEBUG
-
-// Compare the debug comments with and without this define to see how much of a
-// speedup comes from using fast sprite location updates.
-#define FAST_SPRITE_LOCATIONS
-
 void loop() {
-#ifdef DEBUG
+#if defined(DEBUG) && defined(LOG_TIMING)
   static uint32_t t0 = 0;
 #endif
 
   // Wait for the next non-Vblank period.
   while (DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
 
-#ifdef DEBUG
+#if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t1 = millis();
 #endif
 
@@ -307,7 +317,7 @@ void loop() {
     else if (location.y < -MAX_SPRITE_SIZE && movement.dy < 0)
       location.y += (SCREEN_HEIGHT + MAX_SPRITE_SIZE);
   }
-#ifdef DEBUG
+#if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t2 = millis();
   printf("Computation time: %lu ms\n", t2 - t1);
 #endif
@@ -315,7 +325,7 @@ void loop() {
   // Wait for the next Vblank.
   while (!DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK));
 
-#ifdef DEBUG
+#if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t3 = millis();
 #endif
 
@@ -328,12 +338,11 @@ void loop() {
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), location.x);
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), location.y);
   }
-#endif
+#endif  // defined(FAST_SPRITE_LOCATIONS)
 
-#ifdef DEBUG
+#if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t4 = millis();
   printf("Update time: %lu ms\n", t4 - t3);
-
   printf("Cycle time: %lu ms\n", t4 - t0);
   t0 = t4;
 #endif
