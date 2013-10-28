@@ -261,7 +261,8 @@ void setup() {
 
 void loop() {
 #if defined(DEBUG) && defined(LOG_TIMING)
-  static uint32_t t0 = 0;
+  static uint8_t cycle_counter = 0;
+  static uint32_t t0 = millis();
 #endif
 
   // Wait for the next non-Vblank period.
@@ -338,7 +339,8 @@ void loop() {
 
 #if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t2 = millis();
-  printf("Computation time: %lu ms\n", t2 - t1);
+  if (cycle_counter == 0)
+    printf("Computation time: %lu ms\n", t2 - t1);
 #endif
 
   // Wait for the next Vblank.
@@ -361,8 +363,11 @@ void loop() {
 
 #if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t4 = millis();
-  printf("Update time: %lu ms\n", t4 - t3);
-  printf("Cycle time: %lu ms\n", t4 - t0);
+  if (cycle_counter == 0) {
+    printf("Update time: %lu ms\n", t4 - t3);
+    printf("Cycle time: %lu ms\n", t4 - t0);
+  }
   t0 = t4;
+  ++cycle_counter;
 #endif
 }
