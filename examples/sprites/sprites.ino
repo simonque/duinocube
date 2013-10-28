@@ -249,11 +249,11 @@ extern uint8_t __stack;     // Where local variables are allocated.
 void setup() {
   Serial.begin(115200);
 
+  DC.begin();
+
   // This shows the amount of unallocated memory.  It is helpful in optimizing
   // data storage to fit in the available space.
   printf("Stack ranges from 0x%x to 0x%x\n", &__bss_end, &__stack);
-
-  DC.begin();
 
   load_data();
   setup_sprites();
