@@ -34,6 +34,9 @@
 // speedup comes from using fast sprite location updates.
 #define FAST_SPRITE_LOCATIONS
 
+// Test hardware collision detection.
+#define TEST_COLLISION
+
 // Files to load.
 const char* image_files[] = {
   "data/sprite16.raw",
@@ -308,6 +311,31 @@ void loop() {
     else if (location.y < -MAX_SPRITE_SIZE && movement.dy < 0)
       location.y += (SCREEN_HEIGHT + MAX_SPRITE_SIZE);
   }
+
+#ifdef TEST_COLLISION
+  uint16_t collision_addr = COLLISION_BASE;
+  struct {
+    uint8_t target_index;
+    uint8_t collided;
+  } collision;
+  for (uint16_t i = 0;
+       i < NUM_SPRITES_DRAWN;
+       ++i, collision_addr += sizeof(collision)) {
+    DC.Core.readData(collision_addr, &collision, sizeof(collision));
+    if (!collision.collided || i == collision.target_index)
+      continue;
+#ifdef DEBUG
+    printf("Collision between sprites %3d and %3d\n",
+           i, collision.target_index);
+#endif
+    // If there was a collision, remove both of the sprites.
+    // For speed, handle no more than one collision per refresh cycle.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0), 0);
+    DC.Core.writeWord(SPRITE_REG(collision.target_index, SPRITE_CTRL_0), 0);
+    break;
+  }
+#endif  // defined(TEST_COLLISION)
+
 #if defined(DEBUG) && defined(LOG_TIMING)
   uint32_t t2 = millis();
   printf("Computation time: %lu ms\n", t2 - t1);

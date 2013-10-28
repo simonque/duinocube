@@ -36,6 +36,10 @@
 // SYS_CTRL register fields.
 #define REG_SYS_CTRL_VRAM_ACCESS      0     // Enable MPU access to VRAM.
 
+// Collision table.
+#define COLLISION_BASE     0x0200
+#define COLLISION_SIZE     0x0200
+
 // Tile layer registers.
 #define TILE_REG_BASE      0x0800
 #define NUM_TILE_REGISTERS     16
