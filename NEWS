@@ -1,6 +1,13 @@
 Release history
 ===============
 
+0.3.0  --   4 Nov 2013
+    - Added contiguous alias sprite X/Y registers for fast updating.
+    - Added collision detection registers/table.
+    - Sprite demo updated to use alias X/Y registers and collision table.
+    - Updated tile register addresses.  No code changes needed if using #defines
+      instead of raw values.
+
 0.2.1  --   1 Oct 2013
     - Reset the core bus to main mode before each access.
 
