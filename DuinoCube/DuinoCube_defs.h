@@ -20,6 +20,9 @@
 #ifndef __DUINOCUBE_DEFS_H__
 #define __DUINOCUBE_DEFS_H__
 
+// Size of registers in bits.
+#define REG_WIDTH              16
+
 // Main registers.
 #define REG_ID             0x0000
 #define REG_OUTPUT_STATUS  0x0002
@@ -37,8 +40,20 @@
 #define REG_SYS_CTRL_VRAM_ACCESS      0     // Enable MPU access to VRAM.
 
 // Collision table.
-#define COLLISION_BASE     0x0200
-#define COLLISION_SIZE     0x0200
+#define COLL_BASE          0x0200
+
+// These bits indicate sprite collisions, one bit per sprite.
+#define COLL_STATUS_REG_BASE    0
+#define NUM_COLL_STATUS_REGS   32
+// Register to clear the sprite collision status bits.
+#define COLL_REGS_CLEAR        NUM_COLL_STATUS_REGS
+// Generate the address of a collision register.
+#define COLL_REG(reg)        (COLL_BASE + reg)
+
+// The collision table contains info about which sprites collided.
+#define COLL_TABLE_BASE    0x0100
+#define COLL_TABLE_SIZE    0x0100
+#define COLL_TABLE_ENTRY(i)  (COLL_BASE + COLL_TABLE_BASE + i)
 
 // Tile layer registers.
 #define TILE_REG_BASE      0x0100
