@@ -314,27 +314,54 @@ void loop() {
   }
 
 #ifdef TEST_COLLISION
-  uint16_t collision_addr = COLLISION_BASE;
-  struct {
-    uint8_t target_index;
-    uint8_t collided;
-  } collision;
-  for (uint16_t i = 0;
-       i < NUM_SPRITES_DRAWN;
-       ++i, collision_addr += sizeof(collision)) {
-    DC.Core.readData(collision_addr, &collision, sizeof(collision));
-    if (!collision.collided || i == collision.target_index)
-      continue;
-#ifdef DEBUG
-    printf("Collision between sprites %3d and %3d\n",
-           i, collision.target_index);
-#endif
-    // If there was a collision, remove both of the sprites.
-    // For speed, handle no more than one collision per refresh cycle.
-    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0), 0);
-    DC.Core.writeWord(SPRITE_REG(collision.target_index, SPRITE_CTRL_0), 0);
-    break;
+  // Read the collision status registers.
+  uint16_t coll_status[NUM_COLL_STATUS_REGS];
+  DC.Core.readData(COLL_REG(COLL_STATUS_REG_BASE), coll_status,
+                   sizeof(coll_status));
+
+  // Handle one collision per cycle.
+  // Determine the first sprite collision bit that is set.
+  // First determine the first nonzero register.
+  uint8_t first_nonzero_reg = 0;
+  while (coll_status[first_nonzero_reg] == 0 &&
+         first_nonzero_reg < NUM_COLL_STATUS_REGS) {
+    ++first_nonzero_reg;
   }
+
+  if (first_nonzero_reg < NUM_COLL_STATUS_REGS) {
+    // Then determine the first set bit within that register.
+    uint8_t bit_index = 0;
+    while (!(coll_status[first_nonzero_reg] & (1 << bit_index)))
+      ++bit_index;
+
+    // The first sprite involved in the collision is represented by the bit that
+    // was just found.
+    uint16_t sprite_index = first_nonzero_reg * REG_WIDTH + bit_index;
+
+    // The second sprite in the collision is the value of the collision table at
+    // the index of the first sprite.
+    // TODO: consider making word-sized table entries to accommodate larger
+    // numbers of sprites.
+    uint16_t other_sprite_index =
+        DC.Core.readByte(COLL_TABLE_ENTRY(sprite_index));
+
+#ifdef DEBUG
+    printf("Collision detected between sprites %d and %d\n", sprite_index,
+           other_sprite_index);
+#endif
+
+    // Deactivate both sprites.
+    DC.Core.writeWord(SPRITE_REG(sprite_index, SPRITE_CTRL_0), 0);
+    DC.Core.writeWord(SPRITE_REG(other_sprite_index, SPRITE_CTRL_0), 0);
+  }
+
+  // Clear the status registers at the very end.  If it is cleared any earlier,
+  // the same bits might be set again before the two colliding sprites can be
+  // deactivated.
+  DC.Core.writeByte(COLL_REG(COLL_REGS_CLEAR), 0);
+  DC.Core.readData(COLL_REG(COLL_STATUS_REG_BASE), coll_status,
+                   sizeof(coll_status));
+
 #endif  // defined(TEST_COLLISION)
 
 #if defined(DEBUG) && defined(LOG_TIMING)
