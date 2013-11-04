@@ -41,10 +41,10 @@
 #define COLLISION_SIZE     0x0200
 
 // Tile layer registers.
-#define TILE_REG_BASE      0x0800
+#define TILE_REG_BASE      0x0100
 #define NUM_TILE_REGISTERS     16
-#define TILE_REG_STRIDE       128  // Tile layer registers are spaced out in
-                                   // 64-register blocks.
+#define TILE_REG_STRIDE        64  // Tile layer registers are spaced out in
+                                   // 32-register blocks.
 #define NUM_TILE_LAYERS         4
 #define TILE_LAYER_REG(index, reg)  \
             (TILE_REG_BASE + (index) * TILE_REG_STRIDE + (reg) * 2)
