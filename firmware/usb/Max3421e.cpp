@@ -45,23 +45,23 @@ byte MAX3421E::getVbusState( void )
 /* Single host register write   */
 void MAX3421E::regWr( byte reg, byte val)
 {
-  spi_set_ss(DEV_SELECT_USB);
+  spi_set_ss(SELECT_USB_BIT);
   spi_tx(reg | 0x02);
   spi_tx(val);
-  spi_set_ss(DEV_SELECT_NONE);
+  spi_clear_ss(SELECT_USB_BIT);
   return;
 }
 /* multiple-byte write */
 /* returns a pointer to a memory position after last written */
 char * MAX3421E::bytesWr( byte reg, byte nbytes, char * data )
 {
-  spi_set_ss(DEV_SELECT_USB);
+  spi_set_ss(SELECT_USB_BIT);
   spi_tx(reg | 0x02);
   while (nbytes--) {
     spi_tx(*data);                  // send next data byte
     data++;                         // advance data pointer
   }
-  spi_set_ss(DEV_SELECT_NONE);
+  spi_clear_ss(SELECT_USB_BIT);
   return data;
 }
 /* GPIO write. GPIO byte is split between 2 registers, so two writes are needed to write one byte */
@@ -78,10 +78,10 @@ void MAX3421E::gpioWr( byte val )
 /* Single host register read        */
 byte MAX3421E::regRd( byte reg )    
 {
-  spi_set_ss(DEV_SELECT_USB);
+  spi_set_ss(SELECT_USB_BIT);
   spi_tx(reg);
   uint8_t result = spi_tx(0);
-  spi_set_ss(DEV_SELECT_NONE);
+  spi_clear_ss(SELECT_USB_BIT);
 
   return result;
 }
@@ -89,13 +89,13 @@ byte MAX3421E::regRd( byte reg )
 /* returns a pointer to a memory position after last read   */
 char * MAX3421E::bytesRd ( byte reg, byte nbytes, char  * data )
 {
-  spi_set_ss(DEV_SELECT_USB);
+  spi_set_ss(SELECT_USB_BIT);
   spi_tx(reg);
   while (nbytes--) {
     *data = spi_tx(0);       // Send empty byte.
     data++;
   }
-  spi_set_ss(DEV_SELECT_NONE);
+  spi_clear_ss(SELECT_USB_BIT);
   return data;
 }
 /* GPIO read. See gpioWr for explanation */

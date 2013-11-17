@@ -28,19 +28,28 @@
                                  // At 16 MHz with F = F_osc / 2, that's 2.5
                                  // SPI cycles.
 
+// Active low, indicates client issued a command.
+#define RPC_CLIENT_COMMAND_PIN      3
+// Active low, indicates server is busy.
+#define RPC_SERVER_STATUS_PIN       4
+// Active low, resets the coprocessor.
+#define RPC_RESET_PIN               7
+
 extern SPIClass SPI;
 
 // For accessing other DuinoCube system shield functions.
 static DuinoCubeSystem sys;
 
 void DuinoCubeRPC::begin() {
+  pinMode(RPC_CLIENT_COMMAND_PIN, OUTPUT);
   writeCommand(RPC_CMD_NONE);
 
-  // Reset the RPC server.
-  digitalWrite(sys.s_ss_pin, LOW);
+  // Reset the RPC server using SPI cycles for timing.
+  pinMode(RPC_RESET_PIN, OUTPUT);
+  digitalWrite(RPC_RESET_PIN, LOW);
   for (uint8_t i = 0; i < NUM_RESET_CYCLES; ++i)
-    SPI.transfer(OP_RESET);
-  digitalWrite(sys.s_ss_pin, HIGH);
+    SPI.transfer(0);
+  pinMode(RPC_RESET_PIN, INPUT);
 }
 
 uint16_t DuinoCubeRPC::hello(uint16_t buf_addr) {
@@ -60,25 +69,38 @@ uint16_t DuinoCubeRPC::invert(uint16_t buf_addr, uint16_t size) {
   return status;
 }
 
-void DuinoCubeRPC::writeCommand(uint8_t value) {
-  digitalWrite(sys.s_ss_pin, LOW);
-  SPI.transfer(OP_WRITE_COMMAND);
-  SPI.transfer(value);
-  digitalWrite(sys.s_ss_pin, HIGH);
+void DuinoCubeRPC::setCommandStatus(uint8_t status) {
+  switch (status) {
+  case RPC_CLIENT_COMMAND:
+    digitalWrite(RPC_CLIENT_COMMAND_PIN, LOW);
+    break;
+  case RPC_CLIENT_NO_COMMAND:
+    digitalWrite(RPC_CLIENT_COMMAND_PIN, HIGH);
+    break;
+  }
+}
+
+void DuinoCubeRPC::writeCommand(uint8_t command) {
+  if (command == RPC_CMD_NONE) {
+    setCommandStatus(RPC_CLIENT_NO_COMMAND);
+  } else {
+    sys.writeSharedRAM(RPC_COMMAND_ADDR, &command, sizeof(command));
+    setCommandStatus(RPC_CLIENT_COMMAND);
+  }
 }
 
 uint8_t DuinoCubeRPC::readServerStatus() {
-  digitalWrite(sys.s_ss_pin, LOW);
-  SPI.transfer(OP_READ_STATUS);
-  uint8_t result = SPI.transfer(0);
-  digitalWrite(sys.s_ss_pin, HIGH);
-
-  return result;
+  switch (digitalRead(RPC_SERVER_STATUS_PIN)) {
+  case LOW:
+    return RPC_SERVER_BUSY;
+  case HIGH:
+    return RPC_SERVER_IDLE;
+  }
+  return RPC_SERVER_IDLE;
 }
 
 void DuinoCubeRPC::waitForServerStatus(uint8_t status) {
-  // Must read the same status twice in a row to avoid race conditions.
-  while (readServerStatus() != status || readServerStatus() != status);
+  while (readServerStatus() != status);
 }
 
 uint16_t DuinoCubeRPC::exec(uint8_t command,
@@ -86,27 +108,24 @@ uint16_t DuinoCubeRPC::exec(uint8_t command,
                             void* out_args, uint8_t out_size) {
   // Wait for the server to be ready.
   // TODO: add a timeout mechanism or fail immediately if not ready?
-  waitForServerStatus(RPC_CMD_NONE);
+  waitForServerStatus(RPC_SERVER_IDLE);
 
   // Write the command input args to memory.
   if (in_args && in_size > 0)
-    sys.writeSharedRAM(INPUT_ARG_ADDR, in_args, in_size);
+    sys.writeSharedRAM(RPC_INPUT_ARG_ADDR, in_args, in_size);
 
   // Issue the command and wait for acknowledgment.
-  // TODO: figure out why writing it only once will sometimes cause a hang.
   writeCommand(command);
-  writeCommand(command);
-  waitForServerStatus(command);
+  waitForServerStatus(RPC_SERVER_BUSY);
 
   // Clear the command status register.
   writeCommand(RPC_CMD_NONE);
-  writeCommand(RPC_CMD_NONE);
 
   // Now wait for the RPC to complete.
-  waitForServerStatus(RPC_CMD_NONE);
+  waitForServerStatus(RPC_SERVER_IDLE);
 
   if (out_args && out_size > 0)
-    sys.readSharedRAM(OUTPUT_ARG_ADDR, out_args, out_size);
+    sys.readSharedRAM(RPC_OUTPUT_ARG_ADDR, out_args, out_size);
 
   // TODO: implement status codes.
   return 0;

@@ -22,14 +22,15 @@
 
 #include <stdint.h>
 
+// Initializes the SPI system.
+void spi_init();
+
 // Send a byte |value| over SPI.  Also returns the value read from SPI bus in
 // the same operation.
 uint8_t spi_tx(uint8_t value);
 
-// Sets the SPI device select pins.
-void spi_set_ss(uint8_t ss_value);
-
-// Initializes the SPI system.
-void spi_init();
+// Functions to set and clear the SPI device select pins.
+void spi_set_ss(uint8_t bit);
+void spi_clear_ss(uint8_t bit);
 
 #endif  // __SPI_H__

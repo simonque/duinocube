@@ -20,6 +20,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+#include "defines.h"
 #include "fatfs/diskio.h"
 #include "fatfs/ff.h"
 #include "printf.h"
@@ -50,6 +51,10 @@ const char file_init_str1[] PROGMEM =
     "Unable to mount file system. f_mount() returned status %d.\n";
 
 void file_init() {
+  // Set up the SD card SS pin.
+  DDRC |= (1 << SELECT_SD_BIT);
+  spi_clear_ss(SELECT_SD_BIT);
+
   // Clear the file handle states.
   for (int i = 0; i < MAX_NUM_FILE_HANDLES; ++i)
     file_handle_active[i] = false;

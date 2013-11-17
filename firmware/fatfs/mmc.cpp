@@ -11,8 +11,8 @@
 #include <stdio.h>
 
 /* Port controls  (Platform dependent) */
-#define CS_LOW()    spi_set_ss(DEV_SELECT_SDCARD)
-#define CS_HIGH()   spi_set_ss(DEV_SELECT_NONE)
+#define CS_LOW()    spi_set_ss(SELECT_SD_BIT)
+#define CS_HIGH()   spi_clear_ss(SELECT_SD_BIT)
 // TODO: implement these for DuinoCube.
 #define SOCKINS     1   // Card detected.   yes:true, no:false, default:true
 #define SOCKWP      0   // Write protected. yes:true, no:false, default:false

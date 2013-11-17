@@ -24,11 +24,17 @@
 
 #include "DuinoCube_mem.h"
 
+// Server and client status values.
+#define RPC_SERVER_BUSY            0    // Server is executing a command.
+#define RPC_SERVER_IDLE            1    // Server is idle, ready for commands.
+#define RPC_CLIENT_COMMAND         0    // Client has issued a command.
+#define RPC_CLIENT_NO_COMMAND      1    // Client has issued no command.
+
 // RPC command codes.  These should be consistent with definitions in the
 // chronocube repo, for the purposes of RAM bus arbitration.
 enum {
 
-  RPC_CMD_NONE = 0x00,          // The NOP value for the command register.
+  RPC_CMD_NONE = 0x00,          // The NOP RPC command value.
 
   // Test commands.
   RPC_CMD_HELLO = 0x10,         // Test function that writes "hello world".
@@ -80,22 +86,26 @@ class DuinoCubeRPC {
  public:
   static void begin();
 
+  // Executes an RPC function.
+  static uint16_t exec(uint8_t command,
+                       const void* in_args, uint8_t in_size,
+                       void* out_args, uint8_t out_size);
+
+ private:
   // RPC test functions.
   static uint16_t hello(uint16_t buf_addr);
   static uint16_t invert(uint16_t buf_addr, uint16_t size);
 
-  // Writes a byte to the RPC status register.
-  static void writeCommand(uint8_t value);
-  // Writes a byte to the coprocessor status register.
+  // Sets the client command status pin.
+  static void setCommandStatus(uint8_t value);
+  // Writes an RPC command code to shared memory.
+  static void writeCommand(uint8_t command);
+  // Reads the server status pin.
   static uint8_t readServerStatus();
 
   // Waits for the RPC Server status to become |status|.
   static void waitForServerStatus(uint8_t status);
 
-  // Executes an RPC function.
-  static uint16_t exec(uint8_t command,
-                       const void* in_args, uint8_t in_size,
-                       void* out_args, uint8_t out_size);
 };
 
 #endif  // __DUINOCUBE_RPC_H__

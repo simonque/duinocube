@@ -39,7 +39,6 @@ void DuinoCubeSystem::begin(uint8_t ss_pin) {
   // Set up the shared RAM for sequential access.
   digitalWrite(ss_pin, LOW);
 
-  SPI.transfer(OP_ACCESS_RAM);
   SPI.transfer(RAM_ST_WRITE);
   SPI.transfer(RAM_SEQUENTIAL);
 
@@ -51,7 +50,6 @@ void DuinoCubeSystem::begin(uint8_t ss_pin) {
 
 void DuinoCubeSystem::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   digitalWrite(s_ss_pin, LOW);
-  SPI.transfer(OP_ACCESS_RAM);
 
   // The SPI RAM uses MSB first mode.
   SPI.transfer(RAM_READ);
@@ -68,7 +66,6 @@ void DuinoCubeSystem::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
 void DuinoCubeSystem::writeSharedRAM(
     uint16_t addr, const void* data, uint16_t size) {
   digitalWrite(s_ss_pin, LOW);
-  SPI.transfer(OP_ACCESS_RAM);
 
   // The SPI RAM uses MSB first mode.
   SPI.transfer(RAM_WRITE);

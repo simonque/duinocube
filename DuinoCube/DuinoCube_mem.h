@@ -25,8 +25,9 @@
 #define SHARED_MEMORY_SIZE   0x8000   // System contains 32KB of shared memory.
 
 // Addresses of RPC input and output args in shared memory.
-#define INPUT_ARG_ADDR       0x0000
-#define OUTPUT_ARG_ADDR      0x0080
+#define RPC_COMMAND_ADDR     0x0000
+#define RPC_INPUT_ARG_ADDR   (RPC_COMMAND_ADDR + 0x10)
+#define RPC_OUTPUT_ARG_ADDR  0x0000
 
 // The default buffer address and size for passing shared memory strings.
 #define STRING_BUF_ADDR      0x0100

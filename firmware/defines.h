@@ -20,20 +20,18 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
-// NOTE: These must match the definitions in chronocube/core_logic/defines.vh.
+#include <avr/io.h>
 
-// System logic opcodes.
-#define OP_NONE                   0
-#define OP_READ_COMMAND           1
-#define OP_WRITE_STATUS           2
-#define OP_ACCESS_RAM             3
+// Port B bit definitions.
+#define RPC_COMMAND_BIT            PORTB0
+#define RPC_STATUS_BIT             PORTB1
 
-// SPI device select.
-#define DEV_SELECT_NONE           0
-#define DEV_SELECT_LOGIC          1
-#define DEV_SELECT_SDCARD         2
-#define DEV_SELECT_USB            3
-#define DEV_SELECT_FPGA           4
-#define DEV_SELECT_FLASH          5
+// Port C bit definitions.
+#define SELECT_RAM_BIT             PORTC0
+#define SELECT_SD_BIT              PORTC1
+#define SELECT_USB_BIT             PORTC2
+#define SELECT_CORE_BIT            PORTC3
+#define SELECT_FLASH_BIT           PORTC4
+#define TEST_BIT                   PORTC5
 
 #endif  // __DEFINES_H__

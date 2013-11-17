@@ -34,5 +34,5 @@ void rpc_usb_read_joystick() {
   args.out.x = state.x;
   args.out.y = state.y;
 
-  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+  shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }

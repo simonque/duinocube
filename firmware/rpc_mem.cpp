@@ -27,21 +27,21 @@
 void rpc_mem_stat() {
   RPC_MemStatArgs args;
   shmem_stat(&args.out.total_free_size, &args.out.largest_free_size);
-  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+  shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }
 
 void rpc_mem_alloc() {
   RPC_MemAllocArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   args.out.addr = shmem_alloc(args.in.size);
 
-  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+  shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }
 
 void rpc_mem_free() {
   RPC_MemFreeArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   shmem_free(args.in.addr);
 }

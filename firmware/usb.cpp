@@ -21,7 +21,9 @@
 
 #include <avr/io.h>
 
+#include "defines.h"
 #include "printf.h"
+#include "spi.h"
 #include "usb/Usb.h"
 #include "usb/USBJoystick.h"
 
@@ -88,6 +90,9 @@ static void joystick_update_hat(uint8_t hat, uint8_t value) {
 const char usb_init_str0[] PROGMEM = "USB powered on.\n";
 
 void usb_init() {
+  DDRC |= (1 << SELECT_USB_BIT);
+  spi_clear_ss(SELECT_USB_BIT);
+
   usb.powerOn();
 
 #ifdef DEBUG

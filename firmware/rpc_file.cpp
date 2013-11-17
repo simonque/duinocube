@@ -35,26 +35,26 @@
 
 void rpc_file_open() {
   RPC_FileOpenArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   char filename_buf[STRING_BUF_SIZE];
   shmem_read(args.in.filename_addr, filename_buf, STRING_BUF_SIZE);
 
   args.out.handle = (uint16_t) file_open(filename_buf, args.in.mode);
 
-  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+  shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }
 
 void rpc_file_close() {
   RPC_FileCloseArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   file_close(args.in.handle);
 }
 
 void rpc_file_read() {
   RPC_FileReadArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   // Since file access can only take place between local memory space and the
   // file, use a buffer as an intermediate between the file and shared memory.
@@ -80,12 +80,12 @@ void rpc_file_read() {
   }
   args.out.size_read = total_size_read;
 
-  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+  shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }
 
 void rpc_file_write() {
   RPC_FileWriteArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   // Since file access can only take place between local memory space and the
   // file, use a buffer as an intermediate between the file and shared memory.
@@ -112,21 +112,21 @@ void rpc_file_write() {
   }
   args.out.size_written = total_size_written;
 
-  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+  shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }
 
 void rpc_file_size() {
   RPC_FileSizeArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   args.out.size = file_size(args.in.handle);
 
-  shmem_write(OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+  shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
 }
 
 void rpc_file_seek() {
   RPC_FileSeekArgs args;
-  shmem_read(INPUT_ARG_ADDR, &args.in, sizeof(args.in));
+  shmem_read(RPC_INPUT_ARG_ADDR, &args.in, sizeof(args.in));
 
   file_seek(args.in.handle, args.in.offset);
 }

@@ -37,20 +37,24 @@
 
 // Reads the command code issued by the RPC client.
 static uint8_t read_client_command() {
-  spi_set_ss(DEV_SELECT_LOGIC);
-  spi_tx(OP_READ_COMMAND);
-  uint8_t value = spi_tx(0);
-  spi_set_ss(DEV_SELECT_NONE);
-
-  return value;
+  uint8_t command_pin_value = (PINB >> RPC_COMMAND_BIT) & 1;
+  if (command_pin_value == RPC_CLIENT_NO_COMMAND)
+    return RPC_CMD_NONE;
+  uint8_t command;
+  shmem_read(RPC_COMMAND_ADDR, &command, sizeof(command));
+  return command;
 }
 
 // Write an RPC server status code for the RPC client to read.
-static void write_server_status(uint8_t value) {
-  spi_set_ss(DEV_SELECT_LOGIC);
-  spi_tx(OP_WRITE_STATUS);
-  spi_tx(value);
-  spi_set_ss(DEV_SELECT_NONE);
+static void set_server_status(uint8_t status) {
+  switch (status) {
+  case RPC_SERVER_IDLE:
+    PORTB |= (1 << RPC_STATUS_BIT);
+    break;
+  case RPC_SERVER_BUSY:
+    PORTB &= ~(1 << RPC_STATUS_BIT);
+    break;
+  }
 }
 
 const char rpc_hello_str0[] PROGMEM = "Hello world.";
@@ -77,14 +81,14 @@ static void rpc_exec(uint8_t command) {
   switch(command) {
   case RPC_CMD_HELLO: {
     RPC_HelloArgs hello;
-    shmem_read(INPUT_ARG_ADDR, &hello.in, sizeof(hello.in));
+    shmem_read(RPC_INPUT_ARG_ADDR, &hello.in, sizeof(hello.in));
     rpc_hello(&hello);
     // No outputs to write.
     break;
   }
   case RPC_CMD_INVERT: {
     RPC_InvertArgs invert;
-    shmem_read(INPUT_ARG_ADDR, &invert.in, sizeof(invert.in));
+    shmem_read(RPC_INPUT_ARG_ADDR, &invert.in, sizeof(invert.in));
     rpc_invert(&invert);
     // No outputs to write.
     break;
@@ -129,8 +133,11 @@ static void rpc_exec(uint8_t command) {
 }
 
 void rpc_init() {
-  // Nothing to initialize right now.  Leave this stub here so things can be
-  // added in the future.
+  DDRB |= (1 << RPC_STATUS_BIT);     // The RPC server status is an output.
+  DDRB &= ~(1 << RPC_COMMAND_BIT);   // The RPC command status is an input.
+
+  // Set server status to ready.
+  set_server_status(RPC_SERVER_IDLE);
 }
 
 // Function to run when not executing any RPC commands.
@@ -147,29 +154,24 @@ const char rpc_server_loop_str2[] PROGMEM = "Done executing command.\n\n";
 void rpc_server_loop() {
   while (true) {
     // Set RPC status to ready.
-    write_server_status(RPC_CMD_NONE);
+    set_server_status(RPC_SERVER_IDLE);
 
     // Read in RPC client status.
-    // Read it again to make sure the value is steady.
     do {
       rpc_idle();
-    } while (read_client_command() == RPC_CMD_NONE ||
-             read_client_command() == RPC_CMD_NONE);
+    } while (read_client_command() == RPC_CMD_NONE);
 
     // Read the command and update the status register to indicate that the
     // command was received.
     uint8_t command = read_client_command();
-    write_server_status(command);
-    write_server_status(command);
-    write_server_status(command);
+    set_server_status(RPC_SERVER_BUSY);
 
 #ifdef DEBUG
     printf_P(rpc_server_loop_str0, command);
 #endif
 
     // Wait for MCU to clear the command register.
-    while(read_client_command() != RPC_CMD_NONE ||
-          read_client_command() != RPC_CMD_NONE);
+    while(read_client_command() != RPC_CMD_NONE);
 
 #ifdef DEBUG
     printf_P(rpc_server_loop_str1);
@@ -180,6 +182,6 @@ void rpc_server_loop() {
 #endif
 
     // Finish the RPC operation.
-    write_server_status(RPC_CMD_NONE);
+    set_server_status(RPC_SERVER_IDLE);
   }
 }

@@ -47,6 +47,11 @@ const char shmem_init_str0[] PROGMEM =
     "Shared memory heap initialized with %u bytes.\n";
 
 void shmem_init() {
+  // Initialize RAM and Core select pins.
+  DDRC |= (1 << SELECT_RAM_BIT) | (1 << SELECT_CORE_BIT);
+  spi_clear_ss(SELECT_RAM_BIT);
+  spi_clear_ss(SELECT_CORE_BIT);
+
   // Initialize the heap.
   memset(heap_blocks, 0, sizeof(heap_blocks));
   heap_blocks[0].num_blocks_in_region = NUM_HEAP_BLOCKS;
@@ -57,8 +62,7 @@ void shmem_init() {
 
 void shmem_read(uint16_t addr, void* data, uint16_t len) {
   char* buf = (char*)data;
-  spi_set_ss(DEV_SELECT_LOGIC);
-  spi_tx(OP_ACCESS_RAM);
+  spi_set_ss(SELECT_RAM_BIT);
 
   spi_tx(RAM_READ);
   spi_tx(addr >> 8);
@@ -66,7 +70,7 @@ void shmem_read(uint16_t addr, void* data, uint16_t len) {
   for (uint16_t i = 0; i < len; ++i)
     buf[i] = spi_tx(0);
 
-  spi_set_ss(DEV_SELECT_NONE);
+  spi_clear_ss(SELECT_RAM_BIT);
 }
 
 void shmem_write(uint16_t addr, const void* data, uint16_t len) {
@@ -74,26 +78,26 @@ void shmem_write(uint16_t addr, const void* data, uint16_t len) {
 
   if (addr < SHARED_MEMORY_SIZE) {
     // Writing to generic shared memory.
-    spi_set_ss(DEV_SELECT_LOGIC);
-    spi_tx(OP_ACCESS_RAM);
+    spi_set_ss(SELECT_RAM_BIT);
 
     spi_tx(RAM_WRITE);
     spi_tx(addr >> 8);
     spi_tx((uint8_t) addr);
     for (uint16_t i = 0; i < len; ++i)
       spi_tx(buf[i]);
+    spi_clear_ss(SELECT_RAM_BIT);
   } else {
     // Writing to core memory space.
     // TODO: get rid of magic number.
-    spi_set_ss(DEV_SELECT_FPGA);
+    spi_set_ss(SELECT_CORE_BIT);
     addr = (addr - SHARED_MEMORY_SIZE) | 0x8000;
 
     spi_tx(addr >> 8);
     spi_tx((uint8_t) addr);
     for (uint16_t i = 0; i < len; ++i)
       spi_tx(buf[i]);
+    spi_clear_ss(SELECT_CORE_BIT);
   }
-  spi_set_ss(DEV_SELECT_NONE);
 }
 
 void shmem_stat(uint16_t* total_free_size, uint16_t* largest_free_size) {
