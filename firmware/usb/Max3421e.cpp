@@ -12,11 +12,11 @@
 
 static byte vbusState;
 
-#define MAX_PORT          PORTC     // Max3421e signals are on port C.
-#define MAX_PORT_DDR      DDRC
-#define MAX_RESET         PORTC2    // Reset (active-low).
-#define MAX_GPX           PORTC1    // General purpose data from Max3421e.
-#define MAX_INT           PORTC0    // Interrupt (active-low).
+#define MAX_PORT          PORTD     // Max3421e signals are on port D.
+#define MAX_PORT_DDR      DDRD
+#define MAX_GPX           PORTD3    // General purpose data from Max3421e.
+#define MAX_INT           PORTD4    // Interrupt (active-low).
+#define MAX_RESET         PORTD5    // Chip reset (active-low).
 
 /* Functions    */
 
