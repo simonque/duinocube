@@ -44,7 +44,7 @@ struct HeapBlock {
 static HeapBlock heap_blocks[NUM_HEAP_BLOCKS];
 
 const char shmem_init_str0[] PROGMEM =
-    "Shared memory heap initialized with %u bytes: \n";
+    "Shared memory heap initialized with %u bytes.\n";
 
 void shmem_init() {
   // Initialize the heap.
