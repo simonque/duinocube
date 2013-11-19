@@ -91,11 +91,11 @@ class DuinoCubeRPC {
                        const void* in_args, uint8_t in_size,
                        void* out_args, uint8_t out_size);
 
- private:
   // RPC test functions.
   static uint16_t hello(uint16_t buf_addr);
   static uint16_t invert(uint16_t buf_addr, uint16_t size);
 
+ private:
   // Sets the client command status pin.
   static void setCommandStatus(uint8_t value);
   // Writes an RPC command code to shared memory.
