@@ -19,6 +19,7 @@
 
 #include <avr/io.h>
 
+#include "defines.h"
 #include "spi.h"
 
 void spi_init(void) {
@@ -31,6 +32,11 @@ void spi_init(void) {
   // Clock  speed of CPU clock / 2. (Max possible)
   SPCR |= (0 << SPR1) | (0 << SPR0);
   SPSR |= (1 << SPI2X);
+
+  // TODO: Either this bit needs to be cleared in its own subsystem module, or
+  // all SPI select bits should be cleared together in one place.
+  DDRC |= (1 << SELECT_FLASH_BIT);
+  spi_clear_ss(SELECT_FLASH_BIT);
 }
 
 uint8_t spi_tx(uint8_t value) {
