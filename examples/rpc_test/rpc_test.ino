@@ -49,7 +49,7 @@ void loop() {
 
   rpc.invert(addr, string_length);
   DC.Sys.readSharedRAM(addr, buf, string_length);
-  printf("Invert(Invert(str)) = %s", buf);
+  printf("Invert(Invert(str)) = %s\n", buf);
 
   while(1);
 }
