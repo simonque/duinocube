@@ -41,7 +41,8 @@ void loop() {
   // Call Invert() to flip all the bits in a string.
   // Calling it twice will return the same string.
   const char str[] = "The quick brown fox jumps over the lazy dog.";
-  int string_length = strlen(str) + 1;  // Length including null terminator.
+  int string_length = strlen(str);
+  buf[string_length] = 0;   // Add a null terminator to the destination buffer.
   DC.Sys.writeSharedRAM(addr, str, string_length);
   rpc.invert(addr, string_length);
   DC.Sys.readSharedRAM(addr, buf, string_length);
