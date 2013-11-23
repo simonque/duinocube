@@ -48,9 +48,9 @@ const char shmem_init_str0[] PROGMEM =
 
 void shmem_init() {
   // Initialize RAM and Core select pins.
-  DDRC |= (1 << SELECT_RAM_BIT) | (1 << SELECT_CORE_BIT);
   spi_clear_ss(SELECT_RAM_BIT);
   spi_clear_ss(SELECT_CORE_BIT);
+  DDRC |= (1 << SELECT_RAM_BIT) | (1 << SELECT_CORE_BIT);
 
   // Initialize the heap.
   memset(heap_blocks, 0, sizeof(heap_blocks));

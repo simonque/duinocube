@@ -35,8 +35,8 @@ void spi_init(void) {
 
   // TODO: Either this bit needs to be cleared in its own subsystem module, or
   // all SPI select bits should be cleared together in one place.
-  DDRC |= (1 << SELECT_FLASH_BIT);
   spi_clear_ss(SELECT_FLASH_BIT);
+  DDRC |= (1 << SELECT_FLASH_BIT);
 }
 
 uint8_t spi_tx(uint8_t value) {

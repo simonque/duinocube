@@ -90,8 +90,9 @@ static void joystick_update_hat(uint8_t hat, uint8_t value) {
 const char usb_init_str0[] PROGMEM = "USB powered on.\n";
 
 void usb_init() {
-  DDRC |= (1 << SELECT_USB_BIT);
+  // Disable the USB select pin before setting it as an output.
   spi_clear_ss(SELECT_USB_BIT);
+  DDRC |= (1 << SELECT_USB_BIT);
 
   usb.powerOn();
 

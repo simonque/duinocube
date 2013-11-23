@@ -51,9 +51,10 @@ const char file_init_str1[] PROGMEM =
     "Unable to mount file system. f_mount() returned status %d.\n";
 
 void file_init() {
-  // Set up the SD card SS pin.
-  DDRC |= (1 << SELECT_SD_BIT);
+  // Set up the SD card SS pin.  Set it to off before setting it as an output,
+  // in case it briefly gets turned on.
   spi_clear_ss(SELECT_SD_BIT);
+  DDRC |= (1 << SELECT_SD_BIT);
 
   // Clear the file handle states.
   for (int i = 0; i < MAX_NUM_FILE_HANDLES; ++i)
