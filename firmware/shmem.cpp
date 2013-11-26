@@ -62,15 +62,27 @@ void shmem_init() {
 
 void shmem_read(uint16_t addr, void* data, uint16_t len) {
   char* buf = (char*)data;
-  spi_set_ss(SELECT_RAM_BIT);
+  if (addr < SHARED_MEMORY_SIZE) {
+    spi_set_ss(SELECT_RAM_BIT);
 
-  spi_tx(RAM_READ);
-  spi_tx(addr >> 8);
-  spi_tx((uint8_t) addr);
-  for (uint16_t i = 0; i < len; ++i)
-    buf[i] = spi_tx(0);
+    spi_tx(RAM_READ);
+    spi_tx(addr >> 8);
+    spi_tx((uint8_t) addr);
+    for (uint16_t i = 0; i < len; ++i)
+      buf[i] = spi_tx(0);
 
-  spi_clear_ss(SELECT_RAM_BIT);
+    spi_clear_ss(SELECT_RAM_BIT);
+  } else {
+    spi_set_ss(SELECT_CORE_BIT);
+
+    addr -= SHARED_MEMORY_SIZE;
+    spi_tx(addr >> 8);
+    spi_tx((uint8_t) addr);
+    for (uint16_t i = 0; i < len; ++i)
+      buf[i] = spi_tx(0);
+
+    spi_clear_ss(SELECT_CORE_BIT);
+  }
 }
 
 void shmem_write(uint16_t addr, const void* data, uint16_t len) {
