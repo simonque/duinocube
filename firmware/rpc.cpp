@@ -93,6 +93,14 @@ static void rpc_exec(uint8_t command) {
     // No outputs to write.
     break;
   }
+  case RPC_CMD_READ_CORE_ID: {
+    RPC_ReadCoreIDArgs args;
+    // TODO: add a macro to make it more clear that |SHARED_MEMORY_SIZE| is
+    // actually address 0 of the Core address space.
+    shmem_read(SHARED_MEMORY_SIZE, &args.out.id, sizeof(args.out.id));
+    shmem_write(RPC_OUTPUT_ARG_ADDR, &args.out, sizeof(args.out));
+    break;
+  }
   case RPC_CMD_FILE_OPEN:
     rpc_file_open();
     break;

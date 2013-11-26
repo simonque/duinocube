@@ -39,6 +39,7 @@ enum {
   // Test commands.
   RPC_CMD_HELLO = 0x10,         // Test function that writes "hello world".
   RPC_CMD_INVERT,               // Test function that inverts data.
+  RPC_CMD_READ_CORE_ID,         // Reads and returns the Core ID.
 
   // File I/O commands.
   RPC_CMD_FILE_INIT = 0x20,     // Initialize the file system.
@@ -82,6 +83,14 @@ typedef struct {
   // No outputs.
 } RPC_InvertArgs;
 
+// For RPC_CMD_READ_CORE_ID.
+typedef struct {
+  // No inputs.
+  struct {
+    uint16_t id;                // ID code that was read.
+  } out;
+} RPC_ReadCoreIDArgs;
+
 class DuinoCubeRPC {
  public:
   static void begin();
@@ -94,6 +103,7 @@ class DuinoCubeRPC {
   // RPC test functions.
   static uint16_t hello(uint16_t buf_addr);
   static uint16_t invert(uint16_t buf_addr, uint16_t size);
+  static uint16_t readCoreID();
 
  private:
   // Sets the client command status pin.
