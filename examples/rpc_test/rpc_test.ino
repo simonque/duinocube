@@ -18,10 +18,7 @@
 // DuinoCube system shield RPC test.
 
 #include <DuinoCube.h>
-#include <DuinoCube_rpc.h>
 #include <SPI.h>
-
-static DuinoCubeRPC rpc;
 
 void setup() {
   Serial.begin(115200);
@@ -34,7 +31,7 @@ void loop() {
   char buf[256];
 
   // Call Hello(), should get a "hello world" string back.
-  rpc.hello(addr);
+  DC.RPC.hello(addr);
   DC.Sys.readSharedRAM(addr, buf, sizeof(buf));
   printf("Hello() returned: %s\n", buf);
 
@@ -44,11 +41,11 @@ void loop() {
   int string_length = strlen(str);
   buf[string_length] = 0;   // Add a null terminator to the destination buffer.
   DC.Sys.writeSharedRAM(addr, str, string_length);
-  rpc.invert(addr, string_length);
+  DC.RPC.invert(addr, string_length);
   DC.Sys.readSharedRAM(addr, buf, string_length);
   printf("Invert(str) = %s\n", buf);
 
-  rpc.invert(addr, string_length);
+  DC.RPC.invert(addr, string_length);
   DC.Sys.readSharedRAM(addr, buf, string_length);
   printf("Invert(Invert(str)) = %s\n", buf);
 

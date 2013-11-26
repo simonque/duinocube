@@ -23,6 +23,7 @@
 #include "DuinoCube_core.h"
 #include "DuinoCube_file.h"
 #include "DuinoCube_mem.h"
+#include "DuinoCube_rpc.h"
 #include "DuinoCube_system.h"
 #include "DuinoCube_usb.h"
 
@@ -35,6 +36,7 @@ class DuinoCube {
   static DuinoCubeCore Core;
   static DuinoCubeFile File;
   static DuinoCubeMemory Mem;
+  static DuinoCubeRPC RPC;
   static DuinoCubeSystem Sys;
   static DuinoCubeUSB USB;
 };
