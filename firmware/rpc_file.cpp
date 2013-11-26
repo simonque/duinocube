@@ -73,7 +73,10 @@ void rpc_file_read() {
     // If there wasn't enough data remaining in the file to read |size_to_read|
     // bytes, it means that the actual file data is less than |args.in.size|.
     // Break out of the loop.
-    if (size_to_read != size_just_read) {
+    // Similarly, if the size read is less than the file buffer size, the total
+    // size read should be incremented by the size read rather than by the file
+    // buffer size.
+    if (size_to_read != size_just_read || size_just_read < FILE_BUFFER_SIZE) {
       total_size_read += size_just_read;
       break;
     }
