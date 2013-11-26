@@ -356,10 +356,10 @@ DSTATUS disk_initialize (
 
 	if (ty) {			/* Initialization succeded */
 		Stat &= ~STA_NOINIT;		/* Clear STA_NOINIT */
-		FCLK_FAST();
 	} else {			/* Initialization failed */
 		power_off();
 	}
+	FCLK_FAST();
 
 	return Stat;
 }
