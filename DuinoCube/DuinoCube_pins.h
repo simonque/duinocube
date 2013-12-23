@@ -51,7 +51,24 @@
 
   // For Arduino Esplora.
   #elif defined(__AVR_ATmega32U4__)
-    #error "Arduino Esplora not yet supported."
+    // Active low, indicates client issued a command.
+    #define RPC_CLIENT_COMMAND_PIN  PORTD, 2
+    #define RPC_CLIENT_COMMAND_DIR  DDRD, 2
+    // Active low, indicates server is busy.
+    #define RPC_SERVER_STATUS_PIN   PINB, 4
+    #define RPC_SERVER_STATUS_DIR   DDRB, 4
+    // Active low, resets the coprocessor.
+    #define RPC_RESET_PIN           PORTD, 3
+    #define RPC_RESET_DIR           DDRD, 3
+
+    // Active low, selects the system shield SPI RAM.
+    #define RAM_SELECT_PIN          PORTE, 6
+    #define RAM_SELECT_DIR          DDRE, 6
+
+    // Active low, selects the core shield.
+    #define CORE_SELECT_PIN         PORTD, 0
+    #define CORE_SELECT_DIR         DDRD, 0
+
   #endif
 
 #else
