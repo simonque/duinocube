@@ -38,13 +38,11 @@
 
 class DuinoCubeSystem {
  public:
-  static void begin(uint8_t ss_pin);
+  static void begin();
 
   // Serial RAM access functions.
   static void readSharedRAM(uint16_t addr, void* data, uint16_t size);
   static void writeSharedRAM(uint16_t addr, const void* data, uint16_t size);
-
-  static uint8_t s_ss_pin;      // Pin for selecting DuinoCube System Shield.
 };
 
 #endif  // __DUINOCUBE_SYSTEM_H__

@@ -32,7 +32,7 @@ enum {
 class DuinoCubeCore {
  public:
   // Initialize and teardown functions.
-  static void begin(uint8_t ss_pin);
+  static void begin();
 
   // Functions to read/write bytes and words.
   static uint8_t readByte(uint16_t addr);
@@ -46,9 +46,6 @@ class DuinoCubeCore {
 
   // Set bus access to the Core memory space.
   static void setBusMode(uint16_t mode);
-
- public:
-  static uint8_t s_ss_pin;      // Pin for selecting DuinoCube Core Shield.
 };
 
 #endif  // __DUINOCUBE_CORE_H__

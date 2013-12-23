@@ -21,6 +21,7 @@
 #include <SPI.h>
 
 #include "DuinoCube_core.h"
+#include "DuinoCube_pins.h"
 #include "DuinoCube_system.h"
 
 #include "DuinoCube_rpc.h"
@@ -28,13 +29,6 @@
 #define NUM_RESET_CYCLES     4   // Atmega 328 requires 2.5 us reset pulse.
                                  // At 16 MHz with F = F_osc / 2, that's 2.5
                                  // SPI cycles.
-
-// Active low, indicates client issued a command.
-#define RPC_CLIENT_COMMAND_PIN      3
-// Active low, indicates server is busy.
-#define RPC_SERVER_STATUS_PIN       4
-// Active low, resets the coprocessor.
-#define RPC_RESET_PIN               7
 
 extern SPIClass SPI;
 
@@ -45,15 +39,15 @@ static DuinoCubeSystem sys;
 static DuinoCubeCore core;
 
 void DuinoCubeRPC::begin() {
-  pinMode(RPC_CLIENT_COMMAND_PIN, OUTPUT);
+  SET_PIN(RPC_CLIENT_COMMAND_DIR, OUTPUT);
   writeCommand(RPC_CMD_NONE);
 
   // Reset the RPC server using SPI cycles for timing.
-  pinMode(RPC_RESET_PIN, OUTPUT);
-  digitalWrite(RPC_RESET_PIN, LOW);
+  SET_PIN(RPC_RESET_DIR, OUTPUT);
+  SET_PIN(RPC_RESET_PIN, LOW);
   for (uint8_t i = 0; i < NUM_RESET_CYCLES; ++i)
     SPI.transfer(0);
-  pinMode(RPC_RESET_PIN, INPUT);
+  SET_PIN(RPC_RESET_DIR, INPUT);
 }
 
 uint16_t DuinoCubeRPC::hello(uint16_t buf_addr) {
@@ -88,10 +82,10 @@ uint16_t DuinoCubeRPC::readCoreID() {
 void DuinoCubeRPC::setCommandStatus(uint8_t status) {
   switch (status) {
   case RPC_CLIENT_COMMAND:
-    digitalWrite(RPC_CLIENT_COMMAND_PIN, LOW);
+    SET_PIN(RPC_CLIENT_COMMAND_PIN, LOW);
     break;
   case RPC_CLIENT_NO_COMMAND:
-    digitalWrite(RPC_CLIENT_COMMAND_PIN, HIGH);
+    SET_PIN(RPC_CLIENT_COMMAND_PIN, HIGH);
     break;
   }
 }
@@ -106,7 +100,7 @@ void DuinoCubeRPC::writeCommand(uint8_t command) {
 }
 
 uint8_t DuinoCubeRPC::readServerStatus() {
-  switch (digitalRead(RPC_SERVER_STATUS_PIN)) {
+  switch (GET_PIN(RPC_SERVER_STATUS_PIN)) {
   case LOW:
     return RPC_SERVER_BUSY;
   case HIGH:

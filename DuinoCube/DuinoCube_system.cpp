@@ -20,6 +20,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+#include "DuinoCube_pins.h"
 #include "DuinoCube_rpc.h"
 
 #include "DuinoCube_system.h"
@@ -28,28 +29,25 @@ extern SPIClass SPI;
 
 static DuinoCubeRPC rpc;    // For controlling RPC subsystem.
 
-uint8_t DuinoCubeSystem::s_ss_pin;
-
-void DuinoCubeSystem::begin(uint8_t ss_pin) {
+void DuinoCubeSystem::begin() {
   // Set up the system shield SPI interface.
-  s_ss_pin = ss_pin;
-  digitalWrite(ss_pin, HIGH);
-  pinMode(ss_pin, OUTPUT);
+  SET_PIN(RAM_SELECT_PIN, HIGH);
+  SET_PIN(RAM_SELECT_DIR, OUTPUT);
 
   // Set up the shared RAM for sequential access.
-  digitalWrite(ss_pin, LOW);
+  SET_PIN(RAM_SELECT_PIN, LOW);
 
   SPI.transfer(RAM_ST_WRITE);
   SPI.transfer(RAM_SEQUENTIAL);
 
-  digitalWrite(ss_pin, HIGH);
+  SET_PIN(RAM_SELECT_PIN, HIGH);
 
   // Set up the RPC server and client.
   rpc.begin();
 }
 
 void DuinoCubeSystem::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
-  digitalWrite(s_ss_pin, LOW);
+  SET_PIN(RAM_SELECT_PIN, LOW);
 
   // The SPI RAM uses MSB first mode.
   SPI.transfer(RAM_READ);
@@ -60,12 +58,12 @@ void DuinoCubeSystem::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   for (uint16_t i = 0; i < size; ++i)
     buf[i] = SPI.transfer(0);
 
-  digitalWrite(s_ss_pin, HIGH);
+  SET_PIN(RAM_SELECT_PIN, HIGH);
 }
 
 void DuinoCubeSystem::writeSharedRAM(
     uint16_t addr, const void* data, uint16_t size) {
-  digitalWrite(s_ss_pin, LOW);
+  SET_PIN(RAM_SELECT_PIN, LOW);
 
   // The SPI RAM uses MSB first mode.
   SPI.transfer(RAM_WRITE);
@@ -76,6 +74,6 @@ void DuinoCubeSystem::writeSharedRAM(
   for (uint16_t i = 0; i < size; ++i)
     SPI.transfer(buf[i]);
 
-  digitalWrite(s_ss_pin, HIGH);
+  SET_PIN(RAM_SELECT_PIN, HIGH);
 }
 

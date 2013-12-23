@@ -52,6 +52,6 @@ void DuinoCube::begin() {
   fdev_setup_stream(&uart_stdout, uart_putchar, NULL, _FDEV_SETUP_WRITE);
   stdout = &uart_stdout;
 
-  Core.begin(DEFAULT_CORE_SS_PIN);
-  Sys.begin(DEFAULT_SYS_SS_PIN);
+  Core.begin();
+  Sys.begin();
 }
