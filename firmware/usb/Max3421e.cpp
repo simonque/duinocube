@@ -26,6 +26,7 @@ MAX3421E::MAX3421E()
   spi_init();
 
   // Set up the GPIO port used by Max3421e.
+  MAX_PORT |= (1 << MAX_RESET);
   MAX_PORT_DDR |= (1 << MAX_RESET);
   MAX_PORT_DDR &= ~((1 << MAX_GPX) | (1 << MAX_INT));
 
