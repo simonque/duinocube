@@ -89,10 +89,21 @@ static void joystick_update_hat(uint8_t hat, uint8_t value) {
 
 const char usb_init_str0[] PROGMEM = "USB powered on.\n";
 
+static bool usb_enabled;
+
 void usb_init() {
   // Disable the USB select pin before setting it as an output.
   spi_clear_ss(SELECT_USB_BIT);
   DDRC |= (1 << SELECT_USB_BIT);
+
+  // Set the pullup of the USB supported bit.
+  // TODO: eventually there should be an external pullup?
+  DDRD &= ~(1 << USB_ENABLED_BIT);
+  PORTD |= (1 << USB_ENABLED_BIT);
+  // Determine if USB is supported.
+  usb_enabled = PIND & (1 << USB_ENABLED_BIT);
+  if (!usb_enabled)
+    return;
 
   usb.powerOn();
 
@@ -116,6 +127,8 @@ void usb_init() {
 }
 
 void usb_update() {
+  if (!usb_enabled)
+    return;
   joystick.run();
 }
 

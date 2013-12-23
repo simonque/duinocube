@@ -34,4 +34,7 @@
 #define SELECT_FLASH_BIT           PORTC4
 #define TEST_BIT                   PORTC5
 
+// Port D bit definitions.
+#define USB_ENABLED_BIT            PORTD7
+
 #endif  // __DEFINES_H__
