@@ -1,22 +1,22 @@
 // Copyright (C) 2013 Simon Que
 //
-// This file is part of ChronoCube.
+// This file is part of DuinoCube.
 //
-// ChronoCube is free software: you can redistribute it and/or modify
+// DuinoCube is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// ChronoCube is distributed in the hope that it will be useful,
+// DuinoCube is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
+// along with DuinoCube.  If not, see <http://www.gnu.org/licenses/>.
 
 // Tool to convert BMP files to raw image data and palette files for use on
-// ChronoCube.
+// DuinoCube.
 
 #include <stdio.h>
 #include <stdint.h>
@@ -28,7 +28,7 @@
 
 #include "EasyBMP.h"
 
-// This is the packed palette format used in ChronoCube.
+// This is the packed palette format used in DuinoCube.
 struct PaletteEntry {
   uint8_t red;
   uint8_t green;
