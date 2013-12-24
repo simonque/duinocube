@@ -15,19 +15,33 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube USB library for Arduino.
+// DuinoCube Gamepad library for Arduino.
 
-#ifndef __DUINOCUBE_USB_H__
-#define __DUINOCUBE_USB_H__
+#ifndef __DUINOCUBE_GAMEPAD_H__
+#define __DUINOCUBE_GAMEPAD_H__
 
 #include <stdint.h>
 
-struct GamepadState;  // Struct containing gamepad state data.
+// TODO: These are the seemingly arbitrary mappings obtained from USB gamepad
+// testing. They should be investigated at some point.
+#define GAMEPAD_BUTTON_1    5
+#define GAMEPAD_BUTTON_2    6
+#define GAMEPAD_BUTTON_3    7
+#define GAMEPAD_BUTTON_4    8
+#define GAMEPAD_BUTTON_L1   9
+#define GAMEPAD_BUTTON_R1  10
+#define GAMEPAD_BUTTON_L2  11
+#define GAMEPAD_BUTTON_R2  12
 
-class DuinoCubeUSB {
- public:
-  // Returns joystick button/stick values.
-  static GamepadState readJoystick();
+struct GamepadState {
+  uint16_t buttons;     // Button states, one bit set for each button pressed.
+  int16_t x, y;         // Position of stick.
 };
 
-#endif  // __DUINOCUBE_USB_H__
+class DuinoCubeGamepad {
+ public:
+  // Returns gamepad button/stick values.
+  static GamepadState readGamepad();
+};
+
+#endif  // __DUINOCUBE_GAMEPAD_H__

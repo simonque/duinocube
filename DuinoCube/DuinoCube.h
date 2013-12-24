@@ -22,6 +22,7 @@
 
 #include "DuinoCube_core.h"
 #include "DuinoCube_file.h"
+#include "DuinoCube_gamepad.h"
 #include "DuinoCube_mem.h"
 #include "DuinoCube_rpc.h"
 #include "DuinoCube_system.h"
@@ -35,6 +36,7 @@ class DuinoCube {
   // Objects for accessing subsystems.
   static DuinoCubeCore Core;
   static DuinoCubeFile File;
+  static DuinoCubeGamepad Gamepad;
   static DuinoCubeMemory Mem;
   static DuinoCubeRPC RPC;
   static DuinoCubeSystem Sys;

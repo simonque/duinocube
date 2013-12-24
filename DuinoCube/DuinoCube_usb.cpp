@@ -17,6 +17,7 @@
 
 // DuinoCube USB library for Arduino.
 
+#include "DuinoCube_gamepad.h"
 #include "DuinoCube_rpc.h"
 #include "DuinoCube_rpc_usb.h"
 
@@ -28,8 +29,8 @@
 
 static DuinoCubeRPC rpc;
 
-JoystickState DuinoCubeUSB::readJoystick() {
-  JoystickState state;
+GamepadState DuinoCubeUSB::readJoystick() {
+  GamepadState state;
 
   RPC_UsbReadJoystickArgs args;
   rpc.exec(RPC_CMD_USB_READ_JOYSTICK, NULL, 0, &args.out, sizeof(args.out));

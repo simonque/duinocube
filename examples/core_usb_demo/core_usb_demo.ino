@@ -20,6 +20,10 @@
 #include <DuinoCube.h>
 #include <SPI.h>
 
+#if defined(__AVR_ATmega32U4__)
+#include <Esplora.h>
+#endif
+
 // Files to load.
 const char* image_files[] = {
   "data/tileset.raw",
@@ -221,18 +225,6 @@ void setup() {
   draw();
 }
 
-// TODO: These are the seemingly arbitrary mappings obtained from
-// usb_joystick_test.  They should be investigated at some point, or at least
-// copied to DuinoCube_usb.h.
-#define BUTTON_1    5
-#define BUTTON_2    6
-#define BUTTON_3    7
-#define BUTTON_4    8
-#define BUTTON_L1   9
-#define BUTTON_R1  10
-#define BUTTON_L2  11
-#define BUTTON_R2  12
-
 #define SCREEN_WIDTH          320       // Screen dimensions.
 #define SCREEN_HEIGHT         240       // TODO: de-hardcode this.
 
@@ -253,10 +245,10 @@ void loop() {
   int16_t scroll_x = 0;
   int16_t scroll_y = 0;
 
-  JoystickState prev_joystick;
-  prev_joystick.buttons = 0;
-  prev_joystick.x = UINT8_MAX / 2;
-  prev_joystick.y = UINT8_MAX / 2;
+  GamepadState prev_gamepad;
+  prev_gamepad.buttons = 0;
+  prev_gamepad.x = UINT8_MAX / 2;
+  prev_gamepad.y = UINT8_MAX / 2;
 
   uint16_t old_flip_flags = 0;
 
@@ -271,24 +263,24 @@ void loop() {
     while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
     // Read user input.
-    JoystickState joystick = DC.USB.readJoystick();
+    GamepadState gamepad = DC.Gamepad.readGamepad();
 
     // The four main control buttons select the orientation.
     uint16_t new_flip_flags = old_flip_flags;
-    if ((joystick.buttons & (1 << BUTTON_1)) &&
-        !(prev_joystick.buttons & (1 << BUTTON_1))) {
+    if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_1)) &&
+        !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_1))) {
       new_flip_flags = 0;
     }
-    if ((joystick.buttons & (1 << BUTTON_2)) &&
-        !(prev_joystick.buttons & (1 << BUTTON_2))) {
+    if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_2)) &&
+        !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_2))) {
       new_flip_flags = (1 << SPRITE_FLIP_Y) | (1 << SPRITE_FLIP_XY);
     }
-    if ((joystick.buttons & (1 << BUTTON_3)) &&
-        !(prev_joystick.buttons & (1 << BUTTON_3))) {
+    if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_3)) &&
+        !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_3))) {
       new_flip_flags = (1 << SPRITE_FLIP_Y);
     }
-    if ((joystick.buttons & (1 << BUTTON_4)) &&
-        !(prev_joystick.buttons & (1 << BUTTON_4))) {
+    if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_4)) &&
+        !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_4))) {
       new_flip_flags = (1 << SPRITE_FLIP_XY);
     }
     if (old_flip_flags != new_flip_flags)
@@ -308,12 +300,12 @@ void loop() {
     // L1 and R1 cycle sprite through different images.
     int sprite_image_index =
         (player_sprite.offset - sprites_offset) / SPRITE_SIZE;
-    if ((joystick.buttons & (1 << BUTTON_L1)) &&
-        !(prev_joystick.buttons & (1 << BUTTON_L1))) {
+    if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_L1)) &&
+        !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_L1))) {
       --sprite_image_index;
     }
-    if ((joystick.buttons & (1 << BUTTON_R1)) &&
-        !(prev_joystick.buttons & (1 << BUTTON_R1))) {
+    if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_R1)) &&
+        !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_R1))) {
       ++sprite_image_index;
     }
     // Adjust for valid image index values.
@@ -322,53 +314,53 @@ void loop() {
     player_sprite.offset = sprites_offset + sprite_image_index * SPRITE_SIZE;
 
     // L2 and R2 buttons to change sprite Z-level.
-    if ((joystick.buttons & (1 << BUTTON_R2)) &&
-        !(prev_joystick.buttons & (1 << BUTTON_R2)) &&
+    if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_R2)) &&
+        !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_R2)) &&
         sprite_z < NUM_TILE_LAYERS - 1) {
       ++sprite_z;
-    } else if ((joystick.buttons & (1 << BUTTON_L2)) &&
-               !(prev_joystick.buttons & (1 << BUTTON_L2)) &&
+    } else if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_L2)) &&
+               !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_L2)) &&
                sprite_z > 0) {
       --sprite_z;
     }
 
     // Directional pad moves sprite.
-    if (joystick.x == 0) {
+    if (gamepad.x == 0) {
       // Use acceleration.
-      if (prev_joystick.x != joystick.x)
+      if (prev_gamepad.x != gamepad.x)
         dx = -1;
       else if (dx > -MAX_MOVEMENT_SPEED)
         --dx;
       player_sprite.x += dx;
     }
-    else if (joystick.x == UINT8_MAX) {
+    else if (gamepad.x == UINT8_MAX) {
       // Use acceleration.
-      if (prev_joystick.x != joystick.x)
+      if (prev_gamepad.x != gamepad.x)
         dx = 1;
       else if (dx < MAX_MOVEMENT_SPEED)
         ++dx;
       player_sprite.x += dx;
     }
 
-    if (joystick.y == 0) {
+    if (gamepad.y == 0) {
       // Use acceleration.
-      if (prev_joystick.y != joystick.y)
+      if (prev_gamepad.y != gamepad.y)
         dy = -1;
       else if (dy > -MAX_MOVEMENT_SPEED)
         --dy;
       player_sprite.y += dy;
     }
-    else if (joystick.y == UINT8_MAX) {
+    else if (gamepad.y == UINT8_MAX) {
       // Use acceleration.
-      if (prev_joystick.y != joystick.y)
+      if (prev_gamepad.y != gamepad.y)
         dy = 1;
       else if (dy < MAX_MOVEMENT_SPEED)
         ++dy;
       player_sprite.y += dy;
     }
 
-    // Save the current joystick state for the next cycle.
-    prev_joystick = joystick;
+    // Save the current gamepad state for the next cycle.
+    prev_gamepad = gamepad;
 
     if (player_sprite.x < scroll_x)
       scroll_x = player_sprite.x;

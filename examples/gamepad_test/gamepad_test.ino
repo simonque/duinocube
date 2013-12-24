@@ -15,19 +15,33 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with ChronoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube USB library for Arduino.
+// Test gamepad input.
 
-#ifndef __DUINOCUBE_USB_H__
-#define __DUINOCUBE_USB_H__
+#include <DuinoCube.h>
+#include <SPI.h>
 
-#include <stdint.h>
+#if defined(__AVR_ATmega32U4__)
+#include <Esplora.h>
+#endif
 
-struct GamepadState;  // Struct containing gamepad state data.
+static GamepadState prev_state;
 
-class DuinoCubeUSB {
- public:
-  // Returns joystick button/stick values.
-  static GamepadState readJoystick();
-};
+void setup() {
+  // Set up standard output over UART.
+  Serial.begin(115200);
 
-#endif  // __DUINOCUBE_USB_H__
+  DC.begin();
+  memset(&prev_state, 0, sizeof(prev_state));
+}
+
+void loop() {
+  // Repeatedly read in the gamepad state.
+  GamepadState state = DC.Gamepad.readGamepad();
+  if (memcmp(&state, &prev_state, sizeof(state)) == 0)
+    return;
+
+  // If the joystic state changed, print the new state.
+  prev_state = state;
+  printf("Gamepad: buttons = 0x%04x, X = %d, Y = %d\n",
+         state.buttons, state.x, state.y);
+}
