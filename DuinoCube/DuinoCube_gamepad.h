@@ -22,6 +22,10 @@
 
 #include <stdint.h>
 
+#ifndef UINT8_MAX
+#define UINT8_MAX     ((uint8_t)(~0))
+#endif
+
 // TODO: These are the seemingly arbitrary mappings obtained from USB gamepad
 // testing. They should be investigated at some point.
 #define GAMEPAD_BUTTON_1    5

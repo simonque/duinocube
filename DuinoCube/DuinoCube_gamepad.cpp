@@ -30,7 +30,6 @@
 
 #endif
 
-#define UINT8_MAX     ((uint8_t)(~0))
 #define ESPLORA_JOYSTICK_MAX     512
 #define ESPLORA_JOYSTICK_MIN     (-512)
 

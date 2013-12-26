@@ -233,8 +233,6 @@ void setup() {
 #define SPRITE_SIZE        (SPRITE_WIDTH * SPRITE_HEIGHT)
 #define NUM_SPRITE_IMAGES       4
 
-#define UINT8_MAX     ((uint8_t)(~0))
-
 #define MAX_MOVEMENT_SPEED      3
 
 void loop() {
