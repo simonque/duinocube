@@ -70,7 +70,7 @@ static void load() {
   printf("Loading palettes.\n");
   for (int i = 0; i < sizeof(palette_files) / sizeof(palette_files[0]); ++i) {
     const char* filename = palette_files[i];
-    uint16_t handle = DC.File.open(filename, 0x01);
+    uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
     if (!handle) {
       printf("Could not open file %s.\n", filename);
       continue;
@@ -89,7 +89,7 @@ static void load() {
   printf("Layers: %d\n", sizeof(layer_files) / sizeof(layer_files[0]));
   for (int i = 0; i < sizeof(layer_files) / sizeof(layer_files[0]); ++i) {
     const char* filename = layer_files[i];
-    uint16_t handle = DC.File.open(filename, 0x01);
+    uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
     if (!handle) {
       printf("Could not open file %s.\n", filename);
       continue;
@@ -109,7 +109,7 @@ static void load() {
   uint16_t bank = VRAM_BANK_BEGIN;
   for (int i = 0; i < sizeof(image_files) / sizeof(image_files[0]); ++i) {
     const char* filename = image_files[i];
-    uint16_t handle = DC.File.open(filename, 0x01);
+    uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
     if (!handle) {
       printf("Could not open file %s.\n", filename);
       continue;

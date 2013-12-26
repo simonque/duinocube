@@ -22,6 +22,10 @@
 
 #include <stdint.h>
 
+// Taken from FatFS.
+// TODO: Add more defines.
+#define FILE_READ_ONLY    0x01
+
 class DuinoCubeFile {
  public:
   // File I/O functions.

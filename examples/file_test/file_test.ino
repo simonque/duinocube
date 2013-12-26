@@ -31,8 +31,7 @@ void loop() {
   const char* filename = "foo.txt";
 
   // Open the file.
-  // TODO: add mode definitions.
-  uint16_t handle = DC.File.open(filename, 0x01);
+  uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
   uint16_t size_read;
   if (!handle) {
     Serial.println("Could not open file.");
