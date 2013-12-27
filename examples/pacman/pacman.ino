@@ -63,13 +63,8 @@ const File kFiles[] = {
   { "sprites.pal", NULL, PALETTE(SPRITE_PALETTE_INDEX), 0, PALETTE_SIZE },
 };
 
-void setup() {
-  Serial.begin(115200);
-  DC.begin();
-
-  while (!Serial.available());
-
-  // Load resources.
+// Load image, palette, and tilemap data from file system.
+static void loadResources() {
   uint16_t vram_offset = 0;
   for (int i = 0; i < sizeof(kFiles) / sizeof(kFiles[0]); ++i) {
     const File& file = kFiles[i];
@@ -130,8 +125,10 @@ void setup() {
 
   // Allow the graphics pipeline access to VRAM.
   DC.Core.writeWord(REG_SYS_CTRL, (0 << REG_SYS_CTRL_VRAM_ACCESS));
+}
 
-  // Enable background layers.
+// Enable background layers.
+static void setupLayers() {
   for (int layer_index = 0; layer_index < NUM_TILEMAPS; ++layer_index) {
     // Determine how to handle each layer.
     switch(layer_index) {
@@ -156,6 +153,16 @@ void setup() {
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_EMPTY_VALUE),
                       DEFAULT_EMPTY_TILE_VALUE);
   }
+}
+
+void setup() {
+  Serial.begin(115200);
+  DC.begin();
+
+  while (!Serial.available());
+
+  loadResources();
+  setupLayers();
 
   // TODO: Enable sprites.
   // TODO: Enable game logic.
