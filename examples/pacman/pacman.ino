@@ -63,6 +63,78 @@ const File kFiles[] = {
   { "sprites.pal", NULL, PALETTE(SPRITE_PALETTE_INDEX), 0, PALETTE_SIZE },
 };
 
+// Sprite definitions.
+enum SpriteState {
+  SPRITE_DEAD,
+  SPRITE_ALIVE,
+};
+
+enum SpriteDirection {
+  SPRITE_UP,
+  SPRITE_DOWN,
+  SPRITE_LEFT,
+  SPRITE_RIGHT,
+};
+
+#define NUM_GHOSTS            4
+
+// Sprite dimensions in pixels.
+#define SPRITE_WIDTH         16
+#define SPRITE_HEIGHT        16
+#define SPRITE_SIZE    (SPRITE_WIDTH * SPRITE_HEIGHT)
+
+// Tile dimensions in pixels.
+#define TILE_WIDTH            8
+#define TILE_HEIGHT           8
+#define TILE_SIZE      (TILE_WIDTH * TILE_HEIGHT)
+
+// Sprite start locations.
+#define PLAYER_START_X       (15 * TILE_WIDTH)
+#define PLAYER_START_Y       (23 * TILE_HEIGHT)
+
+// Ghost start locations.
+#define GHOST_START_X0       (11 * TILE_WIDTH)
+#define GHOST_START_DX       ( 2 * TILE_WIDTH)
+#define GHOST_START_Y        (11 * TILE_HEIGHT)
+
+// Sprite data offset locations.
+#define PLAYER_SPRITE_BASE_OFFSET          0
+#define GHOST_SPRITE_BASE_OFFSET           (6 * SPRITE_SIZE)
+#define NUM_FRAMES_PER_GHOST               6
+
+// Transparent pixel value.
+#define SPRITE_COLOR_KEY                   0
+
+// Sprite size values to write to DuinoCube Core.
+// TODO: Make these part of the DuinoCube library.
+#define SPRITE_WIDTH_16       (1 << SPRITE_HSIZE_0)
+#define SPRITE_HEIGHT_16      (1 << SPRITE_VSIZE_0)
+
+// Sprite Z-depth. This sets it above all tile layers.
+#define SPRITE_Z_DEPTH                     3
+
+// Sprite data structure definition.
+struct Sprite {
+  uint8_t state;                // Alive or dead.
+  uint8_t dir;                  // Direction sprite is facing.
+  uint16_t x, y;                // Location in pixels.
+
+  uint16_t base_offset;         // Base VRAM offset of sprite's frame images.
+  uint8_t frame;                // Animation counter.
+  uint8_t size;                 // Size of each sprite frame image in bytes.
+
+  // Compute the sprite's current VRAM offset.
+  inline uint16_t get_offset() const {
+    return base_offset + frame * size;
+  }
+};
+
+// Actual sprite objects.
+Sprite g_player;
+Sprite g_ghosts[NUM_GHOSTS];
+// Array of all sprites.
+Sprite* sprites[NUM_GHOSTS + 1];
+
 // Load image, palette, and tilemap data from file system.
 static void loadResources() {
   uint16_t vram_offset = 0;
@@ -155,6 +227,68 @@ static void setupLayers() {
   }
 }
 
+// Initialize sprites.
+static void setupSprites() {
+  // Initialize player sprite.
+  g_player.state = SPRITE_ALIVE;
+  g_player.dir = SPRITE_RIGHT;
+  g_player.x = PLAYER_START_X;
+  g_player.y = PLAYER_START_Y;
+
+  g_player.base_offset = g_sprite_offset + PLAYER_SPRITE_BASE_OFFSET;
+  g_player.frame = 0;
+  g_player.size = SPRITE_SIZE;
+
+  // Initialize ghost sprites.
+  for (int i = 0; i < NUM_GHOSTS; ++i) {
+    Sprite& ghost = g_ghosts[i];
+    ghost.state = SPRITE_ALIVE;
+    ghost.dir = SPRITE_RIGHT;
+    ghost.x = GHOST_START_X0 + i * GHOST_START_DX;
+    ghost.y = GHOST_START_Y;
+
+    ghost.base_offset = g_sprite_offset +
+                        GHOST_SPRITE_BASE_OFFSET +
+                        i * SPRITE_SIZE * NUM_FRAMES_PER_GHOST;
+    ghost.frame = 0;
+    ghost.size = SPRITE_SIZE;
+  }
+
+  // Set sprite Z-depth.
+  DC.Core.writeWord(REG_SPRITE_Z, SPRITE_Z_DEPTH);
+
+  // Set up sprite array.
+  sprites[0] = &g_player;
+  for (int i = 0; i < NUM_GHOSTS; ++i)
+    sprites[i + 1] = &g_ghosts[i];
+
+  // Set up sprite rendering.
+  for (int i = 0; i < sizeof(sprites) / sizeof(sprites[0]); ++i) {
+    const Sprite& sprite = *sprites[i];
+
+    // Set sprite size.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_1),
+                      SPRITE_WIDTH_16 | SPRITE_HEIGHT_16);
+
+    // Set image data offset.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_DATA_OFFSET), sprite.get_offset());
+
+    // Set transparency.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_COLOR_KEY), SPRITE_COLOR_KEY);
+
+    // Set location.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprite.y);
+
+    // Enable the sprite.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0),
+                      (1 << SPRITE_ENABLED) |
+                      (1 << SPRITE_ENABLE_TRANSP) |
+                      (1 << SPRITE_ENABLE_SCROLL) |
+                      (SPRITE_PALETTE_INDEX << SPRITE_PALETTE_START));
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   DC.begin();
@@ -163,8 +297,8 @@ void setup() {
 
   loadResources();
   setupLayers();
+  setupSprites();
 
-  // TODO: Enable sprites.
   // TODO: Enable game logic.
 }
 
