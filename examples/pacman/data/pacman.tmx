@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="32" height="31" tilewidth="8" tileheight="8">
  <tileset firstgid="1" name="tileset" tilewidth="8" tileheight="8">
-  <image source="tileset.bmp" trans="0000ff" width="8" height="80"/>
+  <image source="tileset.bmp" trans="0000ff" width="32" height="64"/>
  </tileset>
- <layer name="Tile Layer 1" width="32" height="31">
+ <layer name="Walls" width="32" height="31">
   <data encoding="base64" compression="zlib">
    eJzFV4txwyAMxenhJp7Co2QURmEUj+JRMkpFQa6sSiDs1NWdLo546ImPH9i5bDfwwblZ8g9oA49aey8euKJjNvAAsRHwY6W9Fw9cq8bvnXtC31dyeJ55PtrOvYXH9gZ/6r8k92WefHZ8fmE79xYeYzX+K0zihz0RIB58afO53u0Z6g/oZzCJ4ybwk9q+DXKsI3n+hF90Eo8GzJZHGjfhTbWlWgPvR/fEuMdEA2aXB3m0OtBovwqm+V5a8rhc1279U797zv9rPTEG7c6CIeNfkKdSB2LF+eRxCwbjtfXn/H9hPfza+zSV+Uv+gP8P97N2U6NvD39Z/7VnDqW1u+causev7VsLPzXr+1/jpxpmHP+TnEWH9KecIaHk2N5zWOMVsdynoitcl2hOq/5Qs+jMGXwyrj+Czmz/W+cPYGcNf1R/LNrewg/CvUvjt5hV20luM3/tPLfMs6I/Kn+5/zY1/Iz+l/2f7r+LNu4rTJoHad7fdf+yrAPRvSjds6SzgOuMpPlSviP80j63xN/Nb9n/Z/jZ90fAWO/+l/A1Hfrv/Y/fH1c4/f74Aob10Fs=
+  </data>
+ </layer>
+ <layer name="Dots" width="32" height="31">
+  <data encoding="base64" compression="zlib">
+   eJztl10KwCAMg3139z/vLtD/BOcghYLQ1K8VxLrWPbYdz+JdvWePU5O1jnqI9BYj0rP50R7V80Ud7YGpET/PQ+4lymeZ+OKLL774NS3ydk9zs1q7s0M392v+dI5izV9WjDV/ZNo/8KvnP+Xr/3HGb7IXJB4JpQ==
   </data>
  </layer>
 </map>

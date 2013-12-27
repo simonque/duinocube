@@ -25,6 +25,7 @@
 #endif
 
 #define BG_TILEMAP_INDEX            0
+#define DOTS_TILEMAP_INDEX          1
 
 #define BG_PALETTE_INDEX            0
 #define SPRITE_PALETTE_INDEX        1
@@ -55,6 +56,7 @@ const char kFilePath[] = "pacman";    // Base path of data files.
 
 const File kFiles[] = {
   { "bg.lay", NULL, TILEMAP(BG_TILEMAP_INDEX), TILEMAP_BANK, TILEMAP_SIZE },
+  { "dots.lay", NULL, TILEMAP(DOTS_TILEMAP_INDEX), TILEMAP_BANK, TILEMAP_SIZE },
   { "tileset.raw", &g_bg_offset, 0, 0, VRAM_BANK_SIZE },
   { "tileset.pal", NULL, PALETTE(BG_PALETTE_INDEX), 0, PALETTE_SIZE },
   { "sprites.raw", &g_sprite_offset, 0, 0, VRAM_BANK_SIZE },
@@ -129,21 +131,31 @@ void setup() {
   // Allow the graphics pipeline access to VRAM.
   DC.Core.writeWord(REG_SYS_CTRL, (0 << REG_SYS_CTRL_VRAM_ACCESS));
 
-  // Disable all tile layers.
-  for (int i = 0; i < NUM_TILEMAPS; ++i)
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_CTRL_0), 0);
+  // Enable background layers.
+  for (int layer_index = 0; layer_index < NUM_TILEMAPS; ++layer_index) {
+    // Determine how to handle each layer.
+    switch(layer_index) {
+    case BG_TILEMAP_INDEX:
+    case DOTS_TILEMAP_INDEX:
+      // Set up the layer later.
+      break;
+    default:
+      // Disable inactive tile layers.
+      DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0), 0);
+      continue;
+    }
 
-  // Enable background layer.
-  DC.Core.writeWord(TILE_LAYER_REG(BG_TILEMAP_INDEX, TILE_CTRL_0),
-                    (1 << TILE_LAYER_ENABLED) |
-                    (1 << TILE_ENABLE_8x8) |
-                    (1 << TILE_ENABLE_NOP) |
-                    (1 << TILE_ENABLE_FLIP) |
-                    (BG_PALETTE_INDEX << TILE_PALETTE_START));
-  DC.Core.writeWord(TILE_LAYER_REG(BG_TILEMAP_INDEX, TILE_DATA_OFFSET),
-                    g_bg_offset);
-  DC.Core.writeWord(TILE_LAYER_REG(BG_TILEMAP_INDEX, TILE_EMPTY_VALUE),
-                    DEFAULT_EMPTY_TILE_VALUE);
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0),
+                      (1 << TILE_LAYER_ENABLED) |
+                      (1 << TILE_ENABLE_8x8) |
+                      (1 << TILE_ENABLE_NOP) |
+                      (1 << TILE_ENABLE_FLIP) |
+                      (BG_PALETTE_INDEX << TILE_PALETTE_START));
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_DATA_OFFSET),
+                      g_bg_offset);
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_EMPTY_VALUE),
+                      DEFAULT_EMPTY_TILE_VALUE);
+  }
 
   // TODO: Enable sprites.
   // TODO: Enable game logic.
