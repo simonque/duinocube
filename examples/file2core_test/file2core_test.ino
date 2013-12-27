@@ -39,7 +39,7 @@ static void run_once() {
   for (uint16_t bank = VRAM_BANK_BEGIN; bank < VRAM_BANK_END; ++bank)
     test_file_copy(kData16kFile, VRAM_BASE, bank, VRAM_BANK_SIZE);
 
-  Serial.println("End of test.");
+  printf("End of test.\n");
 }
 
 static void test_file_copy(const char* filename,
@@ -50,37 +50,33 @@ static void test_file_copy(const char* filename,
   uint16_t handle = DC.File.open(filename, 0x01);
 
   if (!handle) {
-    Serial.println("Could not open file.");
+    printf("Could not open file %n.\n", filename);
     return;
   }
-  Serial.println("Opened file.");
+  printf("Opened file.\n");
 
-  Serial.print("Size in bytes: 0x");
-  Serial.println(size, HEX);
+  printf("Size in bytes: 0x%x\n", size);
 
   if (size != (uint16_t) size) {
-    Serial.println("Size is too large, must fit in uint16_t.");
+    printf("Size is too large, must fit in uint16_t.\n");
     return;
   }
 
   uint32_t file_size = DC.File.size(handle);
   if (file_size < size) {
-    Serial.print("File size is too small: ");
-    Serial.println(file_size, HEX);
+    printf("File size is too small: 0x%x\n", file_size);
   }
 
   // Allocate some shared memory.
   uint16_t buf_addr = DC.Mem.alloc(size);
   if (!buf_addr) {
-    Serial.println("Unable to allocate shared memory.");
+    printf("Unable to allocate shared memory.\n");
     return;
   }
 
   uint16_t size_read = DC.File.read(handle, buf_addr, size);
   if (size_read != size) {
-    Serial.print("Read 0x");
-    Serial.print(size_read, HEX);
-    Serial.println(" bytes, did not match expected size.");
+    printf("Read 0x%x bytes, did not match expected size.\n", size_read);
     return;
   }
 
@@ -93,12 +89,8 @@ static void test_file_copy(const char* filename,
   }
   DC.Mem.free(buf_addr);
 
-  Serial.print("Data checksum is 0x");
-  char checksum_string[32];
-  sprintf(checksum_string, "%08lx", (checksum >> 32));
-  sprintf(checksum_string + strlen(checksum_string), "%08lx",
-          (uint32_t) checksum);
-  Serial.println(checksum_string);
+  printf("Data checksum is 0x%08lx%08lx\n",
+         (uint32_t)(checksum >> 32), (uint32_t) checksum);
 
   // Reset file pointer.
   DC.File.seek(handle, 0);
@@ -108,9 +100,7 @@ static void test_file_copy(const char* filename,
   DC.Core.writeWord(REG_SYS_CTRL, 1);
   size_read = DC.File.readToCore(handle, addr, size);
   if (size_read != size) {
-    Serial.print("Read 0x");
-    Serial.print(size_read, HEX);
-    Serial.println(" bytes, did not match expected size.");
+    printf("Read 0x%x bytes, did not match expected size.\n", size_read);
     return;
   }
 
@@ -126,14 +116,11 @@ static void test_file_copy(const char* filename,
   DC.Core.writeWord(REG_SYS_CTRL, 0);
   DC.Core.writeWord(REG_MEM_BANK, 0);
 
-  Serial.print("Core checksum is 0x");
-  sprintf(checksum_string, "%08lx", (core_checksum >> 32));
-  sprintf(checksum_string + strlen(checksum_string), "%08lx",
-          (uint32_t) core_checksum);
-  Serial.println(checksum_string);
+  printf("Core checksum is 0x%08lx%08lx\n",
+         (uint32_t)(core_checksum >> 32), (uint32_t) core_checksum);
 
   if (core_checksum != checksum) {
-    Serial.println("File and core data checksums do not match!");
+    printf("File and core data checksums do not match!\n");
     return;
   }
 }

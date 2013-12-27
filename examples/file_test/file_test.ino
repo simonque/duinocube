@@ -34,30 +34,24 @@ void loop() {
   uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
   uint16_t size_read;
   if (!handle) {
-    Serial.println("Could not open file.");
+    printf("Could not open file.\n");
   } else {
-    Serial.print("Opened file handle 0x");
-    Serial.println(handle, HEX);
+    printf("Opened file handle 0x%x\n", handle);
  
     size_read = DC.File.read(handle, addr, sizeof(buf));
-    Serial.print("Read ");
-    Serial.print(size_read);
-    Serial.println(" bytes from file.");
+    printf("Read 0x%x bytes from file.\n", size_read);
 
     uint32_t expected_size = DC.File.size(handle);
     if (expected_size == size_read) {
-      Serial.println("Size read matches expected size.");
+      printf("Size read matches expected size.\n");
     } else {
-      Serial.print("Size mismatch, expected: ");
-      Serial.print(expected_size);
-      Serial.println(" bytes.");
+      printf("Size mismatch, expected: 0x%x bytes\n", expected_size);
     }
 
     // Copy the file contents into a buffer.
     memset(buf, 0, sizeof(buf));
     DC.Sys.readSharedRAM(addr, buf, size_read);
-    Serial.print("Read string: ");
-    Serial.println(buf);
+    printf("Read string: %s\n", buf);
 
     // Clear the shared memory.
     memset(buf, 0, sizeof(buf));
@@ -67,15 +61,14 @@ void loop() {
     DC.File.seek(handle, size_read / 2);
     DC.File.read(handle, addr, sizeof(buf));
     DC.Sys.readSharedRAM(addr, buf, size_read);
-    Serial.print("Half string: ");
-    Serial.println(buf);
+    printf("Half string: %s\n", buf);
 
     DC.File.close(handle);
   }
 
   // TODO: Test other file operations.
 
-  Serial.println("End of test.");
+  printf("End of test.\n");
   while(1);
 }
 
