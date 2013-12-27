@@ -33,6 +33,9 @@ Sprite g_ghosts[NUM_GHOSTS];
 // Array of all sprites.
 Sprite* sprites[NUM_GHOSTS + 1];
 
+extern uint8_t __bss_end;   // End of statically allocated memory.
+extern uint8_t __stack;     // Where local variables are allocated.
+
 // Enable background layers.
 static void setupLayers() {
   for (int layer_index = 0; layer_index < NUM_TILEMAPS; ++layer_index) {
@@ -132,6 +135,9 @@ void setup() {
   loadResources();
   setupLayers();
   setupSprites();
+
+  printf("Static data ends at 0x%04x\n", &__bss_end);
+  printf("Stack is at 0x%04x\n", &__stack);
 
   // TODO: Enable game logic.
 }
