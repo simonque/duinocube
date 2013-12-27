@@ -33,6 +33,7 @@
 #define REG_OUTPUT_CTRL    0x000c
 #define REG_MODE_CTRL      0x000e
 
+#define REG_SPRITE_Z       0x0010
 #define REG_SCROLL_X       0x001c
 #define REG_SCROLL_Y       0x001e
 

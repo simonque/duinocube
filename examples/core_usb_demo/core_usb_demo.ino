@@ -390,6 +390,6 @@ void loop() {
     DC.Core.writeWord(SPRITE_REG(0, SPRITE_DATA_OFFSET), player_sprite.offset);
     DC.Core.writeWord(SPRITE_REG(0, SPRITE_OFFSET_X), player_sprite.x);
     DC.Core.writeWord(SPRITE_REG(0, SPRITE_OFFSET_Y), player_sprite.y);
-    DC.Core.writeWord(16, sprite_z);
+    DC.Core.writeWord(REG_SPRITE_Z, sprite_z);
   }
 }
