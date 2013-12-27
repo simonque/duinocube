@@ -22,6 +22,7 @@
 // This application depends on TmxParser:
 //   https://code.google.com/p/tmx-parser/
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
