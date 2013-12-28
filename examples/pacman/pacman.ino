@@ -68,41 +68,10 @@ static void initSprites() {
   }
 }
 
-void setup() {
-  Serial.begin(115200);
-  DC.begin();
-
-  while (!Serial.available());
-
-  loadResources();
-  initSprites();
-
-  setupLayers();
-  setupSprites(g_sprites, sizeof(g_sprites) / sizeof(g_sprites[0]));
-
-  g_directions[SPRITE_UP] = (Vector){ 0, -1 };
-  g_directions[SPRITE_DOWN] = (Vector){ 0, 1 };
-  g_directions[SPRITE_LEFT] = (Vector){ -1, 0 };
-  g_directions[SPRITE_RIGHT] = (Vector){ 1, 0 };
-
-  printf("Static data ends at 0x%04x\n", &__bss_end);
-  printf("Stack is at 0x%04x\n", &__stack);
-
-  // Initialize random generator with time.
-  // TODO: Use a less deterministic seed value.
-  srand(millis());
-
-  // TODO: Enable game logic.
-}
-
-void loop() {
-  // Wait for visible, non-vblanked region to do computations.
-  while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
-
-  // Update ghosts.
+// Handle ghost state and movement.
+static void updateGhosts() {
   for (int i = 0; i < NUM_GHOSTS; ++i) {
     Sprite& ghost = g_ghosts[i];
-
     // Is ghost at an intersection? If so, randomly choose an available
     // direction that doesn't entail going backwards.
     // TODO: Correctly handle a dead end.
@@ -148,6 +117,40 @@ void loop() {
     else if (ghost.y > TILE_HEIGHT * (TILEMAP_HEIGHT - 1))
       ghost.y = 0;
   }
+}
+
+void setup() {
+  Serial.begin(115200);
+  DC.begin();
+
+  while (!Serial.available());
+
+  loadResources();
+  initSprites();
+
+  setupLayers();
+  setupSprites(g_sprites, sizeof(g_sprites) / sizeof(g_sprites[0]));
+
+  g_directions[SPRITE_UP] = (Vector){ 0, -1 };
+  g_directions[SPRITE_DOWN] = (Vector){ 0, 1 };
+  g_directions[SPRITE_LEFT] = (Vector){ -1, 0 };
+  g_directions[SPRITE_RIGHT] = (Vector){ 1, 0 };
+
+  printf("Static data ends at 0x%04x\n", &__bss_end);
+  printf("Stack is at 0x%04x\n", &__stack);
+
+  // Initialize random generator with time.
+  // TODO: Use a less deterministic seed value.
+  srand(millis());
+}
+
+void loop() {
+  // Wait for visible, non-vblanked region to do computations.
+  while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+
+  // Game logic goes here.
+  // TODO: Enable player logic.
+  updateGhosts();
 
   // Wait for Vblank to update rendering.
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
