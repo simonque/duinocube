@@ -67,7 +67,7 @@ void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
-  SPI.transfer(highByte(addr));
+  SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
 
   uint8_t* data8 = static_cast<uint8_t*>(data);
@@ -96,7 +96,7 @@ uint8_t DuinoCubeCore::readByte(uint16_t addr) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
-  SPI.transfer(highByte(addr));
+  SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
   uint8_t result = SPI.transfer(0);
 
@@ -125,7 +125,7 @@ uint16_t DuinoCubeCore::readWord(uint16_t addr) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(SPI_BUS_STATE_MEMORY);
-  SPI.transfer(highByte(addr));
+  SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
   union {
     uint16_t value_16;
