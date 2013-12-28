@@ -77,8 +77,7 @@ void setup() {
   loadResources();
   initSprites();
 
-  const int kLayers[] = { BG_TILEMAP_INDEX, DOTS_TILEMAP_INDEX };
-  setupLayers(kLayers, sizeof(kLayers) / sizeof(kLayers[0]));
+  setupLayers();
   setupSprites(g_sprites, sizeof(g_sprites) / sizeof(g_sprites[0]));
 
   g_directions[SPRITE_UP] = (Vector){ 0, -1 };

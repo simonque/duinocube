@@ -32,7 +32,7 @@ extern uint16_t g_sprite_offset;
 void loadResources();
 
 // Initialize tile layers in DuinoCube core.
-void setupLayers(const int* layers, int num_layers);
+void setupLayers();
 
 // Initialize sprite objects in DuinoCube Core.
 void setupSprites(const Sprite* sprites, int num_sprites);

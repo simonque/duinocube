@@ -126,15 +126,18 @@ void loadResources() {
   DC.Core.writeWord(REG_SYS_CTRL, (0 << REG_SYS_CTRL_VRAM_ACCESS));
 }
 
-void setupLayers(const int* layers, int num_layers) {
-  // Disable all layers first.
+void setupLayers() {
   for (int layer_index = 0; layer_index < NUM_TILE_LAYERS; ++layer_index) {
-    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0), 0);
-  }
-
-  // Enable the given layers.
-  for (int i = 0; i < num_layers; ++i) {
-    int layer_index = layers[i];
+    switch (layer_index) {
+    case BG_TILEMAP_INDEX:
+    case DOTS_TILEMAP_INDEX:
+      // Enable these layers.
+      break;
+    default:
+      // Disable other layers.
+      DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0), 0);
+      continue;
+    }
 
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0),
                       (1 << TILE_LAYER_ENABLED) |
