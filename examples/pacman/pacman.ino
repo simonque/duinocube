@@ -25,7 +25,10 @@
 #endif
 
 #include "defines.h"
+#include "map.h"
 #include "resources.h"
+
+#define GHOST_MOVEMENT_SPEED      1
 
 // Actual sprite objects.
 Sprite g_player;
@@ -80,7 +83,7 @@ static void setupSprites() {
   for (int i = 0; i < NUM_GHOSTS; ++i) {
     Sprite& ghost = g_ghosts[i];
     ghost.state = SPRITE_ALIVE;
-    ghost.dir = SPRITE_RIGHT;
+    ghost.dir = (i < NUM_GHOSTS / 2) ? SPRITE_LEFT : SPRITE_RIGHT;
     ghost.x = GHOST_START_X0 + i * GHOST_START_DX;
     ghost.y = GHOST_START_Y;
 
@@ -136,11 +139,70 @@ void setup() {
   setupLayers();
   setupSprites();
 
+  g_directions[SPRITE_UP] = (Vector){ 0, -1 };
+  g_directions[SPRITE_DOWN] = (Vector){ 0, 1 };
+  g_directions[SPRITE_LEFT] = (Vector){ -1, 0 };
+  g_directions[SPRITE_RIGHT] = (Vector){ 1, 0 };
+
   printf("Static data ends at 0x%04x\n", &__bss_end);
   printf("Stack is at 0x%04x\n", &__stack);
+
+  // Initialize random generator with time.
+  // TODO: Use a less deterministic seed value.
+  srand(millis());
 
   // TODO: Enable game logic.
 }
 
 void loop() {
+  // Wait for visible, non-vblanked region to do computations.
+  while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+
+  // Update ghosts.
+  for (int i = 0; i < NUM_GHOSTS; ++i) {
+    Sprite& ghost = g_ghosts[i];
+
+    // Is ghost at an intersection? If so, randomly choose an available
+    // direction that doesn't entail going backwards.
+    // TODO: Correctly handle a dead end.
+    if (isAtIntersection(ghost)) {
+      // Count the number of available directions.
+      uint8_t new_dirs[NUM_SPRITE_DIRS];
+      uint8_t num_available_dirs = 0;
+      for (uint8_t dir = 0; dir < NUM_SPRITE_DIRS; ++dir) {
+        if (getOppositeDir(ghost.dir) == dir)  // Do not go backwards.
+          continue;
+
+        // Otherwise, if the new direction is not blocked, add it to the list of
+        // possible directions.
+        const Vector& dir_vector = g_directions[dir];
+        if (isEmptyTile(getTileX(ghost.x) + dir_vector.x,
+                        getTileY(ghost.y) + dir_vector.y)) {
+          new_dirs[num_available_dirs++] = dir;
+        }
+      }
+
+      // Choose a direction from the list.
+      if (num_available_dirs > 0) {
+        ghost.dir = new_dirs[rand() % num_available_dirs];
+      } else {
+        printf("Unable to find a new direction for ghost at (%u, %u)\n",
+               ghost.x, ghost.y);
+      }
+    }
+
+    // Update ghost location.
+    Vector& dir_vector = g_directions[ghost.dir];
+    ghost.x += dir_vector.x * GHOST_MOVEMENT_SPEED;
+    ghost.y += dir_vector.y * GHOST_MOVEMENT_SPEED;
+  }
+
+  // Wait for Vblank to update rendering.
+  while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+
+  for (int i = 0; i < sizeof(sprites) / sizeof(sprites[0]); ++i) {
+    const Sprite& sprite = *sprites[i];
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprite.y);
+  }
 }

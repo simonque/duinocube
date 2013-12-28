@@ -20,11 +20,17 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
+#include <stdint.h>
+
 #define BG_TILEMAP_INDEX            0
 #define DOTS_TILEMAP_INDEX          1
 
 #define BG_PALETTE_INDEX            0
 #define SPRITE_PALETTE_INDEX        1
+
+#define TILEMAP_WIDTH              32
+#define TILEMAP_HEIGHT             32
+#define TILEMAP_ENTRY_SIZE       sizeof(uint16_t)
 
 // TODO: Add this to the DuinoCube library.
 #define DEFAULT_EMPTY_TILE_VALUE     0x1fff
@@ -40,6 +46,7 @@ enum SpriteDirection {
   SPRITE_DOWN,
   SPRITE_LEFT,
   SPRITE_RIGHT,
+  NUM_SPRITE_DIRS,
 };
 
 #define NUM_GHOSTS            4
