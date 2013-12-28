@@ -39,12 +39,12 @@ uint8_t getTileY(uint16_t value);
 // Returns true if the tile at the given grid coordinates is empty.
 bool isEmptyTile(uint8_t x, uint8_t y);
 
-// Returns true if the given sprite is exactly at an intersection tile.
-bool isAtIntersection(const Sprite& sprite);
-
 // Returns true if the given tile grid coordinates is at an intersection. Two
 // adjacent tiles must be empty.
 bool isIntersection(uint8_t x, uint8_t y);
+
+// Returns true if the given sprite is exactly at an intersection tile.
+bool isAtIntersection(const Sprite& sprite);
 
 // Returns the direction that is opposite to |dir|.
 uint8_t getOppositeDir(uint8_t dir);
