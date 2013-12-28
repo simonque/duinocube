@@ -29,6 +29,7 @@
 #include "resources.h"
 
 #define GHOST_MOVEMENT_SPEED      1
+#define PLAYER_MOVEMENT_SPEED     1
 
 // Array of all sprites.
 Sprite g_sprites[NUM_GHOSTS + 1];
@@ -68,6 +69,26 @@ static void initSprites() {
   }
 }
 
+// Move and animate sprite.
+static void updateSprite(Sprite* sprite_ptr, int speed) {
+  Sprite& sprite = *sprite_ptr;
+
+  const Vector& dir_vector = getDirVector(sprite.dir);
+  sprite.x += dir_vector.x * speed;
+  sprite.y += dir_vector.y * speed;
+
+  // Handle wraparound.
+  if (sprite.x < 0)
+    sprite.x = TILE_WIDTH * (TILEMAP_WIDTH - 1);
+  else if (sprite.x > TILE_WIDTH * (TILEMAP_WIDTH - 1))
+    sprite.x = 0;
+
+  if (sprite.y < 0)
+    sprite.y = TILE_HEIGHT * (TILEMAP_HEIGHT - 1);
+  else if (sprite.y > TILE_HEIGHT * (TILEMAP_HEIGHT - 1))
+    sprite.y = 0;
+}
+
 // Handle ghost state and movement.
 static void updateGhosts() {
   for (int i = 0; i < NUM_GHOSTS; ++i) {
@@ -102,20 +123,62 @@ static void updateGhosts() {
     }
 
     // Update ghost location.
-    const Vector& dir_vector = getDirVector(ghost.dir);
-    ghost.x += dir_vector.x * GHOST_MOVEMENT_SPEED;
-    ghost.y += dir_vector.y * GHOST_MOVEMENT_SPEED;
+    updateSprite(&ghost, GHOST_MOVEMENT_SPEED);
+  }
+}
 
-    // Handle wraparound.
-    if (ghost.x < 0)
-      ghost.x = TILE_WIDTH * (TILEMAP_WIDTH - 1);
-    else if (ghost.x > TILE_WIDTH * (TILEMAP_WIDTH - 1))
-      ghost.x = 0;
+// Handle player.
+static void updatePlayer() {
+  // Read user input.
+  GamepadState gamepad = DC.Gamepad.readGamepad();
 
-    if (ghost.y < 0)
-      ghost.y = TILE_HEIGHT * (TILEMAP_HEIGHT - 1);
-    else if (ghost.y > TILE_HEIGHT * (TILEMAP_HEIGHT - 1))
-      ghost.y = 0;
+  bool changed_dir = false;
+
+  // Handle directional pad input.
+  if ((gamepad.x != UINT8_MAX / 2) || (gamepad.y != UINT8_MAX / 2)) {
+    uint8_t new_dir;
+    if (gamepad.x == 0) {                   // User is pressing left.
+      new_dir = SPRITE_LEFT;
+    } else if (gamepad.x == UINT8_MAX) {    // User is pressing right.
+      new_dir = SPRITE_RIGHT;
+    } else if (gamepad.y == 0) {            // User is pressing up.
+      new_dir = SPRITE_UP;
+    } else if (gamepad.y == UINT8_MAX) {    // User is pressing down.
+      new_dir = SPRITE_DOWN;
+    }
+
+    bool is_valid_dir = false;
+
+    // Don't bother if the direction is the same.
+    if (new_dir == g_player.dir) {
+      is_valid_dir = false;
+    } else if (getOppositeDir(g_player.dir) == new_dir) {
+      // Player can always turn around to the opposite direction.
+      is_valid_dir = true;
+    } else if (isAtIntersection(g_player)) {
+      // Otherwise, player can change directions if at an intersection and there
+      // is a path in the new direction.
+      const Vector& dir_vector = getDirVector(new_dir);
+      if (isEmptyTile(getTileX(g_player.x) + dir_vector.x,
+                      getTileY(g_player.y) + dir_vector.y)) {
+        is_valid_dir = true;
+      }
+    }
+
+    // Use the new direction if appropriate.
+    if (is_valid_dir) {
+      g_player.dir = new_dir;
+      changed_dir = true;
+    }
+  }
+
+  // Update player sprite if it can continue to move.
+  const Vector& dir_vector = getDirVector(g_player.dir);
+  if (changed_dir ||
+      !isAtIntersection(g_player) ||
+      isEmptyTile(getTileX(g_player.x) + dir_vector.x,
+                  getTileY(g_player.y) + dir_vector.y)) {
+    updateSprite(&g_player, PLAYER_MOVEMENT_SPEED);
   }
 }
 
@@ -150,8 +213,10 @@ void loop() {
   while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
   // Game logic goes here.
-  // TODO: Enable player logic.
   updateGhosts();
+  updatePlayer();
+
+  // TODO: handle collisions.
 
   // Wait for Vblank to update rendering.
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
