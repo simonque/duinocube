@@ -8,9 +8,14 @@
    eJzFV4txwyAMxenhJrnrDh4lozAKo3gUj5JRIgpyZVUCYaeu7nQh0kOPjxDYuSwX0MG5SdIP8IFGzd+LB67omAzcQGQE/Fjx9+KBa9H4vXMP6PtMCu2Jx6N+ri08+hv8qf+c1Jd18lmx/UQ/1xYebTX+M0Tih5wIYA+++Hwe79qG8QfUI5jEcRH4ydi+BWIsI2l/wi8qsUcDZo0jzfur6JDHlsYaeD+aE+MWEw2YTRzkQV5NaL8KpnkuW3HI/Df7n/pdc/xf+4k28DsLhsx/Rh5t/tI5pOvJ7RYM2qX91/j/Qnr4tfN0L+uX9Ab/b+5n7+6Nvj38Zf+XnjWU9u6ax9A9fy1vLfxUWuffwk9rmHH+D3IX7ao/5Q4JJcZ6zmGPF8RyBd/M8TROT/2hYqkze/Fa/RHqzPq/df8AdtLwe+uPpba38IPw7tL4LWK5I1hsM3/tPress1J/VP7y/m3W8CP1v+R/ev/O2rzPEGkdpHV/1/vLsg+k7kXpnSXdBbzOSDVfireHX8pzi/3d/Jb8P8LPvj8C2nrzX8LX6tB/5z9+f5yh9PvjBdj+0Ss=
   </data>
  </layer>
- <layer name="Dots" width="32" height="31" visible="0">
+ <layer name="Dots" width="32" height="31">
   <data encoding="base64" compression="zlib">
    eJztl10KwCAMg3139z/vLtD/BOcghYLQ1K8VxLrWPbYdz+JdvWePU5O1jnqI9BYj0rP50R7V80Ud7YGpET/PQ+4lymeZ+OKLL774NS3ydk9zs1q7s0M392v+dI5izV9WjDV/ZNo/8KvnP+Xr/3HGb7IXJB4JpQ==
+  </data>
+ </layer>
+ <layer name="Clipping" width="32" height="31">
+  <data encoding="base64" compression="zlib">
+   eJztzbEJAAAMw7A+kP/f7ZIfCkUGz8rclc7n8/l8Pp/P5/P5fP53fwF9tAMn
   </data>
  </layer>
 </map>

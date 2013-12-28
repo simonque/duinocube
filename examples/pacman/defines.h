@@ -24,6 +24,7 @@
 
 #define BG_TILEMAP_INDEX            0
 #define DOTS_TILEMAP_INDEX          1
+#define CLIPPING_TILEMAP_INDEX      3
 
 #define BG_PALETTE_INDEX            0
 #define SPRITE_PALETTE_INDEX        1
@@ -87,8 +88,9 @@ enum SpriteDirection {
 #define SPRITE_WIDTH_16       (1 << SPRITE_HSIZE_0)
 #define SPRITE_HEIGHT_16      (1 << SPRITE_VSIZE_0)
 
-// Sprite Z-depth. This sets it above all tile layers.
-#define SPRITE_Z_DEPTH                     3
+// Sprite Z-depth. This sets it above all tile layers except for the clipping
+// layer.
+#define SPRITE_Z_DEPTH                   (CLIPPING_TILEMAP_INDEX - 1)
 
 // Sprite data structure definition.
 struct Sprite {

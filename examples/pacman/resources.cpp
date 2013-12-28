@@ -51,6 +51,8 @@ const char kFilePath[] = "pacman";    // Base path of data files.
 const File kFiles[] = {
   { "bg.lay", NULL, TILEMAP(BG_TILEMAP_INDEX), TILEMAP_BANK, TILEMAP_SIZE },
   { "dots.lay", NULL, TILEMAP(DOTS_TILEMAP_INDEX), TILEMAP_BANK, TILEMAP_SIZE },
+  { "clipping.lay", NULL, TILEMAP(CLIPPING_TILEMAP_INDEX), TILEMAP_BANK,
+    TILEMAP_SIZE },
   { "tileset.raw", &g_bg_offset, 0, 0, VRAM_BANK_SIZE },
   { "tileset.pal", NULL, PALETTE(BG_PALETTE_INDEX), 0, PALETTE_SIZE },
   { "sprites.raw", &g_sprite_offset, 0, 0, VRAM_BANK_SIZE },
@@ -131,6 +133,7 @@ void setupLayers() {
     switch (layer_index) {
     case BG_TILEMAP_INDEX:
     case DOTS_TILEMAP_INDEX:
+    case CLIPPING_TILEMAP_INDEX:
       // Enable these layers.
       break;
     default:
