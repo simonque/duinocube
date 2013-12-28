@@ -165,7 +165,7 @@ void setupSprites(const Sprite* sprites, int num_sprites) {
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_DATA_OFFSET), sprite.get_offset());
 
     // Set transparency.
-    DC.Core.writeWord(SPRITE_REG(i, SPRITE_COLOR_KEY), SPRITE_COLOR_KEY);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_COLOR_KEY), SPRITE_TRANSPRENT_VALUE);
 
     // Set location.
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);

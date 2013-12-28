@@ -80,7 +80,7 @@ enum SpriteDirection {
 #define NUM_FRAMES_PER_GHOST               6
 
 // Transparent pixel value.
-#define SPRITE_COLOR_KEY                   0
+#define SPRITE_TRANSPRENT_VALUE            0
 
 // Sprite size values to write to DuinoCube Core.
 // TODO: Make these part of the DuinoCube library.
