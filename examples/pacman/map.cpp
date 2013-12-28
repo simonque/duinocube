@@ -75,9 +75,12 @@ bool isIntersection(uint8_t x, uint8_t y) {
     }
   }
 
-  // Three is clearly an intersection.
-  if (num_adjacent_empty_tiles == 3)
+  // Three and four are clearly intersections.
+  // TODO: Need to check the corners too.
+  if (num_adjacent_empty_tiles == 3 ||
+      num_adjacent_empty_tiles == 4) {
     return true;
+  }
 
   // Two is an intersection if it's a corner (non-straight).
   if (num_adjacent_empty_tiles == 2 &&
