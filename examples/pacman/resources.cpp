@@ -122,3 +122,57 @@ void loadResources() {
   // Allow the graphics pipeline access to VRAM.
   DC.Core.writeWord(REG_SYS_CTRL, (0 << REG_SYS_CTRL_VRAM_ACCESS));
 }
+
+void setupLayers(const int* layers, int num_layers) {
+  // Disable all layers first.
+  for (int layer_index = 0; layer_index < NUM_TILE_LAYERS; ++layer_index) {
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0), 0);
+  }
+
+  // Enable the given layers.
+  for (int i = 0; i < num_layers; ++i) {
+    int layer_index = layers[i];
+
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0),
+                      (1 << TILE_LAYER_ENABLED) |
+                      (1 << TILE_ENABLE_8x8) |
+                      (1 << TILE_ENABLE_NOP) |
+                      (1 << TILE_ENABLE_FLIP) |
+                      (BG_PALETTE_INDEX << TILE_PALETTE_START));
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_DATA_OFFSET),
+                      g_bg_offset);
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_EMPTY_VALUE),
+                      DEFAULT_EMPTY_TILE_VALUE);
+  }
+}
+
+void setupSprites(const Sprite* sprites, int num_sprites) {
+  // Set sprite Z-depth.
+  DC.Core.writeWord(REG_SPRITE_Z, SPRITE_Z_DEPTH);
+
+  // Set up sprite rendering.
+  for (int i = 0; i < num_sprites; ++i) {
+    const Sprite& sprite = sprites[i];
+
+    // Set sprite size.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_1),
+                      SPRITE_WIDTH_16 | SPRITE_HEIGHT_16);
+
+    // Set image data offset.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_DATA_OFFSET), sprite.get_offset());
+
+    // Set transparency.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_COLOR_KEY), SPRITE_COLOR_KEY);
+
+    // Set location.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprite.y);
+
+    // Enable the sprite.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0),
+                      (1 << SPRITE_ENABLED) |
+                      (1 << SPRITE_ENABLE_TRANSP) |
+                      (1 << SPRITE_ENABLE_SCROLL) |
+                      (SPRITE_PALETTE_INDEX << SPRITE_PALETTE_START));
+  }
+}

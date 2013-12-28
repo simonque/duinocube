@@ -22,11 +22,19 @@
 
 #include <stdint.h>
 
+#include "defines.h"
+
 // VRAM offsets of background and sprite image data.
 extern uint16_t g_bg_offset;
 extern uint16_t g_sprite_offset;
 
 // Load image, palette, and tilemap data from file system.
 void loadResources();
+
+// Initialize tile layers in DuinoCube core.
+void setupLayers(const int* layers, int num_layers);
+
+// Initialize sprite objects in DuinoCube Core.
+void setupSprites(const Sprite* sprites, int num_sprites);
 
 #endif  // __RESOURCES_H_
