@@ -29,12 +29,13 @@ struct Vector {
   int x, y;
 };
 
-// Unit vectors in each direction.
-extern Vector g_directions[];
-
 // Convert sprite coordinates to tile grid coordinates.
 uint8_t getTileX(uint16_t value);
 uint8_t getTileY(uint16_t value);
+
+// Get and set directional unit vectors.
+const Vector& getDirVector(uint8_t dir);
+void setDirVector(uint8_t dir, int x, int y);
 
 // Returns true if the tile at the given grid coordinates is empty.
 bool isEmptyTile(uint8_t x, uint8_t y);

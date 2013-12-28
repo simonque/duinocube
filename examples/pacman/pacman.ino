@@ -85,7 +85,7 @@ static void updateGhosts() {
 
         // Otherwise, if the new direction is not blocked, add it to the list of
         // possible directions.
-        const Vector& dir_vector = g_directions[dir];
+        const Vector& dir_vector = getDirVector(dir);
         if (isEmptyTile(getTileX(ghost.x) + dir_vector.x,
                         getTileY(ghost.y) + dir_vector.y)) {
           new_dirs[num_available_dirs++] = dir;
@@ -102,7 +102,7 @@ static void updateGhosts() {
     }
 
     // Update ghost location.
-    Vector& dir_vector = g_directions[ghost.dir];
+    const Vector& dir_vector = getDirVector(ghost.dir);
     ghost.x += dir_vector.x * GHOST_MOVEMENT_SPEED;
     ghost.y += dir_vector.y * GHOST_MOVEMENT_SPEED;
 
@@ -131,10 +131,11 @@ void setup() {
   setupLayers();
   setupSprites(g_sprites, sizeof(g_sprites) / sizeof(g_sprites[0]));
 
-  g_directions[SPRITE_UP] = (Vector){ 0, -1 };
-  g_directions[SPRITE_DOWN] = (Vector){ 0, 1 };
-  g_directions[SPRITE_LEFT] = (Vector){ -1, 0 };
-  g_directions[SPRITE_RIGHT] = (Vector){ 1, 0 };
+  // Initialize directional unit vectors.
+  setDirVector(SPRITE_UP, 0, -1);
+  setDirVector(SPRITE_DOWN, 0, 1);
+  setDirVector(SPRITE_LEFT, -1, 0);
+  setDirVector(SPRITE_RIGHT, 1, 0);
 
   printf("Static data ends at 0x%04x\n", &__bss_end);
   printf("Stack is at 0x%04x\n", &__stack);

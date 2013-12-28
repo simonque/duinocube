@@ -31,7 +31,7 @@
 #define SPRITE_TO_TILE_OFFSET(value, tile_size, offset) \
   (((value) + (offset)) % (tile_size))
 
-Vector g_directions[NUM_SPRITE_DIRS];
+static Vector g_directions[NUM_SPRITE_DIRS];
 
 uint8_t getTileX(uint16_t value) {
   return SPRITE_TO_TILE(value, TILE_WIDTH, SPRITE_GRID_OFFSET_X);
@@ -47,6 +47,15 @@ const Vector& getDirVector(uint8_t dir) {
 
   printf("Invalid direction enum: %d\n", dir);
   return g_directions[0];
+}
+
+void setDirVector(uint8_t dir, int x, int y) {
+  if (dir < NUM_SPRITE_DIRS) {
+    g_directions[dir].x = x;
+    g_directions[dir].y = y;
+  } else {
+    printf("Invalid direction enum: %d\n", dir);
+  }
 }
 
 bool isEmptyTile(uint8_t x, uint8_t y) {
