@@ -119,6 +119,9 @@ void loadResources() {
     DC.File.close(handle);
   }
 
+  // Set to bank 0.
+  DC.Core.writeWord(REG_MEM_BANK, 0);
+
   // Allow the graphics pipeline access to VRAM.
   DC.Core.writeWord(REG_SYS_CTRL, (0 << REG_SYS_CTRL_VRAM_ACCESS));
 }

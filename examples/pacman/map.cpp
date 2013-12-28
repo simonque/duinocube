@@ -55,6 +55,7 @@ bool isEmptyTile(uint8_t x, uint8_t y) {
 
   DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
   uint16_t value = DC.Core.readWord(TILEMAP(BG_TILEMAP_INDEX) + offset);
+  DC.Core.writeWord(REG_MEM_BANK, 0);
   return value == DEFAULT_EMPTY_TILE_VALUE;
 }
 
