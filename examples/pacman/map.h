@@ -47,6 +47,9 @@ bool isIntersection(uint8_t x, uint8_t y);
 // Returns true if the given sprite is exactly at an intersection tile.
 bool isAtIntersection(const Sprite& sprite);
 
+// Returns true if the given sprite is perfectly aligned to the tile grid.
+bool isAlignedToTileGrid(const Sprite& sprite);
+
 // Returns the direction that is opposite to |dir|.
 uint8_t getOppositeDir(uint8_t dir);
 
