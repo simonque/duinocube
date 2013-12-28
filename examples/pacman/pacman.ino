@@ -137,6 +137,17 @@ void loop() {
     Vector& dir_vector = g_directions[ghost.dir];
     ghost.x += dir_vector.x * GHOST_MOVEMENT_SPEED;
     ghost.y += dir_vector.y * GHOST_MOVEMENT_SPEED;
+
+    // Handle wraparound.
+    if (ghost.x < 0)
+      ghost.x = TILE_WIDTH * (TILEMAP_WIDTH - 1);
+    else if (ghost.x > TILE_WIDTH * (TILEMAP_WIDTH - 1))
+      ghost.x = 0;
+
+    if (ghost.y < 0)
+      ghost.y = TILE_HEIGHT * (TILEMAP_HEIGHT - 1);
+    else if (ghost.y > TILE_HEIGHT * (TILEMAP_HEIGHT - 1))
+      ghost.y = 0;
   }
 
   // Wait for Vblank to update rendering.

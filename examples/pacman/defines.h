@@ -94,7 +94,7 @@ enum SpriteDirection {
 struct Sprite {
   uint8_t state;                // Alive or dead.
   uint8_t dir;                  // Direction sprite is facing.
-  uint16_t x, y;                // Location in pixels.
+  int16_t x, y;                 // Location in pixels.
 
   uint16_t base_offset;         // Base VRAM offset of sprite's frame images.
   uint8_t frame;                // Animation counter.
