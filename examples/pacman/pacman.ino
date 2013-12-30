@@ -183,7 +183,6 @@ static void updatePlayer() {
 
   // Eat a dot if one is available.
   if (isAlignedToTileGrid(g_player)) {
-    printf("Eating pill at %d, %d. aligned = %d\n", g_player.x, g_player.y, isAlignedToTileGrid(g_player));
     DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
     DC.Core.writeWord(TILEMAP(DOTS_TILEMAP_INDEX) +
                       (getTileX(g_player.x) +
