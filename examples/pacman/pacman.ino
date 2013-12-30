@@ -239,6 +239,8 @@ static void updatePlayer() {
 
 // Scroll world camera based on player location.
 static void scrollCamera() {
+  // Center the camera on the player if possible, but try to keep the camera
+  // within the map.
   if (g_player.y < SCREEN_HEIGHT / 2) {
     // Camera at top.
     DC.Core.writeWord(REG_SCROLL_Y, 0);
@@ -249,6 +251,12 @@ static void scrollCamera() {
     // Camera in the middle.
     DC.Core.writeWord(REG_SCROLL_Y, g_player.y - SCREEN_HEIGHT / 2);
   }
+
+  // Center the camera horizontally.
+  // TODO: This is based on the assumption that |MAP_WIDTH| <= |SCREEN_WIDTH|.
+  // To make it more robust, add a check that this is the case.
+  // Do something similar for vertical centering above.
+  DC.Core.writeWord(REG_SCROLL_X, (MAP_WIDTH - SCREEN_WIDTH) / 2);
 }
 
 void setup() {
