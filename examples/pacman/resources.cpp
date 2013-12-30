@@ -24,6 +24,7 @@
 #include <DuinoCube.h>
 
 #include "defines.h"
+#include "sprites.h"
 
 // VRAM offsets of background and sprite image data.
 uint16_t g_bg_offset;

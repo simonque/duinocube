@@ -27,6 +27,7 @@
 #include "defines.h"
 #include "map.h"
 #include "resources.h"
+#include "sprites.h"
 
 #define GHOST_MOVEMENT_SPEED      1
 #define PLAYER_MOVEMENT_SPEED     1
@@ -68,29 +69,6 @@ static void initSprites() {
                         i * SPRITE_SIZE * NUM_FRAMES_PER_GHOST;
     ghost.size = SPRITE_SIZE;
   }
-}
-
-// Move and animate sprite.
-static void updateSprite(Sprite* sprite_ptr, int speed) {
-  Sprite& sprite = *sprite_ptr;
-
-  const Vector& dir_vector = getDirVector(sprite.dir);
-  sprite.x += dir_vector.x * speed;
-  sprite.y += dir_vector.y * speed;
-
-  // Handle wraparound.
-  if (sprite.x < WRAP_LEFT)
-    sprite.x = WRAP_RIGHT - 1;
-  else if (sprite.x > WRAP_RIGHT)
-    sprite.x = WRAP_LEFT + 1;
-
-  if (sprite.y < WRAP_TOP)
-    sprite.y = WRAP_BOTTOM - 1;
-  else if (sprite.y > WRAP_BOTTOM)
-    sprite.y = WRAP_TOP + 1;
-
-  // Increment the animation counter.
-  ++sprite.counter;
 }
 
 // Update ghost sprite frame and orientation.

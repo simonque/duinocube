@@ -23,6 +23,8 @@
 
 #include <DuinoCube.h>
 
+#include "sprites.h"
+
 // Generic sprite coordinate to tile grid coordinate conversion formula.
 #define SPRITE_TO_TILE(value, tile_size, offset) \
   (((value) + (offset)) / (tile_size))

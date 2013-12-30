@@ -29,6 +29,9 @@ struct Vector {
   int x, y;
 };
 
+// Forward declaration of sprite struct.
+struct Sprite;
+
 // Convert sprite coordinates to tile grid coordinates.
 uint8_t getTileX(uint16_t value);
 uint8_t getTileY(uint16_t value);

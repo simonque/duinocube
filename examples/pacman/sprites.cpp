@@ -15,29 +15,31 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with DuinoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// Resource file definitions.
+// Sprite functions.
 
-#ifndef __RESOURCES_H_
-#define __RESOURCES_H_
-
-#include <stdint.h>
+#include "sprites.h"
 
 #include "defines.h"
+#include "map.h"
 
-// Forward struct declarations.
-struct Sprite;
+void updateSprite(Sprite* sprite_ptr, int speed) {
+  Sprite& sprite = *sprite_ptr;
 
-// VRAM offsets of background and sprite image data.
-extern uint16_t g_bg_offset;
-extern uint16_t g_sprite_offset;
+  const Vector& dir_vector = getDirVector(sprite.dir);
+  sprite.x += dir_vector.x * speed;
+  sprite.y += dir_vector.y * speed;
 
-// Load image, palette, and tilemap data from file system.
-void loadResources();
+  // Handle wraparound.
+  if (sprite.x < WRAP_LEFT)
+    sprite.x = WRAP_RIGHT - 1;
+  else if (sprite.x > WRAP_RIGHT)
+    sprite.x = WRAP_LEFT + 1;
 
-// Initialize tile layers in DuinoCube core.
-void setupLayers();
+  if (sprite.y < WRAP_TOP)
+    sprite.y = WRAP_BOTTOM - 1;
+  else if (sprite.y > WRAP_BOTTOM)
+    sprite.y = WRAP_TOP + 1;
 
-// Initialize sprite objects in DuinoCube Core.
-void setupSprites(const Sprite* sprites, int num_sprites);
-
-#endif  // __RESOURCES_H_
+  // Increment the animation counter.
+  ++sprite.counter;
+}

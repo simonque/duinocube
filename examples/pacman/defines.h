@@ -111,26 +111,4 @@ enum SpriteDirection {
 // layer.
 #define SPRITE_Z_DEPTH                   (CLIPPING_TILEMAP_INDEX - 1)
 
-// Sprite data structure definition.
-struct Sprite {
-  uint8_t state;                // Alive or dead.
-  uint8_t dir;                  // Direction sprite is facing.
-  int16_t x, y;                 // Location in pixels.
-
-  uint16_t base_offset;         // Base VRAM offset of sprite's frame images.
-  uint16_t size;                // Size of each sprite frame image in bytes.
-  uint8_t frame;                // Current frame image.
-  uint16_t flip;                // Current frame flip flags.
-  uint16_t counter;             // Animation counter.
-
-  Sprite() : frame(0),
-             flip(0),
-             counter(0) {}
-
-  // Compute the sprite's current VRAM offset.
-  inline uint16_t get_offset() const {
-    return base_offset + frame * size;
-  }
-};
-
 #endif  // __DEFINES_H__
