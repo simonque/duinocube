@@ -36,6 +36,10 @@
 // TODO: Add this to the DuinoCube library.
 #define DEFAULT_EMPTY_TILE_VALUE     0x1fff
 
+// TODO: Add this to DuinoCube as well?
+#define SPRITE_FLIP_MASK  \
+    ((1 << SPRITE_FLIP_X) | (1 << SPRITE_FLIP_Y) | (1 << SPRITE_FLIP_XY))
+
 // Sprite definitions.
 enum SpriteState {
   SPRITE_DEAD,
@@ -114,8 +118,14 @@ struct Sprite {
   int16_t x, y;                 // Location in pixels.
 
   uint16_t base_offset;         // Base VRAM offset of sprite's frame images.
-  uint8_t frame;                // Animation counter.
-  uint8_t size;                 // Size of each sprite frame image in bytes.
+  uint16_t size;                // Size of each sprite frame image in bytes.
+  uint8_t frame;                // Current frame image.
+  uint16_t flip;                // Current frame flip flags.
+  uint16_t counter;             // Animation counter.
+
+  Sprite() : frame(0),
+             flip(0),
+             counter(0) {}
 
   // Compute the sprite's current VRAM offset.
   inline uint16_t get_offset() const {

@@ -31,6 +31,9 @@
 #define GHOST_MOVEMENT_SPEED      1
 #define PLAYER_MOVEMENT_SPEED     1
 
+#define GHOST_ANIMATION_PERIOD    8
+#define GHOST_FRAME_PERIOD        2
+
 // Array of all sprites.
 Sprite g_sprites[NUM_GHOSTS + 1];
 
@@ -50,7 +53,6 @@ static void initSprites() {
   g_player.y = PLAYER_START_Y;
 
   g_player.base_offset = g_sprite_offset + PLAYER_SPRITE_BASE_OFFSET;
-  g_player.frame = 0;
   g_player.size = SPRITE_SIZE;
 
   // Initialize ghost sprites.
@@ -64,7 +66,6 @@ static void initSprites() {
     ghost.base_offset = g_sprite_offset +
                         GHOST_SPRITE_BASE_OFFSET +
                         i * SPRITE_SIZE * NUM_FRAMES_PER_GHOST;
-    ghost.frame = 0;
     ghost.size = SPRITE_SIZE;
   }
 }
@@ -87,6 +88,35 @@ static void updateSprite(Sprite* sprite_ptr, int speed) {
     sprite.y = WRAP_BOTTOM - 1;
   else if (sprite.y > WRAP_BOTTOM)
     sprite.y = WRAP_TOP + 1;
+
+  // Increment the animation counter.
+  ++sprite.counter;
+}
+
+// Update ghost sprite frame and orientation.
+static void setGhostFrame(Sprite* ghost_ptr) {
+  Sprite& ghost = *ghost_ptr;
+
+  uint8_t frame_offset =
+      (ghost.counter / GHOST_ANIMATION_PERIOD) % GHOST_FRAME_PERIOD;
+
+  // These are based on the image offsets in the sprite image data.
+  // TODO: make it less hard-coded.
+  switch (ghost.dir) {
+  case SPRITE_UP:
+    ghost.frame = 4 + frame_offset;
+    ghost.flip = 0;
+    break;
+  case SPRITE_DOWN:
+    ghost.frame = 2 + frame_offset;
+    ghost.flip = 0;
+    break;
+  case SPRITE_LEFT:
+  case SPRITE_RIGHT:
+    ghost.frame = 0 + frame_offset;
+    ghost.flip = (ghost.dir == SPRITE_RIGHT) ? 0 : (1 << SPRITE_FLIP_X);
+    break;
+  }
 }
 
 // Handle ghost state and movement.
@@ -124,6 +154,9 @@ static void updateGhosts() {
 
     // Update ghost location.
     updateSprite(&ghost, GHOST_MOVEMENT_SPEED);
+
+    // Update ghost sprite frame.
+    setGhostFrame(&ghost);
   }
 }
 
@@ -250,10 +283,18 @@ void loop() {
 
   scrollCamera();
 
-  // Update sprite locations.
+  // Update sprite rendering.
   for (int i = 0; i < sizeof(g_sprites) / sizeof(g_sprites[0]); ++i) {
     const Sprite& sprite = g_sprites[i];
+
+    // Update location.
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprite.y);
+
+    // Update image.
+    uint16_t ctrl0 = DC.Core.readWord(SPRITE_REG(i, SPRITE_CTRL_0));
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0),
+                      (ctrl0 & ~SPRITE_FLIP_MASK) | sprite.flip);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_DATA_OFFSET), sprite.get_offset());
   }
 }
