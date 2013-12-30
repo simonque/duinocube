@@ -263,8 +263,6 @@ void setup() {
   Serial.begin(115200);
   DC.begin();
 
-  while (!Serial.available());
-
   loadResources();
   initSprites();
 

@@ -22,6 +22,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+#if defined(__AVR_ATmega32U4__)
+#include <Esplora.h>
+#endif  // defined(__AVR_ATmega32U4__)
+
 #include "DuinoCube.h"
 
 // Select pins for Core and System shields.
@@ -51,6 +55,18 @@ void DuinoCube::begin() {
   // Set up printf over UART.
   fdev_setup_stream(&uart_stdout, uart_putchar, NULL, _FDEV_SETUP_WRITE);
   stdout = &uart_stdout;
+
+  // On Arduino Leonardo / Esplora, the system doesn't wait for the serial
+  // console to be opened. Important messages may be lost. Wait for console
+  // input manually to continue. Alternatively, press a button on the Esplora
+  // to continue.
+#if defined(__AVR_ATmega32U4__)
+  while (!Serial.available() &&
+         Esplora.readButton(SWITCH_1) == HIGH &&
+         Esplora.readButton(SWITCH_2) == HIGH &&
+         Esplora.readButton(SWITCH_3) == HIGH &&
+         Esplora.readButton(SWITCH_4) == HIGH);
+#endif  // defined(__AVR_ATmega32U4__)
 
   Core.begin();
   Sys.begin();
