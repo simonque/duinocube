@@ -34,11 +34,11 @@
 static Vector g_directions[NUM_SPRITE_DIRS];
 
 uint8_t getTileX(uint16_t value) {
-  return SPRITE_TO_TILE(value, TILE_WIDTH, SPRITE_GRID_OFFSET_X);
+  return SPRITE_TO_TILE(value, TILE_WIDTH, -SPRITE_GRID_OFFSET_X);
 }
 
 uint8_t getTileY(uint16_t value) {
-  return SPRITE_TO_TILE(value, TILE_HEIGHT, SPRITE_GRID_OFFSET_Y);
+  return SPRITE_TO_TILE(value, TILE_HEIGHT, -SPRITE_GRID_OFFSET_Y);
 }
 
 const Vector& getDirVector(uint8_t dir) {

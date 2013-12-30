@@ -63,23 +63,23 @@ enum SpriteDirection {
 #define TILE_SIZE      (TILE_WIDTH * TILE_HEIGHT)
 
 // Offset between sprite top left corner and tilemap grid.
-#define SPRITE_GRID_OFFSET_X  (TILE_WIDTH / 2)
-#define SPRITE_GRID_OFFSET_Y  (TILE_HEIGHT / 2)
+#define SPRITE_GRID_OFFSET_X  (-TILE_WIDTH / 2)
+#define SPRITE_GRID_OFFSET_Y  (-TILE_HEIGHT / 2)
 
 // Boundary wraparound thresholds.
-#define WRAP_LEFT    (TILE_WIDTH - SPRITE_GRID_OFFSET_X)
-#define WRAP_RIGHT   ((TILEMAP_WIDTH - 2) * TILE_WIDTH - SPRITE_GRID_OFFSET_X)
-#define WRAP_TOP     (TILE_HEIGHT - SPRITE_GRID_OFFSET_Y)
-#define WRAP_BOTTOM  ((TILEMAP_HEIGHT - 2) * TILE_HEIGHT - SPRITE_GRID_OFFSET_Y)
+#define WRAP_LEFT    (TILE_WIDTH + SPRITE_GRID_OFFSET_X)
+#define WRAP_RIGHT   ((TILEMAP_WIDTH - 2) * TILE_WIDTH + SPRITE_GRID_OFFSET_X)
+#define WRAP_TOP     (TILE_HEIGHT + SPRITE_GRID_OFFSET_Y)
+#define WRAP_BOTTOM  ((TILEMAP_HEIGHT - 2) * TILE_HEIGHT + SPRITE_GRID_OFFSET_Y)
 
 // Sprite start locations.
-#define PLAYER_START_X       (15 * TILE_WIDTH + SPRITE_GRID_OFFSET_X)
-#define PLAYER_START_Y       (22 * TILE_HEIGHT + SPRITE_GRID_OFFSET_Y)
+#define PLAYER_START_X       (16 * TILE_WIDTH + SPRITE_GRID_OFFSET_X)
+#define PLAYER_START_Y       (23 * TILE_HEIGHT + SPRITE_GRID_OFFSET_Y)
 
 // Ghost start locations.
-#define GHOST_START_X0       (11 * TILE_WIDTH + SPRITE_GRID_OFFSET_X)
+#define GHOST_START_X0       (12 * TILE_WIDTH + SPRITE_GRID_OFFSET_X)
 #define GHOST_START_DX       ( 2 * TILE_WIDTH)
-#define GHOST_START_Y        (10 * TILE_HEIGHT + SPRITE_GRID_OFFSET_Y)
+#define GHOST_START_Y        (11 * TILE_HEIGHT + SPRITE_GRID_OFFSET_Y)
 
 // Sprite data offset locations.
 #define PLAYER_SPRITE_BASE_OFFSET          0
