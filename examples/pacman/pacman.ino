@@ -223,17 +223,17 @@ static void updatePlayer() {
                   getTileY(g_player.y) + dir_vector.y)) {
     updateSprite(&g_player, PLAYER_MOVEMENT_SPEED);
     setPlayerFrame(&g_player);
-  }
 
-  // Eat a dot if one is available.
-  if (isAlignedToTileGrid(g_player)) {
-    DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
-    DC.Core.writeWord(TILEMAP(DOTS_TILEMAP_INDEX) +
-                      (getTileX(g_player.x) +
-                       getTileY(g_player.y) * TILEMAP_WIDTH) *
-                          TILEMAP_ENTRY_SIZE,
-                      DEFAULT_EMPTY_TILE_VALUE);
-    DC.Core.writeWord(REG_MEM_BANK, 0);
+    // Eat a dot if one is available.
+    if (isAlignedToTileGrid(g_player)) {
+      DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
+      DC.Core.writeWord(TILEMAP(DOTS_TILEMAP_INDEX) +
+                        (getTileX(g_player.x) +
+                         getTileY(g_player.y) * TILEMAP_WIDTH) *
+                            TILEMAP_ENTRY_SIZE,
+                        DEFAULT_EMPTY_TILE_VALUE);
+      DC.Core.writeWord(REG_MEM_BANK, 0);
+    }
   }
 }
 
