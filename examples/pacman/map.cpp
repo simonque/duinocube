@@ -103,7 +103,7 @@ bool isIntersection(uint8_t x, uint8_t y) {
 
 bool isAtIntersection(const Sprite& sprite) {
   // If the sprite is not exactly on a tile, it's not at an intersection.
-  if (isAlignedToTileGrid(sprite)) {
+  if (!isAlignedToTileGrid(sprite)) {
     return false;
   }
   // Otherwise, compute based on the tile grid coordinates.
@@ -111,8 +111,10 @@ bool isAtIntersection(const Sprite& sprite) {
 }
 
 bool isAlignedToTileGrid(const Sprite& sprite) {
-  return (SPRITE_TO_TILE_OFFSET(sprite.x, TILE_WIDTH, -SPRITE_GRID_OFFSET_X)) ||
-         (SPRITE_TO_TILE_OFFSET(sprite.y, TILE_HEIGHT, -SPRITE_GRID_OFFSET_Y));
+  return (SPRITE_TO_TILE_OFFSET(sprite.x, TILE_WIDTH,
+                                -SPRITE_GRID_OFFSET_X) == 0) &&
+         (SPRITE_TO_TILE_OFFSET(sprite.y, TILE_HEIGHT,
+                                -SPRITE_GRID_OFFSET_Y) == 0);
 }
 
 uint8_t getOppositeDir(uint8_t dir) {
