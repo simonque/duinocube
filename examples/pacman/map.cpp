@@ -111,8 +111,8 @@ bool isAtIntersection(const Sprite& sprite) {
 }
 
 bool isAlignedToTileGrid(const Sprite& sprite) {
-  return (SPRITE_TO_TILE_OFFSET(sprite.x, TILE_WIDTH, SPRITE_GRID_OFFSET_X)) ||
-         (SPRITE_TO_TILE_OFFSET(sprite.y, TILE_HEIGHT, SPRITE_GRID_OFFSET_Y));
+  return (SPRITE_TO_TILE_OFFSET(sprite.x, TILE_WIDTH, -SPRITE_GRID_OFFSET_X)) ||
+         (SPRITE_TO_TILE_OFFSET(sprite.y, TILE_HEIGHT, -SPRITE_GRID_OFFSET_Y));
 }
 
 uint8_t getOppositeDir(uint8_t dir) {
