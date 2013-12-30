@@ -66,6 +66,12 @@ enum SpriteDirection {
 #define SPRITE_GRID_OFFSET_X  (TILE_WIDTH / 2)
 #define SPRITE_GRID_OFFSET_Y  (TILE_HEIGHT / 2)
 
+// Boundary wraparound thresholds.
+#define WRAP_LEFT    (TILE_WIDTH - SPRITE_GRID_OFFSET_X)
+#define WRAP_RIGHT   ((TILEMAP_WIDTH - 2) * TILE_WIDTH - SPRITE_GRID_OFFSET_X)
+#define WRAP_TOP     (TILE_HEIGHT - SPRITE_GRID_OFFSET_Y)
+#define WRAP_BOTTOM  ((TILEMAP_HEIGHT - 2) * TILE_HEIGHT - SPRITE_GRID_OFFSET_Y)
+
 // Sprite start locations.
 #define PLAYER_START_X       (15 * TILE_WIDTH + SPRITE_GRID_OFFSET_X)
 #define PLAYER_START_Y       (22 * TILE_HEIGHT + SPRITE_GRID_OFFSET_Y)

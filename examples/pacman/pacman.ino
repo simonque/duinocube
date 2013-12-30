@@ -78,15 +78,15 @@ static void updateSprite(Sprite* sprite_ptr, int speed) {
   sprite.y += dir_vector.y * speed;
 
   // Handle wraparound.
-  if (sprite.x < 0)
-    sprite.x = TILE_WIDTH * (TILEMAP_WIDTH - 1);
-  else if (sprite.x > TILE_WIDTH * (TILEMAP_WIDTH - 1))
-    sprite.x = 0;
+  if (sprite.x < WRAP_LEFT)
+    sprite.x = WRAP_RIGHT - 1;
+  else if (sprite.x > WRAP_RIGHT)
+    sprite.x = WRAP_LEFT + 1;
 
-  if (sprite.y < 0)
-    sprite.y = TILE_HEIGHT * (TILEMAP_HEIGHT - 1);
-  else if (sprite.y > TILE_HEIGHT * (TILEMAP_HEIGHT - 1))
-    sprite.y = 0;
+  if (sprite.y < WRAP_TOP)
+    sprite.y = WRAP_BOTTOM - 1;
+  else if (sprite.y > WRAP_BOTTOM)
+    sprite.y = WRAP_TOP + 1;
 }
 
 // Handle ghost state and movement.
