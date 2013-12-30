@@ -35,6 +35,9 @@
 #define GHOST_ANIMATION_PERIOD    8
 #define GHOST_FRAME_PERIOD        2
 
+#define PLAYER_ANIMATION_PERIOD   4
+#define PLAYER_FRAME_PERIOD       4
+
 // Array of all sprites.
 Sprite g_sprites[NUM_GHOSTS + 1];
 
@@ -93,6 +96,35 @@ static void setGhostFrame(Sprite* ghost_ptr) {
   case SPRITE_RIGHT:
     ghost.frame = 0 + frame_offset;
     ghost.flip = (ghost.dir == SPRITE_RIGHT) ? 0 : (1 << SPRITE_FLIP_X);
+    break;
+  }
+}
+
+// Update player sprite frame and orientation.
+static void setPlayerFrame(Sprite* player_ptr) {
+  Sprite& player = *player_ptr;
+
+  uint8_t frame_offset =
+      (player.counter / PLAYER_ANIMATION_PERIOD) % PLAYER_FRAME_PERIOD;
+
+  // These are based on the image offsets in the sprite image data.
+  // TODO: make it less hard-coded.
+  const uint8_t player_frames[] = { 1, 2, 1, 0 };
+  player.frame = player_frames[frame_offset];
+
+  // Determine orientation.
+  switch (player.dir) {
+  case SPRITE_UP:
+    player.flip = (1 << SPRITE_FLIP_X) | (1 << SPRITE_FLIP_XY);
+    break;
+  case SPRITE_DOWN:
+    player.flip = (1 << SPRITE_FLIP_XY);
+    break;
+  case SPRITE_LEFT:
+    player.flip = (1 << SPRITE_FLIP_X);
+    break;
+  case SPRITE_RIGHT:
+    player.flip = 0;
     break;
   }
 }
@@ -190,6 +222,7 @@ static void updatePlayer() {
       isEmptyTile(getTileX(g_player.x) + dir_vector.x,
                   getTileY(g_player.y) + dir_vector.y)) {
     updateSprite(&g_player, PLAYER_MOVEMENT_SPEED);
+    setPlayerFrame(&g_player);
   }
 
   // Eat a dot if one is available.
