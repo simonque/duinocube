@@ -194,6 +194,20 @@ static void updatePlayer() {
   }
 }
 
+// Scroll world camera based on player location.
+static void scrollCamera() {
+  if (g_player.y < SCREEN_HEIGHT / 2) {
+    // Camera at top.
+    DC.Core.writeWord(REG_SCROLL_Y, 0);
+  } else if (MAP_HEIGHT - g_player.y < SCREEN_HEIGHT / 2) {
+    // Camera at bottom.
+    DC.Core.writeWord(REG_SCROLL_Y, MAP_HEIGHT - SCREEN_HEIGHT);
+  } else {
+    // Camera in the middle.
+    DC.Core.writeWord(REG_SCROLL_Y, g_player.y - SCREEN_HEIGHT / 2);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   DC.begin();
@@ -205,6 +219,8 @@ void setup() {
 
   setupLayers();
   setupSprites(g_sprites, sizeof(g_sprites) / sizeof(g_sprites[0]));
+
+  scrollCamera();
 
   // Initialize directional unit vectors.
   setDirVector(SPRITE_UP, 0, -1);
@@ -233,6 +249,9 @@ void loop() {
   // Wait for Vblank to update rendering.
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
+  scrollCamera();
+
+  // Update sprite locations.
   for (int i = 0; i < sizeof(g_sprites) / sizeof(g_sprites[0]); ++i) {
     const Sprite& sprite = g_sprites[i];
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);

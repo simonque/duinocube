@@ -62,6 +62,15 @@ enum SpriteDirection {
 #define TILE_HEIGHT           8
 #define TILE_SIZE      (TILE_WIDTH * TILE_HEIGHT)
 
+// Map dimensions in pixels.
+#define MAP_WIDTH           (32 * TILE_WIDTH)
+#define MAP_HEIGHT          (31 * TILE_HEIGHT)
+
+// Screen dimensions.
+// TODO: these should be read from DuinoCube registers.
+#define SCREEN_WIDTH        320
+#define SCREEN_HEIGHT       240
+
 // Offset between sprite top left corner and tilemap grid.
 #define SPRITE_GRID_OFFSET_X  (-TILE_WIDTH / 2)
 #define SPRITE_GRID_OFFSET_Y  (-TILE_HEIGHT / 2)
