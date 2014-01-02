@@ -28,6 +28,8 @@
 extern char printf_buffer[];
 
 // Custom printf and fprintf macros for printing strings from program memory.
+// TODO: These names collide with the stdio definitions.
+// Try to avoid a collision.
 #define fprintf_P(file, str, ...) { \
     memcpy_PF(printf_buffer, (uint_farptr_t)str, \
               strlen_PF((uint_farptr_t)str) + 1); \
