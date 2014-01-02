@@ -128,6 +128,7 @@ void setupLayers() {
   for (int layer_index = 0; layer_index < NUM_TILE_LAYERS; ++layer_index) {
     uint16_t data_offset = 0;
     uint8_t palette_index = 0;
+    bool is_transparent = false;
     switch (layer_index) {
     case BG_TILEMAP_INDEX:
       data_offset = g_bg_offset;
@@ -136,6 +137,7 @@ void setupLayers() {
     case MOON_TILEMAP_INDEX:
       data_offset = g_moon_offset;
       palette_index = MOON_PALETTE_INDEX;
+      is_transparent = true;
       break;
     default:
       // Disable other layers.
@@ -147,6 +149,7 @@ void setupLayers() {
                       (1 << TILE_LAYER_ENABLED) |
                       (1 << TILE_ENABLE_NOP) |
                       (1 << TILE_ENABLE_FLIP) |
+                      (is_transparent << TILE_ENABLE_TRANSP) |
                       (palette_index << TILE_PALETTE_START));
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_DATA_OFFSET),
                       data_offset);
