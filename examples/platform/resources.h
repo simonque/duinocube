@@ -27,6 +27,8 @@
 // VRAM offsets of background and sprite image data.
 extern uint16_t g_bg_offset;
 extern uint16_t g_moon_offset;
+extern uint16_t g_level_offset;
+extern uint16_t g_level_buffer;
 
 // Load image, palette, and tilemap data from file system.
 void loadResources();

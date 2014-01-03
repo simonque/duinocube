@@ -25,11 +25,13 @@
 enum {
   BG_TILEMAP_INDEX,
   MOON_TILEMAP_INDEX,
+  LEVEL_TILEMAP_INDEX,
 };
 
 enum {
   BG_PALETTE_INDEX,
   MOON_PALETTE_INDEX,
+  LEVEL_PALETTE_INDEX,
 };
 
 // TODO: Add this to the DuinoCube library.
@@ -53,5 +55,11 @@ enum {
 // TODO: these should be read from DuinoCube registers.
 #define SCREEN_WIDTH        320
 #define SCREEN_HEIGHT       240
+
+// Level dimensions in tiles.  This could be different from the size of the
+// tilemap.
+#define LEVEL_WIDTH          64
+#define LEVEL_HEIGHT         32
+#define LEVEL_SIZE           (LEVEL_WIDTH * LEVEL_HEIGHT * TILEMAP_ENTRY_SIZE)
 
 #endif  // __DEFINES_H__

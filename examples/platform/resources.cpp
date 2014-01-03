@@ -36,6 +36,10 @@ struct File {
 // VRAM offsets of background and sprite image data.
 uint16_t g_bg_offset;
 uint16_t g_moon_offset;
+uint16_t g_level_offset;
+
+// Shared memory buffer containing level data.
+uint16_t g_level_buffer;
 
 namespace {
 
@@ -49,11 +53,15 @@ const File kFiles[] PROGMEM = {
   // Image files.
   { "bg.raw", &g_bg_offset, 0, 0, ~(uint16_t)(0) },
   { "moon.raw", &g_moon_offset, 0, 0, ~(uint16_t)(0) },
+  { "twilight.raw", &g_level_offset, 0, 0, ~(uint16_t)(0) },
 
   // Palette files.
   { "bg.pal", NULL, PALETTE(BG_PALETTE_INDEX), 0, PALETTE_SIZE },
   { "moon.pal", NULL, PALETTE(MOON_PALETTE_INDEX), 0, PALETTE_SIZE },
+  { "twilight.pal", NULL, PALETTE(LEVEL_PALETTE_INDEX), 0, PALETTE_SIZE },
 };
+
+const char kLevelFile[] = "level.lay";
 
 // Copies data from a file to DuinoCube core. The file must already be open with
 // a valid handle.
@@ -79,6 +87,44 @@ uint16_t openFile(const char* base_filename) {
 
   printf_P(PSTR("File %s is 0x%x bytes\n"), filename, DC.File.size(handle));
   return handle;
+}
+
+// Open a level file and store it in memory.
+// Returns NULL on failure.
+uint16_t loadLevel(const char* base_filename) {
+  uint16_t handle = openFile(base_filename);
+  if (!handle) {
+    return NULL;
+  }
+  uint16_t size = LEVEL_SIZE;
+
+  // Allocate memory.
+  uint16_t level_buffer = DC.Mem.alloc(size);
+  if (!level_buffer) {
+    printf_P(PSTR("Unable to allocate 0x%x bytes.\n"), size);
+    return NULL;
+  }
+
+  // Read file contents into it.
+  uint16_t size_read = DC.File.read(handle, level_buffer, size);
+  if (size_read < size) {
+    printf_P(PSTR("Only read 0x%x bytes from file.\n"), size_read);
+  }
+
+  // Copy the part of the level map to tilemap memory.
+  DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
+  for (int y = 0; y < LEVEL_HEIGHT && y < TILEMAP_HEIGHT; ++y) {
+    uint16_t level_offset = y * LEVEL_WIDTH * TILEMAP_ENTRY_SIZE;
+    uint16_t tilemap_offset = y * TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE;
+
+    uint8_t tilemap_line[TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE];
+    DC.Sys.readSharedRAM(level_buffer + level_offset, tilemap_line,
+                         sizeof(tilemap_line));
+    DC.Core.writeData(TILEMAP(LEVEL_TILEMAP_INDEX) + tilemap_offset,
+                      tilemap_line, sizeof(tilemap_line));
+  }
+
+  return level_buffer;
 }
 
 }  // namespace
@@ -132,6 +178,8 @@ void loadResources() {
     DC.File.close(handle);
   }
 
+  g_level_buffer = loadLevel(kLevelFile);
+
   // Set to bank 0.
   DC.Core.writeWord(REG_MEM_BANK, 0);
 
@@ -152,6 +200,11 @@ void setupLayers() {
     case MOON_TILEMAP_INDEX:
       data_offset = g_moon_offset;
       palette_index = MOON_PALETTE_INDEX;
+      is_transparent = true;
+      break;
+    case LEVEL_TILEMAP_INDEX:
+      data_offset = g_level_offset;
+      palette_index = LEVEL_PALETTE_INDEX;
       is_transparent = true;
       break;
     default:
