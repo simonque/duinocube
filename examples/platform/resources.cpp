@@ -47,13 +47,23 @@ const File kFiles[] = {
   { "moon.lay", NULL, TILEMAP(MOON_TILEMAP_INDEX), TILEMAP_BANK, TILEMAP_SIZE },
 
   // Image files.
-  { "bg.raw", &g_bg_offset, 0, 0, VRAM_BANK_SIZE },
-  { "moon.raw", &g_moon_offset, 0, 0, VRAM_BANK_SIZE },
+  { "bg.raw", &g_bg_offset, 0, 0, ~(uint16_t)(0) },
+  { "moon.raw", &g_moon_offset, 0, 0, ~(uint16_t)(0) },
 
   // Palette files.
   { "bg.pal", NULL, PALETTE(BG_PALETTE_INDEX), 0, PALETTE_SIZE },
   { "moon.pal", NULL, PALETTE(MOON_PALETTE_INDEX), 0, PALETTE_SIZE },
 };
+
+// Copies data from a file to DuinoCube core. The file must already be open with
+// a valid handle.
+void copyFileDataToCore(uint16_t handle, uint16_t addr, uint16_t bank,
+                        uint16_t size) {
+  printf_P(PSTR("Writing 0x%x bytes to 0x%x with bank = %d\n"),
+           size, addr, bank);
+  DC.Core.writeWord(REG_MEM_BANK, bank);
+  DC.File.readToCore(handle, addr, size);
+}
 
 }  // namespace
 
@@ -82,37 +92,36 @@ void loadResources() {
       continue;
     }
 
-    // Compute write destination.
-    uint16_t dest_addr;
-    uint16_t dest_bank;
+    // Set up for VRAM write.
+    DC.Core.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
 
     if (file.vram_offset) {
-      // Set up for VRAM write.
-
-      // If this doesn't fit in the remaining part of the current bank, use the
-      // next VRAM bank.
-      if (vram_offset % VRAM_BANK_SIZE + file_size > VRAM_BANK_SIZE)
-        vram_offset += VRAM_BANK_SIZE - (vram_offset % VRAM_BANK_SIZE);
-
       // Record VRAM offset.
       *file.vram_offset = vram_offset;
 
-      // Determine the destination VRAM address and bank.
-      dest_addr = VRAM_BASE + vram_offset % VRAM_BANK_SIZE;
-      dest_bank = vram_offset / VRAM_BANK_SIZE + VRAM_BANK_BEGIN;
-      DC.Core.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
+      // Determine how much space remains on the current bank.
+      uint16_t bank_size_left = VRAM_BANK_SIZE - (vram_offset % VRAM_BANK_SIZE);
+      uint16_t size_to_copy =
+          (file_size > bank_size_left) ? bank_size_left : file_size;
+      while (file_size > 0) {
+        // Determine the destination VRAM address and bank.
+        uint16_t dest_addr = VRAM_BASE + vram_offset % VRAM_BANK_SIZE;
+        uint16_t dest_bank = vram_offset / VRAM_BANK_SIZE + VRAM_BANK_BEGIN;
 
-      // Update the VRAM offset.
-      vram_offset += file_size;
+        copyFileDataToCore(handle, dest_addr, dest_bank, size_to_copy);
+
+        // Increment VRAM offset counter.
+        vram_offset += size_to_copy;
+        file_size -= size_to_copy;
+
+        // Compute size of next chuck to copy.
+        size_to_copy =
+            (file_size > VRAM_BANK_SIZE) ? VRAM_BANK_SIZE : file_size;
+      }
     } else {
       // Set up for non-VRAM write.
-      dest_addr = file.addr;
-      dest_bank = file.bank;
+      copyFileDataToCore(handle, file.addr, file.bank, file_size);
     }
-
-    printf_P(PSTR("Writing to 0x%x with bank = %d\n"), dest_addr, dest_bank);
-    DC.Core.writeWord(REG_MEM_BANK, dest_bank);
-    DC.File.readToCore(handle, dest_addr, file_size);
 
     DC.File.close(handle);
   }
@@ -144,6 +153,8 @@ void setupLayers() {
       DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0), 0);
       continue;
     }
+
+    printf_P(PSTR("Enabling layer with data offset 0x%x\n"), data_offset);
 
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0),
                       (1 << TILE_LAYER_ENABLED) |
