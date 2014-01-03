@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="64" height="32" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="twilight" tilewidth="16" tileheight="16">
+  <image source="twilight.bmp" trans="6f6d51" width="160" height="192"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="64" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztmLsOgkAQRYmvUm006idoqZb4KNVSLUxs1d/g0x1CYggR5rGzWQhzkhNMWB1ucWUhiuQMwZHQscPcImfwItQFy9/u/DNwLnThODtPqPxrcAmusmMSgx34/M+4sBa+mziO/xEqf8oG3GbHRHMthxv4EOrKDtxnx0RzLYcJOBWqwcnTWiouPdSYf/W0lkPIHj49reUQqocv8A1+lNdK8NVDrF/Ue1sP7BMcMK4tj6SH1PlYZyidou4X071h2f9XtyKTpIfUvSnWGUqnOPm5SHvImY91BjvvM/8BPArkzMf6hZ33mV+6B+bMx/qFnW9yfqxflP7VMT/12VTj3lXH/FQ0rr3J+anvOqrea2j8Rhm+89edtudP34HcBRqGYRiGYbSNL2c9dq8=
+  </data>
+ </layer>
+</map>

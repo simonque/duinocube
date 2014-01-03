@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="32" height="32" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="bg" tilewidth="16" tileheight="16">
+  <image source="bg.bmp" trans="6f6d51" width="256" height="96"/>
+ </tileset>
+ <tileset firstgid="97" name="moon" tilewidth="16" tileheight="16">
+  <image source="moon.bmp" trans="6f6d51" width="48" height="144"/>
+ </tileset>
+ <layer name="bg" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJzty0N2BFAUQMFOx7Zt27bdsbP/VaQGWcKf9RvUuaObzWQy2RBCCHmn4L+FFFFMCaWUUU4FlVRRTQ211CX462mgkSaaaaGVNtrpoJMuuumhl74Efz8DDDLEMCOMMsY4E0wyxTQzzDKX4J9ngUWWWGaFVdZYZ4NNtthmh132Evz7HHDIEceccMoZ51xwyRXX3HDLXYL/nhwPPPLEMy+88sY7H3zyxTc//Cb4cyGEEEIe+gNe3rbh
+  </data>
+ </layer>
+ <layer name="moon" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJztzbcNgAAAxEBWJeecYXm8ACX6grd0tYPAOefeCxEhFv0TpMhE/xwFStHfOfffKtRoRP8WHXrRf8CISfSfsWAV/TfsOET/Exdu0d85900PBmcLmw==
+  </data>
+ </layer>
+</map>
