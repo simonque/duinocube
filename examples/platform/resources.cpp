@@ -41,7 +41,7 @@ namespace {
 
 const char kFilePath[] = "platform";    // Base path of data files.
 
-const File kFiles[] = {
+const File kFiles[] PROGMEM = {
   // Tilemap files.
   { "bg.lay", NULL, TILEMAP(BG_TILEMAP_INDEX), TILEMAP_BANK, TILEMAP_SIZE },
   { "moon.lay", NULL, TILEMAP(MOON_TILEMAP_INDEX), TILEMAP_BANK, TILEMAP_SIZE },
@@ -71,7 +71,9 @@ void copyFileDataToCore(uint16_t handle, uint16_t addr, uint16_t bank,
 void loadResources() {
   uint16_t vram_offset = 0;
   for (int i = 0; i < sizeof(kFiles) / sizeof(kFiles[0]); ++i) {
-    const File& file = kFiles[i];
+    // Copy from program memory.
+    File file;
+    memcpy_P(&file, kFiles + i, sizeof(file));
 
     char filename[256];
     sprintf(filename, "%s/%s", kFilePath, file.filename);
