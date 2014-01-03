@@ -65,6 +65,22 @@ void copyFileDataToCore(uint16_t handle, uint16_t addr, uint16_t bank,
   DC.File.readToCore(handle, addr, size);
 }
 
+// Opens a file, reports on the status, and returns a handle.
+uint16_t openFile(const char* base_filename) {
+  char filename[256];
+  sprintf(filename, "%s/%s", kFilePath, base_filename);
+
+  // Open the file.
+  uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
+  if (!handle) {
+    printf_P(PSTR("Could not open file %s.\n"), filename);
+    return handle;
+  }
+
+  printf_P(PSTR("File %s is 0x%x bytes\n"), filename, DC.File.size(handle));
+  return handle;
+}
+
 }  // namespace
 
 // Load image, palette, and tilemap data from file system.
@@ -75,24 +91,12 @@ void loadResources() {
     File file;
     memcpy_P(&file, kFiles + i, sizeof(file));
 
-    char filename[256];
-    sprintf(filename, "%s/%s", kFilePath, file.filename);
-
     // Open the file.
-    uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
+    uint16_t handle = openFile(file.filename);
     if (!handle) {
-      printf_P(PSTR("Could not open file %s.\n"), filename);
       continue;
     }
-
     uint16_t file_size = DC.File.size(handle);
-    printf_P(PSTR("File %s is 0x%x bytes\n"), filename, file_size);
-
-    if (file_size > file.max_size) {
-      printf_P(PSTR("File is too big!\n"));
-      DC.File.close(handle);
-      continue;
-    }
 
     // Set up for VRAM write.
     DC.Core.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
