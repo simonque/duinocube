@@ -223,6 +223,8 @@ void setupLayers() {
                       (palette_index << TILE_PALETTE_START));
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_DATA_OFFSET),
                       data_offset);
+    DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_COLOR_KEY),
+                      DEFAULT_COLOR_KEY);
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_EMPTY_VALUE),
                       DEFAULT_EMPTY_TILE_VALUE);
   }

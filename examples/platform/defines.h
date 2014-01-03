@@ -36,6 +36,7 @@ enum {
 
 // TODO: Add this to the DuinoCube library.
 #define DEFAULT_EMPTY_TILE_VALUE     0x1fff
+#define DEFAULT_COLOR_KEY              0x00
 
 // Tile dimensions in pixels.
 #define TILE_WIDTH            8
