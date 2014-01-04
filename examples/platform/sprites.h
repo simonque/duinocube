@@ -59,7 +59,7 @@ struct Sprite {
   uint8_t dir;                  // Direction sprite is facing.
   int16_t x, y;                 // Location in pixels.
 
-  uint16_t base_offset;         // Base VRAM offset of sprite's frame images.
+  uint32_t base_offset;         // Base VRAM offset of sprite's frame images.
   uint16_t size;                // Size of each sprite frame image in bytes.
   uint8_t frame;                // Current frame image.
   uint16_t flip;                // Current frame flip flags.
@@ -71,7 +71,7 @@ struct Sprite {
 
   // Compute the sprite's current VRAM offset.
   inline uint16_t get_offset() const {
-    return base_offset + frame * size;
+    return (base_offset + frame * size) >> VRAM_DATA_OFFSET_SHIFT;
   }
 };
 

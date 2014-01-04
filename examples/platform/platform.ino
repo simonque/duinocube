@@ -33,7 +33,8 @@ extern uint8_t __stack;     // Where local variables are allocated.
 
 namespace {
 
-Sprite bat;
+Sprite sprites[1];
+Sprite& bat = sprites[0];
 
 // Initialize sprites.
 void initSprites() {
@@ -68,4 +69,35 @@ void setup() {
 }
 
 void loop() {
+  // Wait for visible, non-vblanked region to do computations.
+  while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+
+  updateSprite(&bat);
+
+  // TODO: Make these into constants.
+  // TODO: Make a proper bat animation function or array.
+  // TODO: Put animation into separate function.
+  bat.frame = bat.counter / 4;
+  if (bat.frame >= 10) {
+    bat.frame = 0;
+    bat.counter = 0;
+  }
+
+  // Wait for Vblank to update rendering.
+  while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+
+  // Update sprite rendering.
+  for (int i = 0; i < sizeof(sprites) / sizeof(sprites[0]); ++i) {
+    const Sprite& sprite = sprites[i];
+
+    // Update location.
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_X), sprite.x);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_OFFSET_Y), sprite.y);
+
+    // Update image.
+    uint16_t ctrl0 = DC.Core.readWord(SPRITE_REG(i, SPRITE_CTRL_0));
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0),
+                      (ctrl0 & ~SPRITE_FLIP_MASK) | sprite.flip);
+    DC.Core.writeWord(SPRITE_REG(i, SPRITE_DATA_OFFSET), sprite.get_offset());
+  }
 }

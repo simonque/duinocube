@@ -41,6 +41,10 @@ enum {
 // layer.
 #define SPRITE_Z_DEPTH                    3
 
+// TODO: Add this to DuinoCube library.
+#define SPRITE_FLIP_MASK  \
+    ((1 << SPRITE_FLIP_X) | (1 << SPRITE_FLIP_Y) | (1 << SPRITE_FLIP_XY))
+
 // Tile dimensions in pixels.
 #define TILE_WIDTH            8
 #define TILE_HEIGHT           8

@@ -59,6 +59,7 @@ void setupSprites(const Sprite* sprites, int num_sprites) {
                       (1 << SPRITE_ENABLED) |
                       (1 << SPRITE_ENABLE_TRANSP) |
                       (1 << SPRITE_ENABLE_SCROLL) |
+                      (1 << SPRITE_SHIFT_DATA_OFFSET) |
                       (SPRITE_PALETTE_INDEX << SPRITE_PALETTE_START));
   }
 }
