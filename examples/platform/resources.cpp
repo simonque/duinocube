@@ -192,7 +192,7 @@ void loadResources() {
 
 void setupLayers() {
   for (int layer_index = 0; layer_index < NUM_TILE_LAYERS; ++layer_index) {
-    uint16_t data_offset = 0;
+    uint32_t data_offset = 0;
     uint8_t palette_index = 0;
     bool is_transparent = false;
     switch (layer_index) {
@@ -222,10 +222,11 @@ void setupLayers() {
                       (1 << TILE_LAYER_ENABLED) |
                       (1 << TILE_ENABLE_NOP) |
                       (1 << TILE_ENABLE_FLIP) |
+                      (1 << TILE_SHIFT_DATA_OFFSET) |
                       (is_transparent << TILE_ENABLE_TRANSP) |
                       (palette_index << TILE_PALETTE_START));
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_DATA_OFFSET),
-                      data_offset);
+                      data_offset >> VRAM_DATA_OFFSET_SHIFT);
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_COLOR_KEY),
                       DEFAULT_COLOR_KEY);
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_EMPTY_VALUE),
