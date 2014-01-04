@@ -36,6 +36,9 @@ namespace {
 Sprite sprites[1];
 Sprite& bat = sprites[0];
 
+// Bat animation sequence.
+const uint8_t kBatFrames[] = { 0, 1 };
+
 // Initialize sprites.
 void initSprites() {
   // Initialize player sprite.
@@ -73,15 +76,8 @@ void loop() {
   while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
   updateSprite(&bat);
-
-  // TODO: Make these into constants.
-  // TODO: Make a proper bat animation function or array.
-  // TODO: Put animation into separate function.
-  bat.frame = bat.counter / 4;
-  if (bat.frame >= 10) {
-    bat.frame = 0;
-    bat.counter = 0;
-  }
+  animateSprite(&bat, kBatFrames, sizeof(kBatFrames) / sizeof(kBatFrames[0]),
+                BAT_FRAME_PERIOD);
 
   // Wait for Vblank to update rendering.
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));

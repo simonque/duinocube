@@ -81,4 +81,9 @@ void updateSprite(Sprite* sprite_ptr);
 // Initialize sprite objects in DuinoCube Core.
 void setupSprites(const Sprite* sprites, int num_sprites);
 
+// Update sprite animation based on the current animation counter value.
+// |frames| is an array of frame indexes |num_frames| long.
+void animateSprite(Sprite* sprite_ptr, const uint8_t* frames,
+                   uint8_t num_frames, uint8_t frame_period);
+
 #endif  // __SPRITES_H__

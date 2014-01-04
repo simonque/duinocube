@@ -63,3 +63,17 @@ void setupSprites(const Sprite* sprites, int num_sprites) {
                       (SPRITE_PALETTE_INDEX << SPRITE_PALETTE_START));
   }
 }
+
+#include <stdio.h>
+
+void animateSprite(Sprite* sprite_ptr, const uint8_t* frames,
+                   uint8_t num_frames, uint8_t frame_period) {
+  Sprite& sprite = *sprite_ptr;
+
+  // Compute current frame based on the counter.
+  uint8_t frame_index = (sprite.counter / frame_period) % num_frames;
+  sprite.counter %= (frame_period * num_frames);
+
+  // Update to a new frame.
+  sprite.frame = frames[frame_index];
+}

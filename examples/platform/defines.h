@@ -75,4 +75,7 @@ enum {
 #define BAT_HEIGHT           32
 #define BAT_SPRITE_SIZE     (BAT_WIDTH * BAT_HEIGHT)
 
+// Animation periods.
+#define BAT_FRAME_PERIOD     12
+
 #endif  // __DEFINES_H__
