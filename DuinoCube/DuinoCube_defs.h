@@ -111,6 +111,11 @@
 #define VRAM_BANK_BEGIN         2  // VRAM spans several 16-KB banks.
 #define VRAM_BANK_END           4
 
+// When the *_SHIFT_DATA_OFFSET bit is set, the corresponding *_DATA_OFFSET
+// register value will be interpreted as the actual address shifted left by
+// this amount.
+// e.g. a register value of 0x1234 means the data is at (0x1234 << 6) = 0x48d00.
+#define VRAM_DATA_OFFSET_SHIFT  6
 
 // ==== Main register fields ====
 // TODO: Add more defs here.
@@ -136,6 +141,7 @@
 #define TILE_ENABLE_WRAP_X       8
 #define TILE_ENABLE_WRAP_Y       9
 #define TILE_ENABLE_FLIP        10
+#define TILE_SHIFT_DATA_OFFSET  11
 #define TILE_PALETTE_START      12
 #define TILE_PALETTE_END        15
 
@@ -175,6 +181,7 @@
 #define SPRITE_FLIP_X              8
 #define SPRITE_FLIP_Y              9
 #define SPRITE_FLIP_XY            10
+#define SPRITE_SHIFT_DATA_OFFSET  11
 
 #define SPRITE_PALETTE_START      12
 #define SPRITE_PALETTE_END        15
