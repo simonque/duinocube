@@ -25,6 +25,7 @@
 
 #include <DuinoCube.h>
 
+#include "printf.h"
 #include "sprites.h"
 
 struct File {
@@ -71,7 +72,7 @@ const char kLevelFile[] = "level.lay";
 // a valid handle.
 void copyFileDataToCore(uint16_t handle, uint16_t addr, uint16_t bank,
                         uint16_t size) {
-  printf_P(PSTR("Writing 0x%x bytes to 0x%x with bank = %d\n"),
+  printf("Writing 0x%x bytes to 0x%x with bank = %d\n",
            size, addr, bank);
   DC.Core.writeWord(REG_MEM_BANK, bank);
   DC.File.readToCore(handle, addr, size);
@@ -92,7 +93,7 @@ void copyDataToVRAM(const void* src, uint32_t vram_offset, uint16_t size) {
     uint16_t dest_addr = VRAM_BASE + vram_offset % VRAM_BANK_SIZE;
     uint16_t dest_bank = vram_offset / VRAM_BANK_SIZE + VRAM_BANK_BEGIN;
 
-    printf_P(PSTR("Writing 0x%x bytes to 0x%x with bank = %d\n"),
+    printf("Writing 0x%x bytes to 0x%x with bank = %d\n",
              size, dest_addr, dest_bank);
     DC.Core.writeWord(REG_MEM_BANK, dest_bank);
     DC.Core.writeData(dest_addr, buffer + src_offset, size_to_copy);
@@ -114,11 +115,11 @@ uint16_t openFile(const char* base_filename) {
   // Open the file.
   uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
   if (!handle) {
-    printf_P(PSTR("Could not open file %s.\n"), filename);
+    printf("Could not open file %s.\n", filename);
     return handle;
   }
 
-  printf_P(PSTR("File %s is 0x%x bytes\n"), filename, DC.File.size(handle));
+  printf("File %s is 0x%x bytes\n", filename, DC.File.size(handle));
   return handle;
 }
 
@@ -134,7 +135,7 @@ uint16_t loadLevel(const char* base_filename) {
   // Allocate memory.
   uint16_t level_buffer = DC.Mem.alloc(size);
   if (!level_buffer) {
-    printf_P(PSTR("Unable to allocate 0x%x bytes.\n"), size);
+    printf("Unable to allocate 0x%x bytes.\n", size);
     DC.File.close(handle);
     return NULL;
   }
@@ -142,7 +143,7 @@ uint16_t loadLevel(const char* base_filename) {
   // Read file contents into it.
   uint16_t size_read = DC.File.read(handle, level_buffer, size);
   if (size_read < size) {
-    printf_P(PSTR("Only read 0x%x bytes from file.\n"), size_read);
+    printf("Only read 0x%x bytes from file.\n", size_read);
   }
 
   // Copy the part of the level map to tilemap memory.
@@ -174,7 +175,7 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
   uint16_t frame_size = CHICK_SPRITE_SIZE;
   uint16_t buffer = DC.Mem.alloc(frame_size);
   if (!buffer) {
-    printf_P(PSTR("Unable to allocate 0x%x bytes.\n"), frame_size);
+    printf("Unable to allocate 0x%x bytes.\n", frame_size);
     DC.File.close(handle);
     return;
   }
@@ -199,7 +200,7 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
   for (; file_size > frame_size; file_size -= frame_size) {
     uint16_t size_read = DC.File.read(handle, buffer, frame_size);
     if (size_read < frame_size) {
-      printf_P(PSTR("Only read 0x%x bytes from file.\n"), size_read);
+      printf("Only read 0x%x bytes from file.\n", size_read);
     }
 
     // Copy planar data.
@@ -312,7 +313,7 @@ void setupLayers() {
       continue;
     }
 
-    printf_P(PSTR("Enabling layer with data offset 0x%x\n"), data_offset);
+    printf("Enabling layer with data offset 0x%x\n", data_offset);
 
     DC.Core.writeWord(TILE_LAYER_REG(layer_index, TILE_CTRL_0),
                       (1 << TILE_LAYER_ENABLED) |

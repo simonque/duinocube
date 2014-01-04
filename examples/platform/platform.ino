@@ -25,6 +25,7 @@
 #endif
 
 #include "defines.h"
+#include "printf.h"
 #include "resources.h"
 #include "sprites.h"
 
@@ -74,8 +75,8 @@ void setup() {
   initSprites();
   setupSprites(sprites, sizeof(sprites) / sizeof(sprites[0]));
 
-  printf("Static data ends at 0x%04x\n", &__bss_end);
-  printf("Stack is at 0x%04x\n", &__stack);
+  printf("Static data ends at 0x%04x (%u)\n", &__bss_end, &__bss_end);
+  printf("Stack base at 0x%04x (%u)\n", &__stack, &__stack);
 
   // Initialize random generator with time.
   // TODO: Use a less deterministic seed value.
