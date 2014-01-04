@@ -105,6 +105,7 @@ uint16_t loadLevel(const char* base_filename) {
   uint16_t level_buffer = DC.Mem.alloc(size);
   if (!level_buffer) {
     printf_P(PSTR("Unable to allocate 0x%x bytes.\n"), size);
+    DC.File.close(handle);
     return NULL;
   }
 
@@ -126,6 +127,8 @@ uint16_t loadLevel(const char* base_filename) {
     DC.Core.writeData(TILEMAP(LEVEL_TILEMAP_INDEX) + tilemap_offset,
                       tilemap_line, sizeof(tilemap_line));
   }
+
+  DC.File.close(handle);
 
   return level_buffer;
 }
