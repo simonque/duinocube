@@ -30,8 +30,6 @@ enum {
 
 enum {
   BG_PALETTE_INDEX,
-  MOON_PALETTE_INDEX,
-  LEVEL_PALETTE_INDEX,
 };
 
 // TODO: Add this to the DuinoCube library.

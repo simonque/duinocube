@@ -57,8 +57,6 @@ const File kFiles[] PROGMEM = {
 
   // Palette files.
   { "bg.pal", NULL, PALETTE(BG_PALETTE_INDEX), 0, PALETTE_SIZE },
-  { "moon.pal", NULL, PALETTE(MOON_PALETTE_INDEX), 0, PALETTE_SIZE },
-  { "twilight.pal", NULL, PALETTE(LEVEL_PALETTE_INDEX), 0, PALETTE_SIZE },
 };
 
 const char kLevelFile[] = "level.lay";
@@ -199,12 +197,12 @@ void setupLayers() {
       break;
     case MOON_TILEMAP_INDEX:
       data_offset = g_moon_offset;
-      palette_index = MOON_PALETTE_INDEX;
+      palette_index = BG_PALETTE_INDEX;
       is_transparent = true;
       break;
     case LEVEL_TILEMAP_INDEX:
       data_offset = g_level_offset;
-      palette_index = LEVEL_PALETTE_INDEX;
+      palette_index = BG_PALETTE_INDEX;
       is_transparent = true;
       break;
     default:
