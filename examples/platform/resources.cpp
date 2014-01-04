@@ -29,17 +29,17 @@
 
 struct File {
   const char* filename;
-  uint16_t* vram_offset;  // For image data, compute and store VRAM offset here.
+  uint32_t* vram_offset;  // For image data, compute and store VRAM offset here.
   uint16_t addr;          // For other data, store data here.
   uint16_t bank;          // Bank to use for |addr|.
   uint16_t max_size;      // Size checking to avoid overflow.
 };
 
 // VRAM offsets of background and sprite image data.
-uint16_t g_bg_offset;
-uint16_t g_moon_offset;
-uint16_t g_level_offset;
-uint16_t g_bat_offset;
+uint32_t g_bg_offset;
+uint32_t g_moon_offset;
+uint32_t g_level_offset;
+uint32_t g_bat_offset;
 
 // Shared memory buffer containing level data.
 uint16_t g_level_buffer;
@@ -134,7 +134,7 @@ uint16_t loadLevel(const char* base_filename) {
 
 // Load image, palette, and tilemap data from file system.
 void loadResources() {
-  uint16_t vram_offset = 0;
+  uint32_t vram_offset = 0;
   for (int i = 0; i < sizeof(kFiles) / sizeof(kFiles[0]); ++i) {
     // Copy from program memory.
     File file;

@@ -24,18 +24,40 @@
 #include <Esplora.h>
 #endif
 
+#include "defines.h"
 #include "resources.h"
+#include "sprites.h"
 
 extern uint8_t __bss_end;   // End of statically allocated memory.
 extern uint8_t __stack;     // Where local variables are allocated.
+
+namespace {
+
+Sprite bat;
+
+// Initialize sprites.
+void initSprites() {
+  // Initialize player sprite.
+  bat.state = SPRITE_ALIVE;
+  bat.dir = SPRITE_RIGHT;
+  bat.x = 0;
+  bat.y = 0;
+
+  bat.base_offset = g_bat_offset;
+  bat.size = BAT_SPRITE_SIZE;
+}
+
+}  // namespace
 
 void setup() {
   Serial.begin(115200);
   DC.begin();
 
   loadResources();
-
   setupLayers();
+
+  initSprites();
+  setupSprites(&bat, 1);
 
   printf("Static data ends at 0x%04x\n", &__bss_end);
   printf("Stack is at 0x%04x\n", &__stack);

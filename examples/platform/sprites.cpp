@@ -42,7 +42,7 @@ void setupSprites(const Sprite* sprites, int num_sprites) {
 
     // Set sprite size.
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_1),
-                      SPRITE_WIDTH_16 | SPRITE_HEIGHT_16);
+                      SPRITE_WIDTH_32 | SPRITE_HEIGHT_32);
 
     // Set image data offset.
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_DATA_OFFSET), sprite.get_offset());

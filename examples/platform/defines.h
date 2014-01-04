@@ -66,4 +66,9 @@ enum {
 #define LEVEL_HEIGHT         32
 #define LEVEL_SIZE           (LEVEL_WIDTH * LEVEL_HEIGHT * TILEMAP_ENTRY_SIZE)
 
+// Bat sprite dimensions.
+#define BAT_WIDTH            32
+#define BAT_HEIGHT           32
+#define BAT_SPRITE_SIZE     (BAT_WIDTH * BAT_HEIGHT)
+
 #endif  // __DEFINES_H__
