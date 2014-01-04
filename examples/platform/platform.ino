@@ -33,8 +33,10 @@ extern uint8_t __stack;     // Where local variables are allocated.
 
 namespace {
 
-Sprite sprites[1];
+Sprite sprites[2];
 Sprite& bat = sprites[0];
+// TODO: The player sprite should be a composite sprite.
+Sprite& player = sprites[1];
 
 // Bat animation sequence.
 const uint8_t kBatFrames[] = { 0, 1 };
@@ -42,6 +44,15 @@ const uint8_t kBatFrames[] = { 0, 1 };
 // Initialize sprites.
 void initSprites() {
   // Initialize player sprite.
+  player.state = SPRITE_ALIVE;
+  player.dir = SPRITE_RIGHT;
+  player.x = 0;
+  player.y = 0;
+
+  player.base_offset = g_player_offset;
+  player.size = BAT_SPRITE_SIZE;
+
+  // Initialize a bat sprite.
   bat.state = SPRITE_ALIVE;
   bat.dir = SPRITE_RIGHT;
   bat.x = 0;
@@ -61,7 +72,7 @@ void setup() {
   setupLayers();
 
   initSprites();
-  setupSprites(&bat, 1);
+  setupSprites(sprites, sizeof(sprites) / sizeof(sprites[0]));
 
   printf("Static data ends at 0x%04x\n", &__bss_end);
   printf("Stack is at 0x%04x\n", &__stack);

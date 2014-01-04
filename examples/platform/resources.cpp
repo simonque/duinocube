@@ -40,6 +40,7 @@ uint32_t g_bg_offset;
 uint32_t g_moon_offset;
 uint32_t g_level_offset;
 uint32_t g_bat_offset;
+uint32_t g_player_offset;
 
 // Shared memory buffer containing level data.
 uint16_t g_level_buffer;
@@ -74,6 +75,35 @@ void copyFileDataToCore(uint16_t handle, uint16_t addr, uint16_t bank,
            size, addr, bank);
   DC.Core.writeWord(REG_MEM_BANK, bank);
   DC.File.readToCore(handle, addr, size);
+}
+
+// Copies image data to DuinoCube core VRAM. It may cross memory bank
+// boundaries.
+void copyDataToVRAM(const void* src, uint32_t vram_offset, uint16_t size) {
+  const uint8_t* buffer = reinterpret_cast<const uint8_t*>(src);
+
+  // Determine how much space remains on the current bank.
+  uint16_t bank_size_left = VRAM_BANK_SIZE - (vram_offset % VRAM_BANK_SIZE);
+  uint16_t size_to_copy =
+      (size > bank_size_left) ? bank_size_left : size;
+  uint16_t src_offset = 0;
+  while (size > 0) {
+    // Determine the destination VRAM address and bank.
+    uint16_t dest_addr = VRAM_BASE + vram_offset % VRAM_BANK_SIZE;
+    uint16_t dest_bank = vram_offset / VRAM_BANK_SIZE + VRAM_BANK_BEGIN;
+
+    printf_P(PSTR("Writing 0x%x bytes to 0x%x with bank = %d\n"),
+             size, dest_addr, dest_bank);
+    DC.Core.writeWord(REG_MEM_BANK, dest_bank);
+    DC.Core.writeData(dest_addr, buffer + src_offset, size_to_copy);
+
+    // Increment offset counter.
+    src_offset += size_to_copy;
+    size -= size_to_copy;
+
+    // Compute size of next chuck to copy.
+    size_to_copy = (size > VRAM_BANK_SIZE) ? VRAM_BANK_SIZE : size;
+  }
 }
 
 // Opens a file, reports on the status, and returns a handle.
@@ -133,6 +163,66 @@ uint16_t loadLevel(const char* base_filename) {
   return level_buffer;
 }
 
+// Load the special chick sprite that is not power-of-2 aligned.
+void loadChick(const char* base_filename, uint32_t vram_addr) {
+  uint16_t handle = openFile(base_filename);
+  if (!handle) {
+    return;
+  }
+
+  // Allocate memory to read a frame.
+  uint16_t frame_size = CHICK_SPRITE_SIZE;
+  uint16_t buffer = DC.Mem.alloc(frame_size);
+  if (!buffer) {
+    printf_P(PSTR("Unable to allocate 0x%x bytes.\n"), frame_size);
+    DC.File.close(handle);
+    return;
+  }
+
+  // Used for planar copying of parts of frame image.
+  struct Rect {
+    uint8_t x, y;     // Top left coordinates.
+    uint8_t w, h;     // Dimensions.
+  };
+
+  const Rect kSubFrames[] = {
+    {0, 0, 32, 32},     // Top left.
+    {32, 0, 16, 32},    // Top right.
+    {0, 32, 32, 16},    // Bottom left.
+    {32, 32, 16, 16},   // Bottom right.
+  };
+
+  // Read the frames from file.
+  uint16_t dst_offset = 0;
+  uint8_t line_buffer[CHICK_WIDTH];
+  uint16_t file_size = DC.File.size(handle);
+  for (; file_size > frame_size; file_size -= frame_size) {
+    uint16_t size_read = DC.File.read(handle, buffer, frame_size);
+    if (size_read < frame_size) {
+      printf_P(PSTR("Only read 0x%x bytes from file.\n"), size_read);
+    }
+
+    // Copy planar data.
+    for (int i = 0; i < sizeof(kSubFrames) / sizeof(kSubFrames[0]); ++i) {
+      const Rect &subframe = kSubFrames[i];
+
+      uint16_t src_offset = subframe.x + CHICK_WIDTH * subframe.y;
+      for (int y = subframe.y; y < subframe.y + subframe.h; ++y) {
+        // Read a subframe line into the local line buffer.
+        DC.Sys.readSharedRAM(buffer + src_offset, line_buffer, subframe.w);
+
+        // Copy it to VRAM.
+        copyDataToVRAM(line_buffer, vram_addr + dst_offset, subframe.w);
+        src_offset += CHICK_WIDTH;
+        dst_offset += subframe.w;
+      }
+    }
+  }
+
+  DC.File.close(handle);
+  DC.Mem.free(buffer);
+}
+
 }  // namespace
 
 // Load image, palette, and tilemap data from file system.
@@ -183,6 +273,9 @@ void loadResources() {
 
     DC.File.close(handle);
   }
+
+  loadChick("chick.raw", vram_offset);
+  g_player_offset = vram_offset;
 
   g_level_buffer = loadLevel(kLevelFile);
 

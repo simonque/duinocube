@@ -75,6 +75,12 @@ enum {
 #define BAT_HEIGHT           32
 #define BAT_SPRITE_SIZE     (BAT_WIDTH * BAT_HEIGHT)
 
+// Chick sprite dimensions.
+#define CHICK_WIDTH          48
+#define CHICK_HEIGHT         48
+#define CHICK_SPRITE_SIZE   (CHICK_WIDTH * CHICK_HEIGHT)
+#define NUM_CHICK_SUBFRAMES   4
+
 // Animation periods.
 #define BAT_FRAME_PERIOD     12
 
