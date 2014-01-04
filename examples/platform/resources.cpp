@@ -25,6 +25,8 @@
 
 #include <DuinoCube.h>
 
+#include "sprites.h"
+
 struct File {
   const char* filename;
   uint16_t* vram_offset;  // For image data, compute and store VRAM offset here.
@@ -37,6 +39,7 @@ struct File {
 uint16_t g_bg_offset;
 uint16_t g_moon_offset;
 uint16_t g_level_offset;
+uint16_t g_bat_offset;
 
 // Shared memory buffer containing level data.
 uint16_t g_level_buffer;
@@ -54,9 +57,11 @@ const File kFiles[] PROGMEM = {
   { "bg.raw", &g_bg_offset, 0, 0, ~(uint16_t)(0) },
   { "moon.raw", &g_moon_offset, 0, 0, ~(uint16_t)(0) },
   { "twilight.raw", &g_level_offset, 0, 0, ~(uint16_t)(0) },
+  { "bat.raw", &g_bat_offset, 0, 0, ~(uint16_t)(0) },
 
   // Palette files.
   { "bg.pal", NULL, PALETTE(BG_PALETTE_INDEX), 0, PALETTE_SIZE },
+  { "sprites.pal", NULL, PALETTE(SPRITE_PALETTE_INDEX), 0, PALETTE_SIZE },
 };
 
 const char kLevelFile[] = "level.lay";

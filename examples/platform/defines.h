@@ -30,11 +30,16 @@ enum {
 
 enum {
   BG_PALETTE_INDEX,
+  SPRITE_PALETTE_INDEX,
 };
 
 // TODO: Add this to the DuinoCube library.
 #define DEFAULT_EMPTY_TILE_VALUE     0x1fff
 #define DEFAULT_COLOR_KEY              0x00
+
+// Sprite Z-depth. This sets it above all tile layers except for the clipping
+// layer.
+#define SPRITE_Z_DEPTH                    3
 
 // Tile dimensions in pixels.
 #define TILE_WIDTH            8
