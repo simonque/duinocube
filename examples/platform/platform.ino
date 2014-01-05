@@ -34,10 +34,14 @@ extern uint8_t __stack;     // Where local variables are allocated.
 
 namespace {
 
-Sprite sprites[2];
-Sprite& bat = sprites[0];
-// TODO: The player sprite should be a composite sprite.
-Sprite& player = sprites[1];
+// Store all sprites in one location.
+Sprite sprites[MAX_NUM_SUBSPRITES + 1];
+
+// Player sprite is a composite sprite.
+CompositeSprite player;
+Sprite* player_sprites = &sprites[0];
+
+Sprite& bat = sprites[MAX_NUM_SUBSPRITES];
 
 // Bat animation sequence.
 const uint8_t kBatFrames[] = { 0, 1 };
@@ -45,19 +49,37 @@ const uint8_t kBatFrames[] = { 0, 1 };
 // Initialize sprites.
 void initSprites() {
   // Initialize player sprite.
-  player.state = SPRITE_ALIVE;
-  player.dir = SPRITE_RIGHT;
+  player.subsprites = player_sprites;
+  player.rects = kChickSubFrames;
+
   player.x = 0;
   player.y = 0;
 
-  player.base_offset = g_player_offset;
-  player.size = BAT_SPRITE_SIZE;
+  uint16_t subframe_offset = 0;
+  for (int i = 0; i < MAX_NUM_SUBSPRITES; ++i) {
+    Sprite& sprite = player.subsprites[i];
+    sprite.state = SPRITE_ALIVE;
+    sprite.dir = SPRITE_RIGHT;
+
+    sprite.base_offset = g_player_offset + subframe_offset;
+
+    const Rect& rect = player.rects[i];
+    sprite.size = rect.w * rect.h;
+    sprite.x = player.x + rect.x;
+    sprite.y = player.y + rect.y;
+    sprite.w = rect.w;
+    sprite.h = rect.h;
+
+    subframe_offset += sprite.size;
+  }
 
   // Initialize a bat sprite.
   bat.state = SPRITE_ALIVE;
   bat.dir = SPRITE_RIGHT;
   bat.x = 0;
   bat.y = 0;
+  bat.w = BAT_WIDTH;
+  bat.h = BAT_HEIGHT;
 
   bat.base_offset = g_bat_offset;
   bat.size = BAT_SPRITE_SIZE;

@@ -46,6 +46,14 @@ uint32_t g_player_offset;
 // Shared memory buffer containing level data.
 uint16_t g_level_buffer;
 
+// Subframes of chick sprite.
+const Rect kChickSubFrames[MAX_NUM_SUBSPRITES] = {
+  {0, 0, 32, 32},     // Top left.
+  {32, 0, 16, 32},    // Top right.
+  {0, 32, 32, 16},    // Bottom left.
+  {32, 32, 16, 16},   // Bottom right.
+};
+
 namespace {
 
 const char kFilePath[] = "platform";    // Base path of data files.
@@ -180,19 +188,6 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
     return;
   }
 
-  // Used for planar copying of parts of frame image.
-  struct Rect {
-    uint8_t x, y;     // Top left coordinates.
-    uint8_t w, h;     // Dimensions.
-  };
-
-  const Rect kSubFrames[] = {
-    {0, 0, 32, 32},     // Top left.
-    {32, 0, 16, 32},    // Top right.
-    {0, 32, 32, 16},    // Bottom left.
-    {32, 32, 16, 16},   // Bottom right.
-  };
-
   // Read the frames from file.
   uint16_t dst_offset = 0;
   uint8_t line_buffer[CHICK_WIDTH];
@@ -204,8 +199,10 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
     }
 
     // Copy planar data.
-    for (int i = 0; i < sizeof(kSubFrames) / sizeof(kSubFrames[0]); ++i) {
-      const Rect &subframe = kSubFrames[i];
+    for (int i = 0;
+         i < sizeof(kChickSubFrames) / sizeof(kChickSubFrames[0]);
+         ++i) {
+      const Rect &subframe = kChickSubFrames[i];
 
       uint16_t src_offset = subframe.x + CHICK_WIDTH * subframe.y;
       for (int y = subframe.y; y < subframe.y + subframe.h; ++y) {

@@ -58,6 +58,7 @@ struct Sprite {
   uint8_t state;                // Alive or dead.
   uint8_t dir;                  // Direction sprite is facing.
   int16_t x, y;                 // Location in pixels.
+  uint8_t w, h;                 // Sprite dimensions.
 
   uint32_t base_offset;         // Base VRAM offset of sprite's frame images.
   uint16_t size;                // Size of each sprite frame image in bytes.
@@ -73,6 +74,23 @@ struct Sprite {
   inline uint16_t get_offset() const {
     return (base_offset + frame * size) >> VRAM_DATA_OFFSET_SHIFT;
   }
+};
+
+// Used for planar copying of parts of frame image.
+struct Rect {
+  uint8_t x, y;     // Top left coordinates.
+  uint8_t w, h;     // Dimensions.
+};
+
+#define MAX_NUM_SUBSPRITES      4
+
+// A sprite that is composed of multiple sprite objects on-screen.
+struct CompositeSprite {
+  int16_t x, y;             // Location of main sprite.
+  uint8_t num_subsprites;   // Component count.
+  // Component sprites and locations/dimensions.
+  Sprite* subsprites;
+  const Rect* rects;
 };
 
 // Move and animate sprite.

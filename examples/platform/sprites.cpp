@@ -23,6 +23,35 @@
 
 #include "defines.h"
 
+namespace {
+
+  // Values of the sprite dimension fields in the sprite control register.
+  enum {
+    SPRITE_DIMENSION_8,
+    SPRITE_DIMENSION_16,
+    SPRITE_DIMENSION_32,
+    SPRITE_DIMENSION_64,
+  };
+
+  // Gets the sprite dimension code for a given dimension that is one of:
+  // 8, 16, 32, 64.
+  // If it doesn't match any of these, returns the code for 8.
+  uint8_t getSpriteDimension(uint8_t size) {
+    switch(size) {
+    case 64:
+      return SPRITE_DIMENSION_64;
+    case 32:
+      return SPRITE_DIMENSION_32;
+    case 16:
+      return SPRITE_DIMENSION_16;
+    case 8:
+    default:
+      return SPRITE_DIMENSION_8;
+    }
+  }
+
+}  // namespace
+
 void updateSprite(Sprite* sprite_ptr) {
   Sprite& sprite = *sprite_ptr;
 
@@ -42,7 +71,8 @@ void setupSprites(const Sprite* sprites, int num_sprites) {
 
     // Set sprite size.
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_1),
-                      SPRITE_WIDTH_32 | SPRITE_HEIGHT_32);
+                      (getSpriteDimension(sprite.w) << SPRITE_HSIZE_0) |
+                      (getSpriteDimension(sprite.h) << SPRITE_VSIZE_0));
 
     // Set image data offset.
     DC.Core.writeWord(SPRITE_REG(i, SPRITE_DATA_OFFSET), sprite.get_offset());
