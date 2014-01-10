@@ -80,6 +80,7 @@ const char kLevelFile[] = "level.lay";
 // a valid handle.
 void copyFileDataToCore(uint16_t handle, uint16_t addr, uint16_t bank,
                         uint16_t size) {
+  printf("Writing 0x%x bytes to 0x%x with bank = %d\n", size, addr, bank);
   DC.Core.writeWord(REG_MEM_BANK, bank);
   DC.File.readToCore(handle, addr, size);
 }
@@ -99,8 +100,6 @@ void copyDataToVRAM(const void* src, uint32_t vram_offset, uint16_t size) {
     uint16_t dest_addr = VRAM_BASE + vram_offset % VRAM_BANK_SIZE;
     uint16_t dest_bank = vram_offset / VRAM_BANK_SIZE + VRAM_BANK_BEGIN;
 
-    printf("Writing 0x%x bytes to 0x%x with bank = %d\n",
-             size, dest_addr, dest_bank);
     DC.Core.writeWord(REG_MEM_BANK, dest_bank);
     DC.Core.writeData(dest_addr, buffer + src_offset, size_to_copy);
 
