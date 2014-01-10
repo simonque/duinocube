@@ -105,3 +105,12 @@ void animateSprite(Sprite* sprite_ptr, const uint8_t* frames,
   // Update to a new frame.
   sprite.frame = frames[frame_index];
 }
+
+void updateCompositeSprite(CompositeSprite* sprite) {
+  for (int i = 0; i < MAX_NUM_SUBSPRITES; ++i) {
+    Sprite& sub_sprite = sprite->subsprites[i];
+    const Rect& rect = sprite->rects[i];
+    sub_sprite.x = sprite->x + rect.x;
+    sub_sprite.y = sprite->y + rect.y;
+  }
+}

@@ -87,6 +87,8 @@ struct Rect {
 // A sprite that is composed of multiple sprite objects on-screen.
 struct CompositeSprite {
   int16_t x, y;             // Location of main sprite.
+  uint8_t w, h;             // Sprite dimensions.
+  int16_t vx, vy;           // Velocity.
   uint8_t num_subsprites;   // Component count.
   // Component sprites and locations/dimensions.
   Sprite* subsprites;
@@ -103,5 +105,8 @@ void setupSprites(const Sprite* sprites, int num_sprites);
 // |frames| is an array of frame indexes |num_frames| long.
 void animateSprite(Sprite* sprite_ptr, const uint8_t* frames,
                    uint8_t num_frames, uint8_t frame_period);
+
+// Updates the location and orientation of the subsprites of a composite sprite.
+void updateCompositeSprite(CompositeSprite* sprite);
 
 #endif  // __SPRITES_H__

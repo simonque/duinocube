@@ -54,6 +54,10 @@ void initSprites() {
 
   player.x = 0;
   player.y = 0;
+  player.w = CHICK_WIDTH;
+  player.h = CHICK_HEIGHT;
+  player.vx = 0;
+  player.vy = 0;
 
   uint16_t subframe_offset = 0;
   for (int i = 0; i < MAX_NUM_SUBSPRITES; ++i) {
@@ -85,6 +89,72 @@ void initSprites() {
   bat.size = BAT_SPRITE_SIZE;
 }
 
+
+// Handle player.
+void updatePlayer() {
+  // Read user input.
+  // Handle directional pad input.
+  GamepadState gamepad = DC.Gamepad.readGamepad();
+  uint8_t dir_pad = 0;
+
+  // TODO: Add this logic to DuinoCube library.
+  if (gamepad.x == 0)
+    dir_pad |= (1 << SPRITE_LEFT);
+  else if (gamepad.x == UINT8_MAX)
+    dir_pad |= (1 << SPRITE_RIGHT);
+
+  if (gamepad.y == 0)
+    dir_pad |= (1 << SPRITE_UP);
+  else if (gamepad.y == UINT8_MAX)
+    dir_pad |= (1 << SPRITE_DOWN);
+
+  // Apply acceleration.
+  if (dir_pad & (1 << SPRITE_LEFT)) {
+    player.vx -= PLAYER_ACCEL_X;
+    if (player.vx < -PLAYER_MAX_VX);
+      player.vx = -PLAYER_MAX_VX;
+  } else if (dir_pad & (1 << SPRITE_RIGHT)) {
+    player.vx += PLAYER_ACCEL_X;
+    if (player.vx > PLAYER_MAX_VX);
+      player.vx = PLAYER_MAX_VX;
+  } else {  // Decelerate when the directional pad is neutral along this axis.
+    if (player.vx > 0) {
+      player.vx -= PLAYER_ACCEL_X;
+      if (player.vx < 0)
+        player.vx = 0;
+    } else if (player.vx < 0) {
+      player.vx += PLAYER_ACCEL_X;
+      if (player.vx > 0)
+        player.vx = 0;
+    }
+  }
+
+  if (dir_pad & (1 << SPRITE_UP)) {
+    player.vy -= PLAYER_ACCEL_Y;
+    if (player.vy < -PLAYER_MAX_VY);
+      player.vy = -PLAYER_MAX_VY;
+  } else if (dir_pad & (1 << SPRITE_DOWN)) {
+    player.vy += PLAYER_ACCEL_Y;
+    if (player.vy > PLAYER_MAX_VY);
+      player.vy = PLAYER_MAX_VY;
+  } else {  // Decelerate when the directional pad is neutral along this axis.
+    if (player.vy > 0) {
+      player.vy -= PLAYER_ACCEL_Y;
+      if (player.vy < 0)
+        player.vy = 0;
+    } else if (player.vy < 0) {
+      player.vy += PLAYER_ACCEL_Y;
+      if (player.vy > 0)
+        player.vy = 0;
+    }
+  }
+
+  // Adjust location and update subsprites.
+  player.x += player.vx;
+  player.y += player.vy;
+  updateCompositeSprite(&player);
+}
+
 }  // namespace
 
 void setup() {
@@ -112,6 +182,8 @@ void loop() {
   updateSprite(&bat);
   animateSprite(&bat, kBatFrames, sizeof(kBatFrames) / sizeof(kBatFrames[0]),
                 BAT_FRAME_PERIOD);
+
+  updatePlayer();
 
   // Wait for Vblank to update rendering.
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
