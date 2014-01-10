@@ -64,8 +64,6 @@ void setupSprites(const Sprite* sprites, int num_sprites) {
   }
 }
 
-#include <stdio.h>
-
 void animateSprite(Sprite* sprite_ptr, const uint8_t* frames,
                    uint8_t num_frames, uint8_t frame_period) {
   Sprite& sprite = *sprite_ptr;
