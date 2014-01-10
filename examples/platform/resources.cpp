@@ -45,6 +45,7 @@ uint32_t g_player_offset;
 
 // Shared memory buffer containing level data.
 uint16_t g_level_buffer;
+uint16_t g_walk_buffer;
 
 // Subframes of chick sprite.
 const Rect kChickSubFrames[MAX_NUM_SUBSPRITES] = {
@@ -75,6 +76,7 @@ const File kFiles[] PROGMEM = {
 };
 
 const char kLevelFile[] = "level.lay";
+const char kWalkFile[] = "walkable.lay";
 
 // Copies data from a file to DuinoCube core. The file must already be open with
 // a valid handle.
@@ -130,7 +132,8 @@ uint16_t openFile(const char* base_filename) {
 
 // Open a level file and store it in memory.
 // Returns NULL on failure.
-uint16_t loadLevel(const char* base_filename) {
+// Pass in tilemap_index=-1 if it's to be stored in memory only.
+uint16_t loadLevel(const char* base_filename, int tilemap_index) {
   uint16_t handle = openFile(base_filename);
   if (!handle) {
     return NULL;
@@ -150,21 +153,22 @@ uint16_t loadLevel(const char* base_filename) {
   if (size_read < size) {
     printf("Only read 0x%x bytes from file.\n", size_read);
   }
+  DC.File.close(handle);
 
   // Copy the part of the level map to tilemap memory.
-  DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
-  for (int y = 0; y < LEVEL_HEIGHT && y < TILEMAP_HEIGHT; ++y) {
-    uint16_t level_offset = y * LEVEL_WIDTH * TILEMAP_ENTRY_SIZE;
-    uint16_t tilemap_offset = y * TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE;
+  if (tilemap_index > 0) {
+    DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
+    for (int y = 0; y < LEVEL_HEIGHT && y < TILEMAP_HEIGHT; ++y) {
+      uint16_t level_offset = y * LEVEL_WIDTH * TILEMAP_ENTRY_SIZE;
+      uint16_t tilemap_offset = y * TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE;
 
-    uint8_t tilemap_line[TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE];
-    DC.Sys.readSharedRAM(level_buffer + level_offset, tilemap_line,
-                         sizeof(tilemap_line));
-    DC.Core.writeData(TILEMAP(LEVEL_TILEMAP_INDEX) + tilemap_offset,
-                      tilemap_line, sizeof(tilemap_line));
+      uint8_t tilemap_line[TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE];
+      DC.Sys.readSharedRAM(level_buffer + level_offset, tilemap_line,
+                           sizeof(tilemap_line));
+      DC.Core.writeData(TILEMAP(tilemap_index) + tilemap_offset,
+                        tilemap_line, sizeof(tilemap_line));
+    }
   }
-
-  DC.File.close(handle);
 
   return level_buffer;
 }
@@ -272,7 +276,8 @@ void loadResources() {
   loadChick("chick.raw", vram_offset);
   g_player_offset = vram_offset;
 
-  g_level_buffer = loadLevel(kLevelFile);
+  g_level_buffer = loadLevel(kLevelFile, LEVEL_TILEMAP_INDEX);
+  g_walk_buffer = loadLevel(kWalkFile, -1);
 
   // Set to bank 0.
   DC.Core.writeWord(REG_MEM_BANK, 0);

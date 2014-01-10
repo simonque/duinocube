@@ -33,6 +33,7 @@ extern uint32_t g_level_offset;
 extern uint32_t g_bat_offset;
 extern uint32_t g_player_offset;
 extern uint16_t g_level_buffer;
+extern uint16_t g_walk_buffer;
 
 // Subframes of the player character.
 extern const Rect kChickSubFrames[];
