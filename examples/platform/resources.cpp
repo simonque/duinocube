@@ -80,8 +80,6 @@ const char kLevelFile[] = "level.lay";
 // a valid handle.
 void copyFileDataToCore(uint16_t handle, uint16_t addr, uint16_t bank,
                         uint16_t size) {
-  printf("Writing 0x%x bytes to 0x%x with bank = %d\n",
-           size, addr, bank);
   DC.Core.writeWord(REG_MEM_BANK, bank);
   DC.File.readToCore(handle, addr, size);
 }
