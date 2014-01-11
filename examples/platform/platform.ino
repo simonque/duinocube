@@ -25,6 +25,7 @@
 #endif
 
 #include "defines.h"
+#include "map.h"
 #include "printf.h"
 #include "resources.h"
 #include "sprites.h"
@@ -149,9 +150,79 @@ void updatePlayer() {
     }
   }
 
-  // Adjust location and update subsprites.
-  player.x += player.vx;
-  player.y += player.vy;
+  // Test for collision with level.
+  // Assume that each displacement is smaller than the size of the level tiles.
+  if (player.vx) {
+    bool blocked_x = false;
+    // Determine which edge is leading the motion.
+    uint16_t test_x_edge = player.x + ((player.vx > 0) ? (player.w - 1) : 0);
+    uint16_t tile_x = getTileX(test_x_edge + player.vx);
+    uint16_t tile_y0 = getTileY(player.y);
+    uint16_t tile_y1 = getTileY(player.y + player.h - 1);
+    for (uint16_t tile_y = tile_y0; tile_y <= tile_y1 && !blocked_x; ++tile_y) {
+      // Check if each tile along the edge is blocked.
+      if (!isEmptyTile(tile_x, tile_y)) {
+        blocked_x = true;
+      }
+    }
+    if (!blocked_x) {
+      // If not blocked, move player normally.
+      player.x += player.vx;
+    } else {
+      // If blocked, move to be one short of the destination.
+      uint8_t x_offset = getTileXOffset(player.x);
+      if (x_offset == 0) {
+        if (player.vx < 0) {
+          // Do nothing to move.
+        } else {  // if (player.vx > 0)
+          // Do nothing to move.
+        }
+      } else {
+        if (player.vx < 0) {
+          player.x -= x_offset;
+        } else {  // if (player.vx > 0)
+          player.x += (TILE_WIDTH - x_offset);
+        }
+      }
+    }
+  }
+
+  if (player.vy) {
+    bool blocked_y = false;
+    // Determine which edge is leading the motion.
+    uint16_t test_y_edge = player.y + ((player.vy > 0) ? (player.h - 1) : 0);
+    uint16_t tile_y = getTileY(test_y_edge + player.vy);
+    uint16_t tile_x0 = getTileY(player.x);
+    uint16_t tile_x1 = getTileY(player.x + player.w - 1);
+    for (uint16_t tile_x = tile_x0; tile_x <= tile_x1 && !blocked_y; ++tile_x) {
+      // Check if each tile along the edge is blocked.
+      if (!isEmptyTile(tile_x, tile_y)) {
+        blocked_y = true;
+      }
+    }
+    if (!blocked_y) {
+      // If not blocked, move player normally.
+      player.y += player.vy;
+    } else {
+      // If blocked, move to be one short of the destination.
+      uint8_t y_offset = getTileYOffset(player.y);
+      if (y_offset == 0) {
+        if (player.vy < 0) {
+          // Do nothing to move.
+        } else {  // if (player.vy > 0)
+          // Do nothing to move.
+        }
+      } else {
+        if (player.vy < 0) {
+          player.y -= y_offset;
+        } else {  // if (player.vx > 0)
+          player.y += (TILE_HEIGHT - y_offset);
+        }
+      }
+    }
+  }
+
+  // Update component sprites.
   updateCompositeSprite(&player);
 }
 
