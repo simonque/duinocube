@@ -130,24 +130,8 @@ void updatePlayer() {
     }
   }
 
-  if (dir_pad & (1 << SPRITE_UP)) {
-    player.vy -= PLAYER_ACCEL_Y;
-    if (player.vy < -PLAYER_MAX_VY);
-      player.vy = -PLAYER_MAX_VY;
-  } else if (dir_pad & (1 << SPRITE_DOWN)) {
-    player.vy += PLAYER_ACCEL_Y;
-    if (player.vy > PLAYER_MAX_VY);
-      player.vy = PLAYER_MAX_VY;
-  } else {  // Decelerate when the directional pad is neutral along this axis.
-    if (player.vy > 0) {
-      player.vy -= PLAYER_ACCEL_Y;
-      if (player.vy < 0)
-        player.vy = 0;
-    } else if (player.vy < 0) {
-      player.vy += PLAYER_ACCEL_Y;
-      if (player.vy > 0)
-        player.vy = 0;
-    }
+  if (dir_pad & (1 << SPRITE_DOWN)) {
+    // TODO: crouch.
   }
 
   // Test for collision with level.
