@@ -188,6 +188,7 @@ void updatePlayer() {
     }
   }
 
+  bool is_standing = false;
   if (player.vy) {
     bool blocked_y = false;
     // Determine which edge is leading the motion.
@@ -224,7 +225,6 @@ void updatePlayer() {
     }
   } else {
     // Check if player is standing on something.
-    bool is_standing = false;
     uint16_t tile_y = getTileY(player.y + player.h - 1 + player.vy);
     uint16_t tile_x0 = getTileY(player.x);
     uint16_t tile_x1 = getTileY(player.x + player.w - 1);
@@ -240,6 +240,13 @@ void updatePlayer() {
     if (is_standing && (gamepad.buttons & (1 << GAMEPAD_BUTTON_1))) {
       player.vy -= PLAYER_JUMP_ACCEL;
     }
+  }
+
+  // Apply gravity.
+  if (!is_standing) {
+    player.vy += PLAYER_GRAVITY;
+    if (player.vy > PLAYER_MAX_VY)
+      player.vy = PLAYER_MAX_VY;
   }
 
   // Update component sprites.
