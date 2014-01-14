@@ -89,5 +89,6 @@ enum {
 #define PLAYER_ACCEL_Y        2
 #define PLAYER_MAX_VX         8
 #define PLAYER_MAX_VY         8
+#define PLAYER_JUMP_ACCEL    10
 
 #endif  // __DEFINES_H__

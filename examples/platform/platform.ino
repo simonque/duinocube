@@ -220,6 +220,24 @@ void updatePlayer() {
         }
       }
     }
+  } else {
+    // Check if player is standing on something.
+    bool is_standing = false;
+    uint16_t tile_y = getTileY(player.y + player.h - 1 + player.vy);
+    uint16_t tile_x0 = getTileY(player.x);
+    uint16_t tile_x1 = getTileY(player.x + player.w - 1);
+    for (uint16_t tile_x = tile_x0;
+         tile_x <= tile_x1 && !is_standing;
+         ++tile_x) {
+      // Check if each tile along the edge is blocked.
+      if (!isEmptyTile(tile_x, tile_y)) {
+        is_standing = true;
+      }
+    }
+    // Allow for jump.
+    if (is_standing && (gamepad.buttons & (1 << GAMEPAD_BUTTON_1))) {
+      player.vy -= PLAYER_JUMP_ACCEL;
+    }
   }
 
   // Update component sprites.
