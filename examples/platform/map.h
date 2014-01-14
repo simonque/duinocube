@@ -22,6 +22,14 @@
 
 #include <stdint.h>
 
+// Convert pixel coordinates to tile grid coordinates.
+uint8_t getTileX(uint16_t value);
+uint8_t getTileY(uint16_t value);
+
+// Determine pixel offset relative to tile grid.
+uint8_t getTileXOffset(uint16_t value);
+uint8_t getTileYOffset(uint16_t value);
+
 // Returns true if the tile at the given grid coordinates is empty.
 bool isEmptyTile(uint16_t x, uint16_t y);
 

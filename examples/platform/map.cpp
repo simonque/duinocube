@@ -24,6 +24,30 @@
 #include "defines.h"
 #include "resources.h"
 
+// Generic sprite coordinate to tile grid coordinate conversion formula.
+#define SPRITE_TO_TILE(value, tile_size, offset) \
+  (((value) + (offset)) / (tile_size))
+
+// Computes the amount of offset between a sprite and the tile grid.
+#define SPRITE_TO_TILE_OFFSET(value, tile_size, offset) \
+  (((value) + (offset)) % (tile_size))
+
+uint8_t getTileX(uint16_t value) {
+  return SPRITE_TO_TILE(value, TILE_WIDTH, 0);
+}
+
+uint8_t getTileY(uint16_t value) {
+  return SPRITE_TO_TILE(value, TILE_HEIGHT, 0);
+}
+
+uint8_t getTileXOffset(uint16_t value) {
+  return SPRITE_TO_TILE_OFFSET(value, TILE_WIDTH, 0);
+}
+
+uint8_t getTileYOffset(uint16_t value) {
+  return SPRITE_TO_TILE_OFFSET(value, TILE_HEIGHT, 0);
+}
+
 bool isEmptyTile(uint16_t x, uint16_t y) {
   uint16_t tile_value = 0;
   uint16_t offset = sizeof(tile_value) * (x + y * LEVEL_WIDTH);
