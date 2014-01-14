@@ -59,24 +59,23 @@ void initSprites() {
   player.h = CHICK_HEIGHT;
   player.vx = 0;
   player.vy = 0;
+  player.dir = SPRITE_RIGHT;
 
   uint16_t subframe_offset = 0;
   for (int i = 0; i < MAX_NUM_SUBSPRITES; ++i) {
     Sprite& sprite = player.subsprites[i];
     sprite.state = SPRITE_ALIVE;
-    sprite.dir = SPRITE_RIGHT;
 
     sprite.base_offset = g_player_offset + subframe_offset;
 
     const Rect& rect = player.rects[i];
     sprite.size = rect.w * rect.h;
-    sprite.x = player.x + rect.x;
-    sprite.y = player.y + rect.y;
     sprite.w = rect.w;
     sprite.h = rect.h;
 
     subframe_offset += sprite.size;
   }
+  updateCompositeSprite(&player);
 
   // Initialize a bat sprite.
   bat.state = SPRITE_ALIVE;
@@ -128,6 +127,11 @@ void updatePlayer() {
       if (player.vx > 0)
         player.vx = 0;
     }
+  }
+  if (player.vx > 0) {
+    player.dir = SPRITE_RIGHT;
+  } else if (player.vx < 0) {
+    player.dir = SPRITE_LEFT;
   }
 
   if (dir_pad & (1 << SPRITE_DOWN)) {

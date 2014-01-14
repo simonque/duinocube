@@ -110,7 +110,21 @@ void updateCompositeSprite(CompositeSprite* sprite) {
   for (int i = 0; i < MAX_NUM_SUBSPRITES; ++i) {
     Sprite& sub_sprite = sprite->subsprites[i];
     const Rect& rect = sprite->rects[i];
-    sub_sprite.x = sprite->x + rect.x;
+
+    // Update subsprite location and orientation based on composite sprite
+    // location and orientation.
+    switch (sprite->dir) {
+    default:
+    case SPRITE_RIGHT:
+      sub_sprite.x = sprite->x + rect.x;
+      sub_sprite.flip = 0;
+      break;
+    case SPRITE_LEFT:
+      sub_sprite.x = sprite->x + sprite->w - rect.x - rect.w;
+      sub_sprite.flip = (1 << SPRITE_FLIP_X);
+      break;
+    }
     sub_sprite.y = sprite->y + rect.y;
+    sub_sprite.dir = sprite->dir;
   }
 }

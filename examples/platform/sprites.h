@@ -90,6 +90,7 @@ struct CompositeSprite {
   uint8_t w, h;             // Sprite dimensions.
   int16_t vx, vy;           // Velocity.
   uint8_t num_subsprites;   // Component count.
+  uint8_t dir;              // Direction.
   // Component sprites and locations/dimensions.
   Sprite* subsprites;
   const Rect* rects;
