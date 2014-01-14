@@ -46,8 +46,8 @@ enum {
     ((1 << SPRITE_FLIP_X) | (1 << SPRITE_FLIP_Y) | (1 << SPRITE_FLIP_XY))
 
 // Tile dimensions in pixels.
-#define TILE_WIDTH            8
-#define TILE_HEIGHT           8
+#define TILE_WIDTH            16
+#define TILE_HEIGHT           16
 #define TILE_SIZE      (TILE_WIDTH * TILE_HEIGHT)
 
 // Map dimensions in tiles.
