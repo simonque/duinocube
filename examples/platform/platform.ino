@@ -184,6 +184,7 @@ void updatePlayer() {
           player.x += (TILE_WIDTH - x_offset);
         }
       }
+      player.vx = 0;
     }
   }
 
@@ -219,6 +220,7 @@ void updatePlayer() {
           player.y += (TILE_HEIGHT - y_offset);
         }
       }
+      player.vy = 0;
     }
   } else {
     // Check if player is standing on something.
