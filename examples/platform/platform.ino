@@ -122,7 +122,7 @@ void setup() {
   setupLayers();
 
   initSprites();
-  setupSprites(sprites, sizeof(sprites) / sizeof(sprites[0]));
+  setupSprites(sprites, ARRAY_SIZE(sprites));
 
   printf("Static data ends at 0x%04x (%u)\n", &__bss_end, &__bss_end);
   printf("Stack base at 0x%04x (%u)\n", &__stack, &__stack);
@@ -137,8 +137,7 @@ void loop() {
   while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
   updateSprite(&bat);
-  animateSprite(&bat, kBatFrames, sizeof(kBatFrames) / sizeof(kBatFrames[0]),
-                BAT_FRAME_PERIOD);
+  animateSprite(&bat, kBatFrames, ARRAY_SIZE(kBatFrames), BAT_FRAME_PERIOD);
 
   uint16_t dir_pad, buttons;
   readPlayerInput(&dir_pad, &buttons);
@@ -148,7 +147,7 @@ void loop() {
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
   // Update sprite rendering.
-  for (int i = 0; i < sizeof(sprites) / sizeof(sprites[0]); ++i) {
+  for (int i = 0; i < ARRAY_SIZE(sprites); ++i) {
     const Sprite& sprite = sprites[i];
 
     // Update location.

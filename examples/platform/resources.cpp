@@ -200,9 +200,7 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
     }
 
     // Copy planar data.
-    for (int i = 0;
-         i < sizeof(kChickSubFrames) / sizeof(kChickSubFrames[0]);
-         ++i) {
+    for (int i = 0; i < ARRAY_SIZE(kChickSubFrames); ++i) {
       const Rect &subframe = kChickSubFrames[i];
 
       uint16_t src_offset = subframe.x + CHICK_WIDTH * subframe.y;
@@ -227,7 +225,7 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
 // Load image, palette, and tilemap data from file system.
 void loadResources() {
   uint32_t vram_offset = 0;
-  for (int i = 0; i < sizeof(kFiles) / sizeof(kFiles[0]); ++i) {
+  for (int i = 0; i < ARRAY_SIZE(kFiles); ++i) {
     // Copy from program memory.
     File file;
     memcpy_P(&file, kFiles + i, sizeof(file));

@@ -33,6 +33,10 @@ enum {
   SPRITE_PALETTE_INDEX,
 };
 
+// Used to compute the number of elements in a static array.
+// TODO: Add this to the DuinoCube library.
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
+
 // TODO: Add this to the DuinoCube library.
 #define DEFAULT_EMPTY_TILE_VALUE     0x1fff
 #define DEFAULT_COLOR_KEY              0x00
