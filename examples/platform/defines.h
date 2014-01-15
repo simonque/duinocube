@@ -85,11 +85,11 @@ enum {
 #define BAT_FRAME_PERIOD     12
 
 // Player movement parameters.
-#define PLAYER_ACCEL_X        2
-#define PLAYER_ACCEL_Y        2
-#define PLAYER_MAX_VX         8
-#define PLAYER_MAX_VY         8
+#define PLAYER_ACCEL_X        1
+#define PLAYER_ACCEL_Y        1
+#define PLAYER_MAX_VX         4
+#define PLAYER_MAX_VY         4
 #define PLAYER_JUMP_ACCEL    10
-#define PLAYER_GRAVITY        3
+#define PLAYER_GRAVITY        1
 
 #endif  // __DEFINES_H__
