@@ -87,6 +87,7 @@ enum {
 
 // Animation periods.
 #define BAT_FRAME_PERIOD     12
+#define PLAYER_FRAME_PERIOD   4
 
 // Player movement parameters.
 #define PLAYER_ACCEL_X        1

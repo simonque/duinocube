@@ -126,5 +126,6 @@ void updateCompositeSprite(CompositeSprite* sprite) {
     }
     sub_sprite.y = sprite->y + rect.y;
     sub_sprite.dir = sprite->dir;
+    sub_sprite.frame = sprite->sprite_index;
   }
 }

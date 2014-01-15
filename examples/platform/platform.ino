@@ -61,6 +61,10 @@ void initSprites() {
   player.vx = 0;
   player.vy = 0;
   player.dir = SPRITE_RIGHT;
+  player.motion = PLAYER_STANDING;
+  player.frame_counter = 0;
+  player.frame_index = 0;
+  player.sprite_index = 0;
 
   uint16_t subframe_offset = 0;
   for (int i = 0; i < MAX_NUM_SUBSPRITES; ++i) {
@@ -70,11 +74,14 @@ void initSprites() {
     sprite.base_offset = g_player_offset + subframe_offset;
 
     const Rect& rect = player.rects[i];
-    sprite.size = rect.w * rect.h;
+    // The subsprite size is |rect.w * rect.h|. However, |size| is used by the
+    // get_offset() function to find a frame. In this case, the stride between
+    // each frame is the composite sprite size.
+    sprite.size = player.w * player.h;
     sprite.w = rect.w;
     sprite.h = rect.h;
 
-    subframe_offset += sprite.size;
+    subframe_offset += rect.w * rect.h;
   }
   updateCompositeSprite(&player);
 

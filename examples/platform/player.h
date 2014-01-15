@@ -24,6 +24,16 @@
 
 struct CompositeSprite;
 
+// Player motion type.
+enum {
+  PLAYER_STANDING,
+  PLAYER_FALLING,
+  PLAYER_JUMPING,
+  PLAYER_RUNNING,
+  PLAYER_CROUCHING,
+  NUM_PLAYER_MOTION_TYPES,
+};
+
 // Updates the player's location and orientation and apply gamepad input if
 // necessary.
 void updatePlayer(CompositeSprite* player_ptr, uint16_t dir_pad,

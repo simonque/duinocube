@@ -91,6 +91,13 @@ struct CompositeSprite {
   int16_t vx, vy;           // Velocity.
   uint8_t num_subsprites;   // Component count.
   uint8_t dir;              // Direction.
+  uint8_t motion;           // Player motion type.
+
+  uint8_t frame_counter;    // Counts the number of cycles in the current frame.
+  uint8_t frame_index;      // Points to a frame of current animation sequence.
+  uint8_t sprite_index;     // Points to the sprite frame indicated by
+                            // |frame_index| in the current animation sequence.
+
   // Component sprites and locations/dimensions.
   Sprite* subsprites;
   const Rect* rects;

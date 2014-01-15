@@ -19,9 +19,130 @@
 
 #include "player.h"
 
+#include <avr/pgmspace.h>
+
 #include "defines.h"
 #include "map.h"
 #include "sprites.h"
+
+// Player frame indexes. See the player sprite image data.
+enum {
+  FRAME_STANDING_0,
+  FRAME_CROUCHING_0,
+  FRAME_CROUCHING_1,
+  FRAME_CROUCHING_2,
+  FRAME_CROUCHING_3,
+  FRAME_JUMPING_0,
+  FRAME_JUMPING_1,
+  FRAME_JUMPING_2,
+  FRAME_JUMPING_3,
+  FRAME_RUNNING_0,
+  FRAME_RUNNING_1,
+  FRAME_RUNNING_2,
+  FRAME_RUNNING_3,
+  FRAME_RUNNING_4,
+  FRAME_RUNNING_5,
+  FRAME_RUNNING_6,
+  FRAME_RUNNING_7,
+};
+
+// Animation sequences for various motions.
+const uint8_t kPlayerStandingFrames[] PROGMEM = {
+  FRAME_STANDING_0,
+};
+const uint8_t kPlayerRunningFrames[] PROGMEM = {
+  FRAME_RUNNING_0,
+  FRAME_RUNNING_1,
+  FRAME_RUNNING_2,
+  FRAME_RUNNING_3,
+  FRAME_RUNNING_4,
+  FRAME_RUNNING_5,
+  FRAME_RUNNING_6,
+  FRAME_RUNNING_7,
+};
+const uint8_t kPlayerCrouchingFrames[] PROGMEM = {
+  FRAME_CROUCHING_0,
+  FRAME_CROUCHING_1,
+  FRAME_CROUCHING_2,
+  FRAME_CROUCHING_3,
+};
+const uint8_t kPlayerJumpingFrames[] PROGMEM = {
+  FRAME_JUMPING_0,
+  FRAME_JUMPING_1,
+  FRAME_JUMPING_2,
+  FRAME_JUMPING_3,
+};
+const uint8_t kPlayerFallingFrames[] PROGMEM = {
+  FRAME_JUMPING_0,
+  FRAME_JUMPING_1,
+  FRAME_JUMPING_2,
+  FRAME_JUMPING_3,
+};
+
+namespace {
+
+// These should match the order of the player motion enums.
+const uint8_t* kAnimations[] = {
+  kPlayerStandingFrames,
+  kPlayerFallingFrames,
+  kPlayerJumpingFrames,
+  kPlayerRunningFrames,
+  kPlayerCrouchingFrames,
+};
+
+const uint8_t kAnimationLengths[] = {
+  ARRAY_SIZE(kPlayerStandingFrames),
+  ARRAY_SIZE(kPlayerFallingFrames),
+  ARRAY_SIZE(kPlayerRunningFrames),
+  ARRAY_SIZE(kPlayerJumpingFrames),
+  ARRAY_SIZE(kPlayerCrouchingFrames),
+};
+
+void updatePlayerAnimation(CompositeSprite* player_ptr) {
+  CompositeSprite& player = *player_ptr;
+
+  // Update the frame counter. Update the frame if the counter has reached the
+  // limit for going to the next frame.
+  if (++player.frame_counter < PLAYER_FRAME_PERIOD) {
+    return;
+  }
+
+  // Reset frame counter.
+  player.frame_counter = 0;
+
+  // Update the animation frame index.
+  bool loop_animation = false;
+  uint8_t motion = player.motion;
+  switch (motion) {
+  case PLAYER_RUNNING:
+    loop_animation = true;
+    break;
+  case PLAYER_STANDING:
+  case PLAYER_FALLING:
+  case PLAYER_JUMPING:
+  case PLAYER_CROUCHING:
+  default:
+    loop_animation = false;
+    break;
+  }
+
+  ++player.frame_index;
+
+  // The animation should either loop around or terminate.
+  uint8_t curr_anim_length = kAnimationLengths[motion];
+  if (loop_animation && player.frame_index >= curr_anim_length) {
+    player.frame_index = 0;
+  } else if (!loop_animation && player.frame_index >= curr_anim_length) {
+    player.frame_index = curr_anim_length - 1;
+  }
+
+  // Update the sprite image index.
+  player.sprite_index = pgm_read_byte(kAnimations[motion] + player.frame_index);
+}
+
+}  // namespace
+
+#include <stdio.h>
 
 void updatePlayer(CompositeSprite* player_ptr, uint16_t dir_pad,
                   uint16_t buttons) {
@@ -156,6 +277,31 @@ void updatePlayer(CompositeSprite* player_ptr, uint16_t dir_pad,
     if (player.vy > PLAYER_MAX_VY)
       player.vy = PLAYER_MAX_VY;
   }
+
+  // Determine current player motion.
+  uint8_t prev_motion = player.motion;
+  if (is_standing) {
+    if (player.vx != 0) {
+      player.motion = PLAYER_RUNNING;
+    } else {
+      player.motion = PLAYER_STANDING;
+    }
+  } else {
+    if (player.vy <= 0) {
+      player.motion = PLAYER_JUMPING;
+    } else {
+      player.motion = PLAYER_FALLING;
+    }
+  }
+  // If the player's motion changed, reset the animation sequence.
+  if (prev_motion != player.motion) {
+    player.frame_counter = 0;
+    player.frame_index = 0;
+    printf("%d -> %d\n", prev_motion, player.motion);
+  }
+
+  // Animate.
+  updatePlayerAnimation(&player);
 
   // Update component sprites.
   updateCompositeSprite(&player);
