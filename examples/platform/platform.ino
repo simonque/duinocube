@@ -205,11 +205,12 @@ void updatePlayer() {
           player.y += (TILE_HEIGHT - y_offset);
         }
       }
+      is_standing = (player.vy > 0);
       player.vy = 0;
     }
   } else {
     // Check if player is standing on something.
-    uint16_t tile_y = getTileY(player.y + player.h - 1 + player.vy);
+    uint16_t tile_y = getTileY(player.y + player.h);
     uint16_t tile_x0 = getTileY(player.x);
     uint16_t tile_x1 = getTileY(player.x + player.w - 1);
     for (uint16_t tile_x = tile_x0;
