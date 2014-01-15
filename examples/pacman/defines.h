@@ -24,6 +24,7 @@
 
 #define BG_TILEMAP_INDEX            0
 #define DOTS_TILEMAP_INDEX          1
+#define OCCLUSION_TILEMAP_INDEX     2
 #define CLIPPING_TILEMAP_INDEX      3
 
 #define BG_PALETTE_INDEX            0
@@ -65,6 +66,11 @@ enum SpriteDirection {
 #define TILE_WIDTH            8
 #define TILE_HEIGHT           8
 #define TILE_SIZE      (TILE_WIDTH * TILE_HEIGHT)
+
+// Occlusion tile dimensions in pixels.
+#define OCCL_TILE_WIDTH      16
+#define OCCL_TILE_HEIGHT     16
+#define OCCL_TILE_SIZE      (OCCL_TILE_WIDTH * OCCL_TILE_HEIGHT)
 
 // Map dimensions in pixels.
 #define MAP_WIDTH           (32 * TILE_WIDTH)
