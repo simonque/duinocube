@@ -8,12 +8,12 @@
  </tileset>
  <layer name="bg" width="32" height="32">
   <data encoding="base64" compression="zlib">
-   eJzty0N2BFAUQMFOx7Zt27bdsbP/VaQGWcKf9RvUuaObzWQy2RBCCHmn4L+FFFFMCaWUUU4FlVRRTQ211CX462mgkSaaaaGVNtrpoJMuuumhl74Efz8DDDLEMCOMMsY4E0wyxTQzzDKX4J9ngUWWWGaFVdZYZ4NNtthmh132Evz7HHDIEceccMoZ51xwyRXX3HDLXYL/nhwPPPLEMy+88sY7H3zyxTc//Cb4cyGEEEIe+gNe3rbh
+   eJzty0N2BFAUQMFOx7Zt27bdsbP/VaQGWcKf9RvUuaObzWQy2RBCXir4byFFFFNCKWWUU0ElVVRTQy11Cf56GmikiWZaaKWNdjropItueuilL8HfzwCDDDHMCKOMMc4Ek0wxzQyzzCX451lgkSWWWWGVNdbZYJMtttlhl70E/z4HHHLEMSeccsY5F1xyxTU33HKX4L8nxwOPPPHMC6+88c4Hn3zxzQ+/Cf5cCCGEEEKe+QOFuN7h
   </data>
  </layer>
  <layer name="moon" width="32" height="32">
   <data encoding="base64" compression="zlib">
-   eJztzbcNgAAAxEBWJeecYXm8ACX6grd0tYPAOefeCxEhFv0TpMhE/xwFStHfOfffKtRoRP8WHXrRf8CISfSfsWAV/TfsOET/Exdu0d85900PBmcLmw==
+   eJztzccNgAAAw0BWpffeYXm8RRDE0r0dBO6NhYgQi/4JUmSif44CpejvnPtvFWo0on+LDr3oP2DEJPrPWLCK/ht2HKL/iQu36O+cc+7bPZRSC5s=
   </data>
  </layer>
 </map>
