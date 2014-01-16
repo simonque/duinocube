@@ -93,8 +93,8 @@ const uint8_t* kAnimations[] = {
 const uint8_t kAnimationLengths[] = {
   ARRAY_SIZE(kPlayerStandingFrames),
   ARRAY_SIZE(kPlayerFallingFrames),
-  ARRAY_SIZE(kPlayerRunningFrames),
   ARRAY_SIZE(kPlayerJumpingFrames),
+  ARRAY_SIZE(kPlayerRunningFrames),
   ARRAY_SIZE(kPlayerCrouchingFrames),
 };
 
