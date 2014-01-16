@@ -107,4 +107,15 @@ enum {
 #define MOON_X_SCROLL_FACTOR     1
 #define MOON_Y_SCROLL_FACTOR    16
 
+// Bat spawn parameters.
+#define NUM_BATS                10
+#define BAT_SPAWN_X_MIN          TILEMAP_WIDTH / 2     // In tile coordinates.
+#define BAT_SPAWN_X_MAX          (TILEMAP_WIDTH - 1)
+#define BAT_SPAWN_Y_MIN          1
+#define BAT_SPAWN_Y_MAX         10
+#define BAT_SPAWN_VX_MIN         1
+#define BAT_SPAWN_VX_MAX         3
+#define BAT_SPAWN_VY_MIN         0
+#define BAT_SPAWN_VY_MAX         2
+
 #endif  // __DEFINES_H__

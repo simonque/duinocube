@@ -24,6 +24,8 @@
 #include <Esplora.h>
 #endif
 
+#include <stdlib.h>
+
 #include "defines.h"
 #include "map.h"
 #include "player.h"
@@ -31,19 +33,27 @@
 #include "resources.h"
 #include "sprites.h"
 
+// Generates a random value in the range [min, max).
+#define RAND_RANGE(min, max) ((min) + rand() % (max - min))
+
 extern uint8_t __bss_end;   // End of statically allocated memory.
 extern uint8_t __stack;     // Where local variables are allocated.
 
 namespace {
 
 // Store all sprites in one location.
-Sprite sprites[MAX_NUM_SUBSPRITES + 1];
+Sprite sprites[MAX_NUM_SUBSPRITES + NUM_BATS];
 
 // Player sprite is a composite sprite.
 CompositeSprite player;
 Sprite* player_sprites = &sprites[0];
 
-Sprite& bat = sprites[MAX_NUM_SUBSPRITES];
+// Bats.
+Sprite* bat_sprites = sprites + MAX_NUM_SUBSPRITES;
+struct Bat {
+  Sprite* sprite;
+  int16_t vx, vy;     // Speed.
+} bats[NUM_BATS];
 
 // Bat animation sequence.
 const uint8_t kBatFrames[] = { 0, 1 };
@@ -85,18 +95,48 @@ void initSprites() {
   }
   updateCompositeSprite(&player);
 
-  // Initialize a bat sprite.
-  bat.state = SPRITE_ALIVE;
-  bat.dir = SPRITE_RIGHT;
-  bat.x = 0;
-  bat.y = 0;
-  bat.w = BAT_WIDTH;
-  bat.h = BAT_HEIGHT;
+  // Initialize bats.
+  for (int i = 0; i < NUM_BATS; ++i) {
+    Sprite& sprite = bat_sprites[i];
 
-  bat.base_offset = g_bat_offset;
-  bat.size = BAT_SPRITE_SIZE;
+    // Spawn a bat somewhere.
+    sprite.state = SPRITE_ALIVE;
+    sprite.x = RAND_RANGE(BAT_SPAWN_X_MIN, BAT_SPAWN_X_MAX) * TILE_WIDTH;
+    sprite.y = RAND_RANGE(BAT_SPAWN_Y_MIN, BAT_SPAWN_Y_MAX) * TILE_HEIGHT;
+    sprite.w = BAT_WIDTH;
+    sprite.h = BAT_HEIGHT;
+    // Randomize their animation so they're not in sync.
+    sprite.counter = RAND_RANGE(0, BAT_FRAME_PERIOD);
+
+    // Determine its orientation.
+    sprite.dir = (rand() % 2) ? SPRITE_RIGHT : SPRITE_LEFT;
+    switch (sprite.dir) {
+    default:
+    case SPRITE_RIGHT:
+      sprite.flip = 0;
+      break;
+    case SPRITE_LEFT:
+      sprite.flip = (1 << SPRITE_FLIP_X);
+      break;
+    }
+
+    sprite.base_offset = g_bat_offset;
+    sprite.size = BAT_SPRITE_SIZE;
+
+    // Initialize the bat object.
+    Bat& bat = bats[i];
+    bat.sprite = &sprite;
+    // Generate a velocity for it.
+    bat.vx = RAND_RANGE(BAT_SPAWN_VX_MIN, BAT_SPAWN_VX_MAX);
+    if (sprite.dir == SPRITE_LEFT) {
+      bat.vx *= -1;
+    }
+    bat.vy = RAND_RANGE(BAT_SPAWN_VY_MIN, BAT_SPAWN_VY_MAX);
+    if (rand() % 2) {
+      bat.vy *= -1;
+    }
+  }
 }
-
 
 // Read user input.
 void readPlayerInput(uint16_t* dir_pad, uint16_t* buttons) {
@@ -186,8 +226,17 @@ void loop() {
   // Wait for visible, non-vblanked region to do computations.
   while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
-  updateSprite(&bat);
-  animateSprite(&bat, kBatFrames, ARRAY_SIZE(kBatFrames), BAT_FRAME_PERIOD);
+  for (int i = 0; i < NUM_BATS; ++i) {
+    Bat& bat = bats[i];
+    // Move the bat.
+    bat.sprite->x += bat.vx;
+    bat.sprite->y += bat.vy;
+
+    // Update the bat sprite.
+    updateSprite(bat.sprite);
+    animateSprite(bat.sprite, kBatFrames, ARRAY_SIZE(kBatFrames),
+                  BAT_FRAME_PERIOD);
+  }
 
   uint16_t dir_pad, buttons;
   readPlayerInput(&dir_pad, &buttons);
