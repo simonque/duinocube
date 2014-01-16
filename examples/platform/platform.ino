@@ -119,6 +119,45 @@ void readPlayerInput(uint16_t* dir_pad, uint16_t* buttons) {
   *buttons = gamepad.buttons;
 }
 
+// If the level is larger than the tilemap, load the parts of the level that are
+// farthest from the screen but still in the tilemap.
+void loadLevelToTilemapEdges(uint16_t scroll_x, uint16_t scroll_y) {
+  // Determine screen center based on scroll.
+  int16_t center_tile_x = getTileX(scroll_x + SCREEN_WIDTH / 2);
+  int16_t center_tile_y = getTileY(scroll_y + SCREEN_HEIGHT / 2);
+
+  // Only do this for the X axis because the level is wider than the tilemap.
+  // However, if the level were to become taller than the tilemap, it should be
+  // likewise done for the Y axis.
+  // if (LEVEL_WIDTH > TILEMAP_WIDTH)
+  {
+    // Load new data to the parts of the tilemap farthest from screen center.
+    const uint16_t kOffsetsToLoad[] = {
+      center_tile_x - TILEMAP_WIDTH / 2,
+      center_tile_x + TILEMAP_WIDTH / 2 - 1,
+    };
+    // Access tilemap data.
+    DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
+    uint16_t level_offset = 0;
+    uint16_t tilemap_offset = 0;
+    for (int i = 0; i < TILEMAP_HEIGHT; ++i) {
+      uint16_t tile_value = DEFAULT_EMPTY_TILE_VALUE;
+      for (int j = 0; j < ARRAY_SIZE(kOffsetsToLoad); ++j) {
+        uint16_t offset = kOffsetsToLoad[j];
+        DC.Sys.readSharedRAM(
+            g_level_buffer + level_offset + offset * sizeof(tile_value),
+            &tile_value, sizeof(tile_value));
+        DC.Core.writeWord(
+            TILEMAP(LEVEL_TILEMAP_INDEX) + tilemap_offset +
+                (offset % TILEMAP_WIDTH) * sizeof(tile_value),
+            tile_value);
+      }
+      tilemap_offset += TILEMAP_WIDTH * sizeof(tile_value);
+      level_offset += LEVEL_WIDTH * sizeof(tile_value);
+    }
+  }
+}
+
 }  // namespace
 
 void setup() {
@@ -182,12 +221,14 @@ void loop() {
     scroll_y = center_y - SCREEN_HEIGHT / 2;
   }
 
+  // Load new parts of level into the tilemap.
+  loadLevelToTilemapEdges(scroll_x, scroll_y);
+
   // Wait for Vblank to update rendering.
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
   // Scroll camera.
   // TODO: Parallax scroll.
-  // TODO: Load new level tiles.
   DC.Core.writeWord(REG_SCROLL_X, scroll_x);
   DC.Core.writeWord(REG_SCROLL_Y, scroll_y);
 
