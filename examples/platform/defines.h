@@ -101,4 +101,10 @@ enum {
 #define PLAYER_JUMP_ACCEL    10
 #define PLAYER_GRAVITY        1
 
+// Scrolling parameters.
+#define BG_X_SCROLL_FACTOR       2
+#define BG_Y_SCROLL_FACTOR       8
+#define MOON_X_SCROLL_FACTOR     1
+#define MOON_Y_SCROLL_FACTOR    16
+
 #endif  // __DEFINES_H__

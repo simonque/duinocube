@@ -198,6 +198,10 @@ void loop() {
   int16_t center_x = player.x + player.w / 2;
   int16_t center_y = player.y + player.h / 2;
 
+  // Save old scroll location.
+  uint16_t old_scroll_x = scroll_x;
+  uint16_t old_scroll_y = scroll_y;
+
   // X scrolling.
   if (center_x < SCREEN_WIDTH / 2) {
     // Limit on left edge.
@@ -228,9 +232,19 @@ void loop() {
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
 
   // Scroll camera.
-  // TODO: Parallax scroll.
   DC.Core.writeWord(REG_SCROLL_X, scroll_x);
   DC.Core.writeWord(REG_SCROLL_Y, scroll_y);
+
+  // Scroll the background and moon at slower rates relative to the screen..
+  DC.Core.writeWord(TILE_LAYER_REG(MOON_TILEMAP_INDEX, TILE_OFFSET_X),
+                    scroll_x / MOON_X_SCROLL_FACTOR);
+  DC.Core.writeWord(TILE_LAYER_REG(MOON_TILEMAP_INDEX, TILE_OFFSET_Y),
+                    scroll_y / MOON_Y_SCROLL_FACTOR);
+
+  DC.Core.writeWord(TILE_LAYER_REG(BG_TILEMAP_INDEX, TILE_OFFSET_X),
+                    scroll_x / BG_X_SCROLL_FACTOR);
+  DC.Core.writeWord(TILE_LAYER_REG(BG_TILEMAP_INDEX, TILE_OFFSET_Y),
+                    scroll_y / BG_Y_SCROLL_FACTOR);
 
   // Update sprite rendering.
   for (int i = 0; i < ARRAY_SIZE(sprites); ++i) {
