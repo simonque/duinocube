@@ -139,6 +139,10 @@ void setup() {
   srand(millis());
 }
 
+// Camera scroll params.
+static uint16_t scroll_x = 0;
+static uint16_t scroll_y = 0;
+
 void loop() {
   // Wait for visible, non-vblanked region to do computations.
   while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
@@ -150,8 +154,42 @@ void loop() {
   readPlayerInput(&dir_pad, &buttons);
   updatePlayer(&player, dir_pad, buttons);
 
+  // Determine new scroll location based on player location. Limit scrolling to
+  // the edges of the level.
+  int16_t center_x = player.x + player.w / 2;
+  int16_t center_y = player.y + player.h / 2;
+
+  // X scrolling.
+  if (center_x < SCREEN_WIDTH / 2) {
+    // Limit on left edge.
+    scroll_x = 0;
+  } else if (center_x + SCREEN_WIDTH / 2 >= LEVEL_PIXEL_WIDTH) {
+    // Limit on right edge.
+    scroll_x = LEVEL_PIXEL_WIDTH - SCREEN_WIDTH;
+  } else {
+    // Scroll when in the center part.
+    scroll_x = center_x - SCREEN_WIDTH / 2;
+  }
+  // Y scrolling.
+  if (center_y < SCREEN_HEIGHT / 2) {
+    // Limit on top edge.
+    scroll_y = 0;
+  } else if (center_y + SCREEN_HEIGHT / 2 >= LEVEL_PIXEL_HEIGHT) {
+    // Limit on bottom edge.
+    scroll_y = LEVEL_PIXEL_HEIGHT - SCREEN_HEIGHT;
+  } else {
+    // Scroll when in the center part.
+    scroll_y = center_y - SCREEN_HEIGHT / 2;
+  }
+
   // Wait for Vblank to update rendering.
   while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+
+  // Scroll camera.
+  // TODO: Parallax scroll.
+  // TODO: Load new level tiles.
+  DC.Core.writeWord(REG_SCROLL_X, scroll_x);
+  DC.Core.writeWord(REG_SCROLL_Y, scroll_y);
 
   // Update sprite rendering.
   for (int i = 0; i < ARRAY_SIZE(sprites); ++i) {
