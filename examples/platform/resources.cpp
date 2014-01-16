@@ -193,7 +193,7 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
   uint16_t dst_offset = 0;
   uint8_t line_buffer[CHICK_WIDTH];
   uint16_t file_size = DC.File.size(handle);
-  for (; file_size > frame_size; file_size -= frame_size) {
+  for (; file_size >= frame_size; file_size -= frame_size) {
     uint16_t size_read = DC.File.read(handle, buffer, frame_size);
     if (size_read < frame_size) {
       printf("Only read 0x%x bytes from file.\n", size_read);
