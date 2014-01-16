@@ -297,7 +297,6 @@ void updatePlayer(CompositeSprite* player_ptr, uint16_t dir_pad,
   if (prev_motion != player.motion) {
     player.frame_counter = 0;
     player.frame_index = 0;
-    printf("%d -> %d\n", prev_motion, player.motion);
   }
 
   // Animate.
