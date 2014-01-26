@@ -23,6 +23,8 @@ static byte vbusState;
 /* Constructor */
 MAX3421E::MAX3421E()
 {
+  poweredOn = 0;
+
   spi_init();
 
   // Set up the GPIO port used by Max3421e.
@@ -172,10 +174,15 @@ void MAX3421E::busprobe( void )
 /* MAX3421E initialization after power-on   */
 void MAX3421E::powerOn()
 {
+    // Avoid multiple power-ons.
+    if (poweredOn) {
+        return;
+    }
     /* Configure full-duplex SPI, interrupt pulse   */
     regWr( rPINCTL,( bmFDUPSPI + bmINTLEVEL + bmGPXB ));    //Full-duplex SPI, level interrupt, GPX
     if( reset() == false ) {                                //stop/start the oscillator
         printf("Error: OSCOKIRQ failed to assert.\n");
+        return;
     }
 
     /* configure host operation */
@@ -191,6 +198,8 @@ void MAX3421E::powerOn()
     busprobe();                                                             //check if anything is connected
     regWr( rHIRQ, bmCONDETIRQ );                                            //clear connection detect interrupt                 
     regWr( rCPUCTL, 0x01 );                                                 //enable interrupt pin
+
+    poweredOn = true;
 }
 /* MAX3421 state change task and interrupt handler */
 byte MAX3421E::Task( void )

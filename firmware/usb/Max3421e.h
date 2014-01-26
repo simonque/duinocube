@@ -31,6 +31,8 @@ class MAX3421E /* : public SPI */ {
         byte IntHandler();
         byte GpxHandler();
         byte Task();
+    private:
+        byte poweredOn;
 };
 
 #endif //_MAX3421E_H_
