@@ -49,10 +49,10 @@ static uint8_t read_client_command() {
 static void set_server_status(uint8_t status) {
   switch (status) {
   case RPC_SERVER_IDLE:
-    PORTB |= (1 << RPC_STATUS_BIT);
+    PORTB &= ~(1 << RPC_STATUS_BIT);
     break;
   case RPC_SERVER_BUSY:
-    PORTB &= ~(1 << RPC_STATUS_BIT);
+    PORTB |= (1 << RPC_STATUS_BIT);
     break;
   }
 }

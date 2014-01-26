@@ -101,9 +101,9 @@ void DuinoCubeRPC::writeCommand(uint8_t command) {
 
 uint8_t DuinoCubeRPC::readServerStatus() {
   switch (GET_PIN(RPC_SERVER_STATUS_PIN)) {
-  case LOW:
-    return RPC_SERVER_BUSY;
   case HIGH:
+    return RPC_SERVER_BUSY;
+  case LOW:
     return RPC_SERVER_IDLE;
   }
   return RPC_SERVER_IDLE;
