@@ -31,7 +31,6 @@
 
 #define UINT8_MAX     ((uint8_t)(~0))
 
-static USB usb;                 // For USB host.
 static USBJoystick joystick;    // For USB joystick.
 
 USB_JoystickState joystick_state;   // Last known joystick state.
@@ -104,8 +103,6 @@ void usb_init() {
   usb_enabled = PIND & (1 << USB_ENABLED_BIT);
   if (!usb_enabled)
     return;
-
-  usb.powerOn();
 
 #ifdef DEBUG
   printf_P(usb_init_str0);
