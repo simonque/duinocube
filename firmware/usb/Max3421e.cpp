@@ -184,6 +184,9 @@ void MAX3421E::powerOn()
         printf("Error: OSCOKIRQ failed to assert.\n");
         return;
     }
+#ifdef DEBUG
+    printf("MAX3421E revision 0x%02x\n", regRd( rREVISION ));
+#endif
 
     /* configure host operation */
     regWr( rMODE, bmDPPULLDN|bmDMPULLDN|bmHOST|bmSEPIRQ );      // set pull-downs, Host, Separate GPIN IRQ on GPX
