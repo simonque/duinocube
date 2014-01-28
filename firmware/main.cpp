@@ -32,9 +32,15 @@
 #include "uart.h"
 #include "usb.h"
 
+#define TEST_LED_BIT    PORTC5
+
 const char main_str0[] PROGMEM = "\n\nSystem initialized.\n";
 
 int main() {
+  // Enable test LED.
+  DDRC |= (1 << TEST_LED_BIT);
+  PORTC &= ~(1 << TEST_LED_BIT);
+
   // Initialize microcontroller peripherals.
   uart_init();
   spi_init();
