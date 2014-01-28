@@ -108,8 +108,9 @@
 // VRAM definitions.
 #define VRAM_BASE          0x4000
 #define VRAM_BANK_SIZE     0x4000
+#define NUM_VRAM_BANKS         32
 #define VRAM_BANK_BEGIN         2  // VRAM spans several 16-KB banks.
-#define VRAM_BANK_END           4
+#define VRAM_BANK_END     (VRAM_BANK_BEGIN + NUM_VRAM_BANKS)
 
 // When the *_SHIFT_DATA_OFFSET bit is set, the corresponding *_DATA_OFFSET
 // register value will be interpreted as the actual address shifted left by
