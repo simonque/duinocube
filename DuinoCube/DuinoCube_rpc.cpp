@@ -68,14 +68,9 @@ uint16_t DuinoCubeRPC::invert(uint16_t buf_addr, uint16_t size) {
 }
 
 uint16_t DuinoCubeRPC::readCoreID() {
-  core.setBusMode(CORE_BUS_MODE_ALT);
-
   RPC_ReadCoreIDArgs args;
   uint16_t status = exec(RPC_CMD_READ_CORE_ID,
                          NULL, 0, &args.out, sizeof(args.out));
-
-  core.setBusMode(CORE_BUS_MODE_MAIN);
-
   return args.out.id;
 }
 

@@ -23,13 +23,6 @@
 #include "DuinoCube_core.h"
 #include "DuinoCube_pins.h"
 
-// SPI bus mode definitions, must match defs in chronocube/common/spi_bus.vh.
-#define SPI_BUS_STATE_NONE         0
-#define SPI_BUS_STATE_MEMORY       1
-#define SPI_BUS_STATE_MAIN_BUS     2
-#define SPI_BUS_STATE_ALT_BUS      3
-#define SPI_BUS_STATE_RESET        4
-
 #define WRITE_BIT_MASK      0x80
 
 extern SPIClass SPI;
@@ -43,14 +36,8 @@ void DuinoCubeCore::begin() {
 }
 
 void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
-  // TODO: There's some glitch that causes the bus mode to be set to the
-  // coprocessor bus occasionally.  It causes lockups.  To avoid it, set the
-  // bus mode to the main bus every time, in each Core access function.
-  setBusMode(CORE_BUS_MODE_MAIN);
-
   SET_PIN(CORE_SELECT_PIN, LOW);
 
-  SPI.transfer(SPI_BUS_STATE_MEMORY);
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
 
@@ -62,11 +49,8 @@ void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
 }
 
 void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
-  setBusMode(CORE_BUS_MODE_MAIN);
-
   SET_PIN(CORE_SELECT_PIN, LOW);
 
-  SPI.transfer(SPI_BUS_STATE_MEMORY);
   SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
 
@@ -78,11 +62,8 @@ void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
 }
 
 void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
-  setBusMode(CORE_BUS_MODE_MAIN);
-
   SET_PIN(CORE_SELECT_PIN, LOW);
 
-  SPI.transfer(SPI_BUS_STATE_MEMORY);
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
   SPI.transfer(data);
@@ -91,11 +72,8 @@ void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
 }
 
 uint8_t DuinoCubeCore::readByte(uint16_t addr) {
-  setBusMode(CORE_BUS_MODE_MAIN);
-
   SET_PIN(CORE_SELECT_PIN, LOW);
 
-  SPI.transfer(SPI_BUS_STATE_MEMORY);
   SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
   uint8_t result = SPI.transfer(0);
@@ -106,11 +84,8 @@ uint8_t DuinoCubeCore::readByte(uint16_t addr) {
 }
 
 void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
-  setBusMode(CORE_BUS_MODE_MAIN);
-
   SET_PIN(CORE_SELECT_PIN, LOW);
 
-  SPI.transfer(SPI_BUS_STATE_MEMORY);
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
   SPI.transfer(lowByte(data));
@@ -120,11 +95,8 @@ void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
 }
 
 uint16_t DuinoCubeCore::readWord(uint16_t addr) {
-  setBusMode(CORE_BUS_MODE_MAIN);
-
   SET_PIN(CORE_SELECT_PIN, LOW);
 
-  SPI.transfer(SPI_BUS_STATE_MEMORY);
   SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
   SPI.transfer(lowByte(addr));
   union {
@@ -137,24 +109,4 @@ uint16_t DuinoCubeCore::readWord(uint16_t addr) {
   SET_PIN(CORE_SELECT_PIN, HIGH);
 
   return value_16;
-}
-
-void DuinoCubeCore::setBusMode(uint16_t mode) {
-  uint8_t bus_state = 0;
-
-  switch (mode) {
-  case CORE_BUS_MODE_MAIN:
-    bus_state = SPI_BUS_STATE_MAIN_BUS;
-    break;
-  case CORE_BUS_MODE_ALT:
-    bus_state = SPI_BUS_STATE_ALT_BUS;
-    break;
-  default:
-    // Do nothing.
-    return;
-  }
-
-  SET_PIN(CORE_SELECT_PIN, LOW);
-  SPI.transfer(bus_state);
-  SET_PIN(CORE_SELECT_PIN, HIGH);
 }

@@ -87,9 +87,7 @@ uint16_t DuinoCubeFile::readToCore(
   // The Core memory space is at 0x8000, from the coprocessor's point of view.
   // TODO: get rid of magic number.
   // TODO: consider a better memory mapping scheme.
-  core.setBusMode(CORE_BUS_MODE_ALT);
   uint16_t size_read = read(handle, dst_addr | 0x8000, size);
-  core.setBusMode(CORE_BUS_MODE_MAIN);
   return size_read;
 }
 
