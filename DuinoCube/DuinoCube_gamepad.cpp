@@ -23,7 +23,7 @@
   #include "DuinoCube_usb.h"
 
 #elif defined(__AVR_ATmega32U4__)
-  #include <Esplora.h>
+  #include "Esplora.h"
 
 #elif defined(__AVR_ATmega1280__) || (__AVR_ATmega2560__)
   #error "Arduinos with Atmega1280 and Atmega2560 not yet supported."

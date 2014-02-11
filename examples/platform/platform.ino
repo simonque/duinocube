@@ -20,10 +20,6 @@
 #include <DuinoCube.h>
 #include <SPI.h>
 
-#if defined(__AVR_Atmega32U4__)
-#include <Esplora.h>
-#endif
-
 #include <stdlib.h>
 
 #include "defines.h"

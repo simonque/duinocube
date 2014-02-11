@@ -23,7 +23,7 @@
 #include <SPI.h>
 
 #if defined(__AVR_ATmega32U4__)
-#include <Esplora.h>
+#include "Esplora.h"
 #endif  // defined(__AVR_ATmega32U4__)
 
 #include "DuinoCube.h"

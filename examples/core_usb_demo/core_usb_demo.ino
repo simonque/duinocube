@@ -20,10 +20,6 @@
 #include <DuinoCube.h>
 #include <SPI.h>
 
-#if defined(__AVR_ATmega32U4__)
-#include <Esplora.h>
-#endif
-
 // Files to load.
 const char* image_files[] = {
   "data/tileset.raw",
