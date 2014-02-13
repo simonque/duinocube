@@ -1,6 +1,22 @@
 Release history
 ===============
 
+0.4.0  --  12 Feb 2014
+    - Properly renamed project name in comment headers.
+    - Added Esplora support. SPI select is updated to handle different boards.
+    - Fixed missing bitmask bug during core write.
+    - Increased VRAM size to 512 KB.
+    - Added sprite Z register.
+    - Added Gamepad library module to handle both USB and Esplora input.
+    - Updated RPC protocol to run without external CPLD.
+    - Added test sketch and RPC function to read Core ID.
+    - Replaced Serial.print with printf.
+    - Added Pacman and Platform demos.
+    - Added file access mode #defines.
+    - Updated firmware SPI interface to select devices without CPLD.
+    - Avoid multiple USB host power-on sequences.
+    - Added missing #assert to tmx2dat code.
+
 0.3.0  --   4 Nov 2013
     - Added contiguous alias sprite X/Y registers for fast updating.
     - Added collision detection registers/table.
