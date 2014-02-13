@@ -21,6 +21,8 @@
 
 #include "Esplora.h"
 
+#if defined(__AVR_ATmega32U4__)
+
 _Esplora Esplora;
 
 /*
@@ -182,3 +184,5 @@ int _Esplora::readAccelerometer(const byte axis) {
     default: return 0;
   }
 }
+
+#endif  // defined(__AVR_ATmega32U4__)
