@@ -28,11 +28,6 @@
 
 #include "DuinoCube.h"
 
-// Select pins for Core and System shields.
-// Edit these to match your Arduino configuration.
-#define DEFAULT_CORE_SS_PIN      5
-#define DEFAULT_SYS_SS_PIN      10
-
 extern SPIClass SPI;
 
 DuinoCubeCore DuinoCube::Core;
