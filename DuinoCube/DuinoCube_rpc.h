@@ -59,6 +59,10 @@ enum {
   RPC_CMD_USB_STATUS = 0x40,        // Get USB device status.
   RPC_CMD_USB_READ_JOYSTICK,        // Get USB joystick and button state.
 
+  // Flash commands.
+  RPC_CMD_FLASH_PROGRAM = 0x50,     // Program flash.
+  RPC_CMD_FLASH_VERIFY,             // Verify flash.
+
 };  // enum
 
 // RPC argument structures.
