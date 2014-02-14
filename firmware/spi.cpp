@@ -26,8 +26,9 @@ void spi_init(void) {
   DDRB |= (1 << PORTB3) |    // Enable MOSI.
           (1 << PORTB5);     // Enable SCK.
   SPCR = (1 << SPE) |     // Enable SPI.
-         (1 << MSTR) |    // SPI master mode.
-         (0 << DORD);     // MSB first.
+         (1 << MSTR);     // SPI master mode.
+
+  spi_set_bit_order(SPI_MSB_FIRST);
 
   // Clock  speed of CPU clock / 2. (Max possible)
   SPCR |= (0 << SPR1) | (0 << SPR0);
@@ -37,6 +38,18 @@ void spi_init(void) {
   // all SPI select bits should be cleared together in one place.
   spi_clear_ss(SELECT_FLASH_BIT);
   DDRC |= (1 << SELECT_FLASH_BIT);
+}
+
+void spi_set_bit_order(uint8_t order) {
+  switch (order) {
+  case SPI_LSB_FIRST:
+    SPCR |= (1 << DORD);
+    break;
+  case SPI_MSB_FIRST:
+  default:
+    SPCR &= ~(1 << DORD);
+    break;
+  }
 }
 
 uint8_t spi_tx(uint8_t value) {

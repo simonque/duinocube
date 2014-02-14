@@ -22,8 +22,17 @@
 
 #include <stdint.h>
 
+// Bit order enum defs.
+enum {
+  SPI_MSB_FIRST,
+  SPI_LSB_FIRST,
+};
+
 // Initializes the SPI system.
 void spi_init();
+
+// Set bit order of SPI system.
+void spi_set_bit_order(uint8_t order);
 
 // Send a byte |value| over SPI.  Also returns the value read from SPI bus in
 // the same operation.
