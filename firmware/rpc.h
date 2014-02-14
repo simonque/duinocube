@@ -17,6 +17,9 @@
 
 // DuinoCube remote procedure call functions.
 
+#ifndef __RPC_H__
+#define __RPC_H__
+
 #include <stdint.h>
 
 // Initializes RPC system.
@@ -24,3 +27,5 @@ void rpc_init();
 
 // Runs the RPC server loop forever.
 void rpc_server_loop();
+
+#endif  // __RPC_H__
