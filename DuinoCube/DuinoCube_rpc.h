@@ -34,33 +34,30 @@
 // chronocube repo, for the purposes of RAM bus arbitration.
 enum {
 
-  RPC_CMD_NONE = 0x00,          // The NOP RPC command value.
+  RPC_CMD_NONE = 0x00,              // The NOP RPC command value.
 
   // Test commands.
-  RPC_CMD_HELLO = 0x10,         // Test function that writes "hello world".
-  RPC_CMD_INVERT,               // Test function that inverts data.
-  RPC_CMD_READ_CORE_ID,         // Reads and returns the Core ID.
+  RPC_CMD_HELLO = 0x10,             // Test function that writes "hello world".
+  RPC_CMD_INVERT,                   // Test function that inverts data.
+  RPC_CMD_READ_CORE_ID,             // Reads and returns the Core ID.
 
   // File I/O commands.
-  RPC_CMD_FILE_INIT = 0x20,     // Initialize the file system.
-  RPC_CMD_FILE_INFO,            // Gets the state of the file system.
-  RPC_CMD_FILE_OPEN,            // Open a file handle.
-  RPC_CMD_FILE_CLOSE,           // Close a file handle.
-  RPC_CMD_FILE_READ,            // Read data from a file handle.
-  RPC_CMD_FILE_WRITE,           // Write data to a file handle.
-  RPC_CMD_FILE_SIZE,            // Get the file size in bytes.
-  RPC_CMD_FILE_SEEK,            // Move file handle pointer.
+  RPC_CMD_FILE_INFO = 0x20,         // Gets the state of the file system.
+  RPC_CMD_FILE_OPEN,                // Open a file handle.
+  RPC_CMD_FILE_CLOSE,               // Close a file handle.
+  RPC_CMD_FILE_READ,                // Read data from a file handle.
+  RPC_CMD_FILE_WRITE,               // Write data to a file handle.
+  RPC_CMD_FILE_SIZE,                // Get the file size in bytes.
+  RPC_CMD_FILE_SEEK,                // Move file handle pointer.
 
   // Shared memory allocation commands.
-  RPC_CMD_MEM_INIT = 0x30,      // Initialize shared memory heap.
-  RPC_CMD_MEM_STAT,             // Get stats about shared memory heap.
-  RPC_CMD_MEM_ALLOC,            // Allocate memory from heap.
-  RPC_CMD_MEM_FREE,             // Free memory allocated from heap.
+  RPC_CMD_MEM_STAT = 0x30,          // Get stats about shared memory heap.
+  RPC_CMD_MEM_ALLOC,                // Allocate memory from heap.
+  RPC_CMD_MEM_FREE,                 // Free memory allocated from heap.
 
   // USB and Joystick commands.
-  RPC_CMD_USB_INIT = 0x40,      // Initialize USB host.
-  RPC_CMD_USB_STATUS,           // Get USB device status.
-  RPC_CMD_USB_READ_JOYSTICK,    // Get USB joystick and button state.
+  RPC_CMD_USB_STATUS = 0x40,        // Get USB device status.
+  RPC_CMD_USB_READ_JOYSTICK,        // Get USB joystick and button state.
 
 };  // enum
 
