@@ -20,6 +20,7 @@
 #include "isp.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -30,26 +31,24 @@
 #include "utils.h"
 
 // Control pin definitions.
-#define ISP_DDR                   DDRB
-#define ISP_PORT                  PORTB
-#define ISP_RESET_BIT             PORTB2
+// TODO: These are based on temporary board reworks. Update them when a new
+// board is available.
+#define ISP_RESET_DDR                   DDRD
+#define ISP_RESET_PORT                  PORTD
+#define ISP_RESET_BIT                   PORTD6
 
-#define PROGRAM_MEMORY_PAGE_SIZE  0x80    // 128 bytes per page.
+#define ISP_SELECT_DDR                  DDRB
+#define ISP_SELECT_PORT                 PORTB
+#define ISP_SELECT_BIT                  PORTB2
+
+// Memory sizes for ATmega328P.
+#define PROGRAM_MEMORY_SIZE       0x8000  // 32 kB of total program memory.
+#define PROGRAM_MEMORY_PAGE_SIZE    0x80  // 128 bytes per page.
 
 // Status register bit definitions.
 #define STATUS_REG_WIP               0    // Write in progress.
 #define STATUS_REG_WEL               1    // Write enable latch.
 
-// Command codes.
-#define COMMAND_WRITE_ENABLE      0x06
-#define COMMAND_READ_STATUS       0x05
-#define COMMAND_READ_DATA         0x03
-#define COMMAND_PAGE_PROGRAM      0x02
-#define COMMAND_BLOCK_ERASE       0xd8
-#define COMMAND_CHIP_ERASE        0xc7
-#define COMMAND_JEDEC_ID          0x9f
-
-// Expected signature bytes of ATmega328P.
 #define EXPECTED_DEVICE_ID    0x1e950f
 
 // Erased memory has this value. This is used to determine parts of the data
@@ -70,24 +69,17 @@ static uint32_t get_checksum(const void* data, uint32_t size) {
     size -= sizeof(checksum);
   }
 
-  uint32_t remaining_data = *data32;
-  char* remaining_bytes = reinterpret_cast<char*>(&remaining_data);
-  for (uint8_t i = 0; i < remainder; ++i) {
-    remaining_bytes[sizeof(remaining_data) - 1 - i] = 0;
-  }
+  // Add on the remainder with zero padding as necessary.
+  uint32_t remaining_data = 0;
+  memcpy(&remaining_data, data32, remainder);
   checksum ^= remaining_data;
 
   return checksum;
 }
 
-// Programming enable.
-const uint8_t kProgEnableCommand[] = { 0xac, 0x53, 0x00, 0x00 };
+// Programming enable sequence.
+static const uint8_t kProgEnableCommand[] = { 0xac, 0x53, 0x00, 0x00 };
 static bool isp_enable() {
-  // The SPI clock period must be < f_target. In this case, f_target = 16 MHz.
-  // f_SPI = 16 MHz / 6 = 2.67 MHz. A frequency of 2.5 MHz or f_clk / 8 is
-  // sufficient.
-  SPCR |= (0 << SPR1) | (1 << SPR0);
-
   // SCK must be low at this point. This function assumes that the SPI interface
   // has been properly initialized.
   isp_reset();
@@ -102,12 +94,18 @@ static bool isp_enable() {
   }
   uint8_t echo_value = result[2];
 
-  printf("echo: 0x%x\n", echo_value);
+#if defined(DEBUG)
+  printf("Echo value: 0x%x\n", echo_value);
+#endif  // defiend(DEBUG)
   return (echo_value == 0x53);
 }
 
+static void isp_disable() {
+  isp_release();
+}
+
 // Read device signature.
-const uint8_t kReadDeviceIDCommand[] = { 0x30, 0x00 };
+static const uint8_t kReadDeviceIDCommand[] = { 0x30, 0x00 };
 static uint32_t read_device_id() {
   uint32_t id = 0;
   char* id_bytes = reinterpret_cast<char*>(&id);
@@ -121,7 +119,7 @@ static uint32_t read_device_id() {
 }
 
 // Initiate program memory / EEPROM erase.
-const uint8_t kChipEraseCommand[] = { 0xac, 0x80, 0x00, 0x00 };
+static const uint8_t kChipEraseCommand[] = { 0xac, 0x80, 0x00, 0x00 };
 static void chip_erase() {
   for (uint8_t i = 0; i < ARRAY_SIZE(kChipEraseCommand); ++i) {
     spi_tx(kChipEraseCommand[i]);
@@ -129,17 +127,20 @@ static void chip_erase() {
 }
 
 // Poll for ready status.
-const uint8_t kPollReadyCommand[] = { 0xf0, 0x00, 0x00 };
-static uint8_t poll_ready() {
+static const uint8_t kPollReadyCommand[] = { 0xf0, 0x00, 0x00 };
+static bool poll_ready() {
   for (uint8_t i = 0; i < ARRAY_SIZE(kPollReadyCommand); ++i) {
     spi_tx(kPollReadyCommand[i]);
   }
-  return spi_tx(0);
+  uint8_t result = spi_tx(0);
+
+  // If the LSB=1, a programming operation is still pending.
+  return !(result & 1);
 }
 
 // Read program memory.
-#define READ_PROGRAM_MEMORY_LO      0x28
-#define READ_PROGRAM_MEMORY_HI      0x20
+#define READ_PROGRAM_MEMORY_LO      0x20
+#define READ_PROGRAM_MEMORY_HI      0x28
 static uint8_t read_program_memory_byte(uint8_t command, uint16_t addr) {
   spi_tx(command);
   spi_tx((uint8_t)(addr >> 8));
@@ -160,7 +161,7 @@ static void read_program_memory(uint16_t addr, uint8_t* buffer, uint16_t size) {
 // Write a page of program memory.
 #define LOAD_PROGRAM_MEMORY_LO      0x40
 #define LOAD_PROGRAM_MEMORY_HI      0x48
-#define WRITE_PROGRAM_MEMORY_PAGE   0x48
+#define WRITE_PROGRAM_MEMORY_PAGE   0x4c
 static void load_program_memory_byte(uint8_t command, uint8_t offset,
                                      uint8_t value) {
   spi_tx(command);
@@ -190,41 +191,66 @@ static void write_program_memory_page(uint16_t addr,
   spi_tx(0);
 }
 
+// Enable and disable SPI bus access.
+static void isp_select() {
+  // The SPI clock period must be < f_target. In this case, f_target = 16 MHz.
+  // f_SPI = 16 MHz / 6 = 2.67 MHz. A frequency of 2.5 MHz or f_clk / 8 is
+  // sufficient.
+  SPCR |= (1 << SPR0);    // SPR0 = 1
+  SPCR &= ~(1 << SPR1);   // SPR1 = 0
+
+  ISP_SELECT_PORT &= ~(1 << ISP_SELECT_BIT);
+}
+static void isp_deselect() {
+  ISP_SELECT_PORT |= (1 << ISP_SELECT_BIT);
+  SPCR &= ~((1 << SPR1) | (1 << SPR0));  // SPR0 = 0, SPR1 = 0
+}
+
 void isp_init() {
   // Deselect the ISP interface before setting the pin as an output.
   isp_release();
-  ISP_DDR |= (1 << ISP_RESET_BIT);
+  ISP_RESET_DDR |= (1 << ISP_RESET_BIT);
+
+  isp_deselect();
+  ISP_SELECT_DDR |= (1 << ISP_SELECT_BIT);
 }
 
 void isp_reset() {
-  ISP_PORT &= ~(1 << ISP_RESET_BIT);
+  ISP_RESET_PORT &= ~(1 << ISP_RESET_BIT);
 }
 
 void isp_release() {
-  ISP_PORT |= (1 << ISP_RESET_BIT);
+  ISP_RESET_PORT |= (1 << ISP_RESET_BIT);
 }
 
 uint16_t isp_program(uint16_t handle) {
-  isp_enable();
-
   // Determine file size.
   uint32_t data_size = file_size(handle);
+#if defined(DEBUG)
+  printf_P(PSTR("File size: 0x%lx\n"), data_size);
+#endif  // defined(DEBUG)
+
+  // Enable ISP programming.
+  isp_select();
+  isp_enable();
 
   // Check device ID.
   uint32_t id = read_device_id();
   if (id != EXPECTED_DEVICE_ID) {
 #if defined(DEBUG)
-    printf("ID: 0x%08lx, expected: 0x%08lx\n", id, EXPECTED_DEVICE_ID);
+    fprintf_P(stderr,
+              PSTR("ID: 0x%08lx, expected: 0x%08lx\n"), id, EXPECTED_DEVICE_ID);
 #endif  // defined(DEBUG)
-    isp_release();
+    isp_disable();
+    isp_deselect();
     return ISP_ID_MISMATCH;
   }
 
+  // Start chip erase.
+  chip_erase();
 #if defined(DEBUG)
   printf_P(PSTR("Chip erase started.\n"));
 #endif  // defined (DEBUG)
-  // Start chip erase.
-  chip_erase();
 
   // Wait for RDY = 0.
   // TODO: add timeout.
@@ -235,14 +261,19 @@ uint16_t isp_program(uint16_t handle) {
 #endif  // defined (DEBUG)
 
   // Write the new data to flash.
-  const uint16_t page_size = PROGRAM_MEMORY_PAGE_SIZE;
-  uint8_t file_buf[page_size];
-  for (uint32_t offset = 0; offset < data_size; offset += page_size) {
+  uint8_t file_buf[PROGRAM_MEMORY_PAGE_SIZE];
+  for (uint32_t offset = 0;
+       offset < data_size && offset < PROGRAM_MEMORY_SIZE;
+       offset += PROGRAM_MEMORY_PAGE_SIZE) {
     // Read the file.
-    uint16_t size_read = file_read(handle, file_buf, page_size);
-    if (size_read < page_size && size_read != offset - data_size) {
+    isp_deselect();
+    uint16_t size_read = file_read(handle, file_buf, PROGRAM_MEMORY_PAGE_SIZE);
+    if (size_read < PROGRAM_MEMORY_PAGE_SIZE &&
+        size_read != data_size - offset) {
+      isp_disable();
       return ISP_FILE_READ_ERROR;
     }
+    isp_select();
 
     bool page_empty = true;
     for (uint16_t page_offset = 0; page_offset < size_read; ++page_offset) {
@@ -262,7 +293,7 @@ uint16_t isp_program(uint16_t handle) {
     // Obtain a 32-bit checksum.
     uint32_t checksum = get_checksum(file_buf, size_read);
 
-    // Program a |page_size| page of the flash.
+    // Program a page of the program memory.
 #if defined(DEBUG)
     printf_P(PSTR("Programming data at 0x%08lx\n"), offset);
 #endif  // defined(DEBUG)
@@ -274,14 +305,23 @@ uint16_t isp_program(uint16_t handle) {
 
     // Read back and check the checksum.
     read_program_memory(offset / 2, file_buf, size_read);
+
     uint32_t new_checksum = get_checksum(file_buf, size_read);
 
     if (checksum != new_checksum) {
+#if defined(DEBUG)
+    fprintf_P(stderr,
+              PSTR("Checksum failed: 0x%08lx, expected: 0x%08lx\n"),
+              new_checksum, checksum);
+#endif  // defined(DEBUG)
+      isp_disable();
+      isp_deselect();
       return ISP_WRITE_VERIFY_ERROR;
     }
   }
 
-  isp_release();
+  isp_disable();
+  isp_deselect();
 
   return ISP_PROGRAM_SUCCESS;
 }
