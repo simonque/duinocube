@@ -71,7 +71,7 @@ void text_init(uint8_t layer, uint8_t palette) {
 
   // TODO: Reset the Core.
 
-  uint8_t buf[256];
+  uint8_t buf[FONT_CHAR_SIZE];
 
   // Load font.
   core_write_word(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
