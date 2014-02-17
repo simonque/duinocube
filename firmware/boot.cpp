@@ -26,6 +26,7 @@
 #include <avr/pgmspace.h>
 
 #include "DuinoCube_gamepad.h"
+#include "FatFS/ff.h"
 #include "file.h"
 #include "isp.h"
 #include "text.h"
@@ -41,10 +42,16 @@
 // Locations of various UI items in character coordinates.
 #define MAIN_MENU_X                         4
 #define MAIN_MENU_Y                         4
+#define FILE_LIST_X                        24
+#define FILE_LIST_Y                         4
 
 // Gamepad button masks.
 #define SELECT_BUTTON_MASK    (1 << GAMEPAD_BUTTON_1)
 #define CANCEL_BUTTON_MASK    (1 << GAMEPAD_BUTTON_2)
+
+// File access definitions.
+#define MAX_FILENAME_SIZE      13     // 8.3 format + null terminator.
+#define MAX_FILES_LISTED       16     // Only list up to this many files.
 
 // Menu options.
 enum {
@@ -97,8 +104,57 @@ static void move_cursor(uint16_t current_option, uint16_t new_option) {
   text_render(">", MAIN_MENU_X - 2, MAIN_MENU_Y + new_option);
 }
 
-static void run_file_operation(uint16_t menu_index) {
-  // TODO: select a file.
+static uint16_t run_file_operation(uint16_t menu_index) {
+  // Browse the root directory.
+  // TODO: allow traversal of the file system
+  FRESULT result;
+  FILINFO file_info;
+  DIR dir;
+
+  result = f_opendir(&dir, "/");
+  if (result != FR_OK) {
+#if defined(DEBUG)
+    fprintf_P(stderr, "f_opendir() returned %d\n", result);
+#endif  // defined(DEBUG)
+    return result;
+  }
+
+  // Store all filenames in one char array.
+  char filenames[MAX_FILENAME_SIZE * MAX_FILES_LISTED];
+  memset(filenames, 0, sizeof(filenames));
+  // Iterate through the directory's files.
+  uint16_t filename_offset = 0;
+  for (result = f_readdir(&dir, &file_info);
+       result == FR_OK && strlen(file_info.fname) > 0 &&
+          filename_offset < sizeof(filenames);
+       result = f_readdir(&dir, &file_info)) {
+    // Skip directories.
+    if (file_info.fattrib & AM_DIR) {
+      continue;
+    }
+    // Store the filename.
+    strncpy(filenames + filename_offset, file_info.fname, MAX_FILENAME_SIZE);
+    filename_offset += MAX_FILENAME_SIZE;
+  }
+  // TODO: Upgrade to latest FatFS release so f_closedir is supported.
+  //f_closedir(&dir);
+
+  if (result != FR_OK) {
+#if defined(DEBUG)
+    fprintf_P(stderr, "f_readdir() returned %d\n", result);
+#endif  // defined(DEBUG)
+    return result;
+  }
+
+  // Print the directory listing.
+  char* filename_ptr = filenames;
+  for (uint8_t file_index = 0;
+       file_index < MAX_FILES_LISTED && strlen(filename_ptr) > 0;
+       ++file_index, filename_ptr += MAX_FILENAME_SIZE) {
+    text_render(filename_ptr, FILE_LIST_X, FILE_LIST_Y + file_index);
+  }
+
+  return result;
 }
 
 bool boot_mode_enabled() {
@@ -176,7 +232,8 @@ void boot_run() {
       case MENU_LOAD_PROGRAM:
       case MENU_BURN_BOOTLOADER:
       case MENU_UPDATE_FPGA:
-        run_file_operation(current_option);
+        uint8_t result = run_file_operation(current_option);
+        // TODO: If the result was an error, display an error message.
         break;
       }
     }
