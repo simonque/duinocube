@@ -25,6 +25,7 @@
 #include "boot.h"
 #include "defines.h"
 #include "file.h"
+#include "isp.h"
 #include "printf.h"
 #include "rpc.h"
 #include "shmem.h"
@@ -51,6 +52,7 @@ int main() {
   shmem_init();
   file_init();
   usb_init();
+  isp_init();
 
 #if DEBUG
   printf_P(main_str0);

@@ -45,6 +45,8 @@
 #define FILE_LIST_Y                         4
 #define CONFIRM_X                          12
 #define CONFIRM_Y          (FILE_LIST_Y + MAX_FILES_LISTED + 2)
+#define STATUS_X                            4
+#define STATUS_Y              (CONFIRM_Y + 4)
 
 // Gamepad button masks.
 #define SELECT_BUTTON_MASK    (1 << GAMEPAD_BUTTON_1)
@@ -75,6 +77,10 @@ const char kMenuStrings[] PROGMEM = {
 
 // Various message strings.
 const char kProgramConfirmText[] PROGMEM = "Program with this file?";
+const char kFileOpenErrorText[] PROGMEM = "Could not open file.";
+const char kNotSupportedText[] PROGMEM = "Operation not supported.";
+const char kProgrammingText[] PROGMEM = "Starting programming operation.";
+const char kDoneText[] PROGMEM = "Done!";
 
 // Given a sequence of contiguous null-terminated strings, indicated by
 // |string|, returns the Nth string where N = |menu_index|.
@@ -173,6 +179,38 @@ static uint16_t get_filenames(const char* path, char* filenames,
   return result;
 }
 
+// Programs a file for the given menu selection.
+void program_file(uint16_t menu_index, const char* filename) {
+  switch (menu_index) {
+  case MENU_LOAD_PROGRAM:
+  {
+    uint16_t handle = file_open(filename, FA_READ);
+    if (!handle) {
+      text_render_P(kFileOpenErrorText, STATUS_X, STATUS_Y);
+      break;
+    }
+    text_render_P(kProgrammingText, STATUS_X, STATUS_Y);
+    // TODO: Check for programming errors.
+    // TODO: Have a progress bar.
+    uint16_t result = isp_program(handle);
+#if defined(DEBUG)
+    printf_P(PSTR("isp_program() returned %d\n"), result);
+#endif  // defined(DEBUG)
+    text_render_P(kDoneText, STATUS_X, STATUS_Y);
+    file_close(handle);
+    break;
+  }
+  case MENU_RUN_PROGRAM:
+    // Not a programming operation.
+    break;
+  case MENU_BURN_BOOTLOADER:
+  case MENU_UPDATE_FPGA:
+  default:
+    text_render_P(kNotSupportedText, STATUS_X, STATUS_Y);
+    break;
+  }
+}
+
 // Get the user to select a file from the file system.
 // |menu_index| indicates the menu option that was chosen before.
 static uint16_t run_file_operation(uint16_t menu_index) {
@@ -233,7 +271,9 @@ static uint16_t run_file_operation(uint16_t menu_index) {
       // TODO: Use an explicit YES/NO menu.
       if (input.buttons & SELECT_BUTTON_MASK) {
         // Program!
-        // TODO: Actual programming.
+        const char* current_filename =
+            filenames + file_index * MAX_FILENAME_SIZE;
+        program_file(menu_index, current_filename);
         done = true;
       }
       // Clear the confirmation text.
