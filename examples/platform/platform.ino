@@ -142,14 +142,14 @@ void readPlayerInput(uint16_t* dir_pad, uint16_t* buttons) {
   *dir_pad = 0;
 
   // TODO: Add this logic to DuinoCube library.
-  if (gamepad.x == 0)
+  if (gamepad.x < 0)
     *dir_pad |= (1 << SPRITE_LEFT);
-  else if (gamepad.x == UINT8_MAX)
+  else if (gamepad.x > 0)
     *dir_pad |= (1 << SPRITE_RIGHT);
 
-  if (gamepad.y == 0)
+  if (gamepad.y < 0)
     *dir_pad |= (1 << SPRITE_UP);
-  else if (gamepad.y == UINT8_MAX)
+  else if (gamepad.y > 0)
     *dir_pad |= (1 << SPRITE_DOWN);
 
   *buttons = gamepad.buttons;

@@ -32,23 +32,6 @@
 
 #define ESPLORA_JOYSTICK_MAX     512
 #define ESPLORA_JOYSTICK_MIN     (-512)
-
-// Normalizes Esplora joystick value to the range [0, UINT8_MAX].
-static int GetAdjustedEsploraJoystickValue(int raw_value) {
-  // Neutral position.
-  if (raw_value <= ESPLORA_JOYSTICK_MAX / 2 &&
-      raw_value >= ESPLORA_JOYSTICK_MIN / 2)
-    return UINT8_MAX / 2;
-
-  // Moved in one direction.
-  else if (raw_value > ESPLORA_JOYSTICK_MAX / 2)
-    return UINT8_MAX;
-
-  // Moved in the other direction (ESPLORA_JOYSTICK_MIN / 2 < 0).
-  else
-    return 0;
-}
-
 GamepadState DuinoCubeGamepad::readGamepad() {
   GamepadState state;
 #if defined(__AVR_ATmega328P__)
@@ -67,8 +50,8 @@ GamepadState DuinoCubeGamepad::readGamepad() {
 
   // For some reason, the Esplora joystick is negative on the right and positive
   // on the left. It needs to be inverted.
-  state.x = GetAdjustedEsploraJoystickValue(-Esplora.readJoystickX());
-  state.y = GetAdjustedEsploraJoystickValue(Esplora.readJoystickY());
+  state.x = -Esplora.readJoystickX();
+  state.y = Esplora.readJoystickY();
   return state;
 
 #elif defined(__AVR_ATmega1280__) || (__AVR_ATmega2560__)

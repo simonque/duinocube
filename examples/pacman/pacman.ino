@@ -174,15 +174,15 @@ static void updatePlayer() {
   bool changed_dir = false;
 
   // Handle directional pad input.
-  if ((gamepad.x != UINT8_MAX / 2) || (gamepad.y != UINT8_MAX / 2)) {
+  if ((gamepad.x != 0) || (gamepad.y != 0)) {
     uint8_t new_dir;
-    if (gamepad.x == 0) {                   // User is pressing left.
+    if (gamepad.x < 0) {           // User is pressing left.
       new_dir = SPRITE_LEFT;
-    } else if (gamepad.x == UINT8_MAX) {    // User is pressing right.
+    } else if (gamepad.x > 0) {    // User is pressing right.
       new_dir = SPRITE_RIGHT;
-    } else if (gamepad.y == 0) {            // User is pressing up.
+    } else if (gamepad.y < 0) {    // User is pressing up.
       new_dir = SPRITE_UP;
-    } else if (gamepad.y == UINT8_MAX) {    // User is pressing down.
+    } else if (gamepad.y > 0) {    // User is pressing down.
       new_dir = SPRITE_DOWN;
     }
 

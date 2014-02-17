@@ -241,8 +241,8 @@ void loop() {
 
   GamepadState prev_gamepad;
   prev_gamepad.buttons = 0;
-  prev_gamepad.x = UINT8_MAX / 2;
-  prev_gamepad.y = UINT8_MAX / 2;
+  prev_gamepad.x = 0;
+  prev_gamepad.y = 0;
 
   uint16_t old_flip_flags = 0;
 
@@ -319,7 +319,7 @@ void loop() {
     }
 
     // Directional pad moves sprite.
-    if (gamepad.x == 0) {
+    if (gamepad.x < 0) {
       // Use acceleration.
       if (prev_gamepad.x != gamepad.x)
         dx = -1;
@@ -327,7 +327,7 @@ void loop() {
         --dx;
       player_sprite.x += dx;
     }
-    else if (gamepad.x == UINT8_MAX) {
+    else if (gamepad.x > 0) {
       // Use acceleration.
       if (prev_gamepad.x != gamepad.x)
         dx = 1;
@@ -336,7 +336,7 @@ void loop() {
       player_sprite.x += dx;
     }
 
-    if (gamepad.y == 0) {
+    if (gamepad.y < 0) {
       // Use acceleration.
       if (prev_gamepad.y != gamepad.y)
         dy = -1;
@@ -344,7 +344,7 @@ void loop() {
         --dy;
       player_sprite.y += dy;
     }
-    else if (gamepad.y == UINT8_MAX) {
+    else if (gamepad.y > 0) {
       // Use acceleration.
       if (prev_gamepad.y != gamepad.y)
         dy = 1;

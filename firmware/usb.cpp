@@ -31,6 +31,10 @@
 
 #define UINT8_MAX     ((uint8_t)(~0))
 
+// Adjust the raw axis values by these offsets.
+#define X_AXIS_OFFSET (-UINT8_MAX / 2)
+#define Y_AXIS_OFFSET (-UINT8_MAX / 2)
+
 static USBJoystick joystick;    // For USB joystick.
 
 USB_JoystickState joystick_state;   // Last known joystick state.
@@ -51,14 +55,14 @@ static void joystick_update_stick(uint8_t axis, uint8_t value) {
     printf_P(joystick_update_stick_str0);
     printf_P(joystick_update_stick_str1, value);
 #endif
-    joystick_state.x = value;
+    joystick_state.x = value + X_AXIS_OFFSET;
     break;
   case JOYSTICK_AXIS_Y:
 #ifdef DEBUG
     printf_P(joystick_update_stick_str0);
     printf_P(joystick_update_stick_str2, value);
 #endif
-    joystick_state.y = value;
+    joystick_state.y = value + Y_AXIS_OFFSET;
     break;
   default:
 #ifdef DEBUG
