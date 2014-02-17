@@ -97,6 +97,22 @@ static bool has_user_input(const USB_JoystickState& input) {
   return !(input.buttons == 0 && input.x == 0 && input.y == 0);
 }
 
+// Waits for there to be no input on the gamepad, and then wait for input on the
+// gamepad. Kind of like a getch() for the gamepad.
+static void read_usb_gamepad(USB_JoystickState* input) {
+  // First wait for user input to clear, so that nothing is being pressed on the
+  // gamepad.
+  do {
+    usb_update();
+    usb_read_joystick(input);
+  } while (has_user_input(*input));
+  // Then wait for something to be pressed.
+  do {
+    usb_update();
+    usb_read_joystick(input);
+  } while (!has_user_input(*input));
+}
+
 // Update cursor location.
 static void move_cursor(uint16_t current_option, uint16_t new_option) {
   // Erase the previous cursor and draw the new one.
@@ -196,10 +212,8 @@ void boot_run() {
   // Main loop variables.
   bool boot_done = false;
   uint8_t current_option = 0;   // Currently selected menu option index.
-  USB_JoystickState input;      // For reading user input.
   bool cursor_moved = false;    // Set this if cursor should be updated.
   uint8_t new_option;           // Newly selected menu index.
-  bool had_user_input = false;  // User just made a move.
 
   // Show the cursor.
   move_cursor(0, current_option);
@@ -211,14 +225,8 @@ void boot_run() {
       show_main_menu_option(i);
     }
 
-    // Wait for user input. Alternatively, wait for user to release the gamepad
-    // if there was an earlier input.
-    do {
-      usb_update();
-      usb_read_joystick(&input);
-    } while (has_user_input(input) == had_user_input);
-
-    had_user_input = !had_user_input;
+    USB_JoystickState input;
+    read_usb_gamepad(&input);
 
     // Move cursor up/down.
     if (input.y < 0) {
