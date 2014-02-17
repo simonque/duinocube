@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 
 #include "defines.h"
 #include "spi.h"
@@ -181,11 +182,11 @@ void MAX3421E::powerOn()
     /* Configure full-duplex SPI, interrupt pulse   */
     regWr( rPINCTL,( bmFDUPSPI + bmINTLEVEL + bmGPXB ));    //Full-duplex SPI, level interrupt, GPX
     if( reset() == false ) {                                //stop/start the oscillator
-        printf("Error: OSCOKIRQ failed to assert.\n");
+        fprintf_P(stderr, PSTR("Error: OSCOKIRQ failed to assert.\n"));
         return;
     }
 #ifdef DEBUG
-    printf("MAX3421E revision 0x%02x\n", regRd( rREVISION ));
+    printf_P(PSTR("MAX3421E revision 0x%02x\n"), regRd( rREVISION ));
 #endif
 
     /* configure host operation */
@@ -195,7 +196,7 @@ void MAX3421E::powerOn()
     regWr( rHCTL,bmSAMPLEBUS );                                             // sample USB bus
     while(!(regRd( rHCTL ) & bmSAMPLEBUS ));                                //wait for sample operation to finish
 #ifdef DEBUG
-    printf("Done sampling bus.\n");
+    printf_P(PSTR("Done sampling bus.\n"));
 #endif
 
     busprobe();                                                             //check if anything is connected

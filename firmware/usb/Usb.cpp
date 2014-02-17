@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include <avr/pgmspace.h>
+
 #include "Usb.h"
 
 static byte usb_error = 0;
@@ -78,7 +80,7 @@ byte USB::ctrlReq( byte addr, byte ep, byte bmReqType, byte bRequest, byte wValL
     rcode = dispatchPkt( tokSETUP, ep, nak_limit );            //dispatch packet
     //Serial.println("Setup packet");   //DEBUG
     if( rcode ) {                                   //return HRSLT if not zero
-        printf("Setup packet error: 0x%02x\n", rcode);
+        fprintf_P(stderr, PSTR("Setup packet error: 0x%02x\n"), rcode);
         return( rcode );
     }
     //Serial.println( direction, HEX ); 
@@ -86,7 +88,7 @@ byte USB::ctrlReq( byte addr, byte ep, byte bmReqType, byte bRequest, byte wValL
         rcode = ctrlData( addr, ep, nbytes, dataptr, direction );
     }
     if( rcode ) {   //return error
-        printf("Data packet error: 0x%02x\n", rcode);
+        fprintf_P(stderr, PSTR("Data packet error: 0x%02x\n"), rcode);
         return( rcode );
     }
     rcode = ctrlStatus( ep, direction );                //status stage
