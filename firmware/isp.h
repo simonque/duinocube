@@ -35,6 +35,10 @@
 // Initializes ISP interface.
 void isp_init();
 
+// Assert / de-assert ISP reset pin.
+void isp_reset();
+void isp_release();
+
 // Programs the MCU with program hex code from a file handle.
 uint16_t isp_program(uint16_t handle);
 

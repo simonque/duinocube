@@ -80,14 +80,6 @@ static uint32_t get_checksum(const void* data, uint32_t size) {
   return checksum;
 }
 
-// Assert / de-assert ISP reset pin.
-static void isp_reset() {
-  ISP_PORT &= ~(1 << ISP_RESET_BIT);
-}
-static void isp_release() {
-  ISP_PORT |= (1 << ISP_RESET_BIT);
-}
-
 // Programming enable.
 const uint8_t kProgEnableCommand[] = { 0xac, 0x53, 0x00, 0x00 };
 static bool isp_enable() {
@@ -202,6 +194,14 @@ void isp_init() {
   // Deselect the ISP interface before setting the pin as an output.
   isp_release();
   ISP_DDR |= (1 << ISP_RESET_BIT);
+}
+
+void isp_reset() {
+  ISP_PORT &= ~(1 << ISP_RESET_BIT);
+}
+
+void isp_release() {
+  ISP_PORT |= (1 << ISP_RESET_BIT);
 }
 
 uint16_t isp_program(uint16_t handle) {
