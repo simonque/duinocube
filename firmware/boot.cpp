@@ -140,7 +140,7 @@ static uint16_t get_filenames(const char* path, char* filenames,
   result = f_opendir(&dir, path);
   if (result != FR_OK) {
 #if defined(DEBUG)
-    fprintf_P(stderr, "f_opendir() returned %d\n", result);
+    fprintf_P(stderr, PSTR("f_opendir() returned %d\n"), result);
 #endif  // defined(DEBUG)
     return result;
   }
@@ -166,7 +166,7 @@ static uint16_t get_filenames(const char* path, char* filenames,
 
   if (result != FR_OK) {
 #if defined(DEBUG)
-    fprintf_P(stderr, "f_readdir() returned %d\n", result);
+    fprintf_P(stderr, PSTR("f_readdir() returned %d\n"), result);
 #endif  // defined(DEBUG)
     return result;
   }
