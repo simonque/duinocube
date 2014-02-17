@@ -25,9 +25,11 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
+#include "DuinoCube_gamepad.h"
 #include "file.h"
 #include "isp.h"
 #include "text.h"
+#include "usb.h"
 #include "utils.h"
 
 // Control pin definition.
@@ -40,11 +42,15 @@
 #define MAIN_MENU_X                         4
 #define MAIN_MENU_Y                         4
 
+// Gamepad button masks.
+#define SELECT_BUTTON_MASK    (1 << GAMEPAD_BUTTON_1)
+#define CANCEL_BUTTON_MASK    (1 << GAMEPAD_BUTTON_2)
+
 // Menu options.
 enum {
   MENU_RUN_PROGRAM,
   MENU_LOAD_PROGRAM,
-  MENU_LOAD_BOOTLOADER,
+  MENU_BURN_BOOTLOADER,
   MENU_UPDATE_FPGA,
   NUM_MENU_OPTIONS,
 };
@@ -79,9 +85,35 @@ static void show_main_menu_option(uint16_t menu_index) {
   text_render(text, MAIN_MENU_X, MAIN_MENU_Y + menu_index);
 }
 
+// Returns true if the user provided some gamepad input.
+static bool has_user_input(const USB_JoystickState& input) {
+  return !(input.buttons == 0 && input.x == 0 && input.y == 0);
+}
+
+// Update cursor location.
+static void move_cursor(uint16_t current_option, uint16_t new_option) {
+  // Erase the previous cursor and draw the new one.
+  text_render(" ", MAIN_MENU_X - 2, MAIN_MENU_Y + current_option);
+  text_render(">", MAIN_MENU_X - 2, MAIN_MENU_Y + new_option);
+}
+
+static void run_file_operation(uint16_t menu_index) {
+  // TODO: select a file.
+}
+
 bool boot_mode_enabled() {
   return (BOOT_MODE_PIN & (1 << BOOT_MODE_BIT));
 }
+
+/*
+ * Menu goes something like this:
+ *
+ * Run program -> exit boot menu and let Arduino run.
+ * Load program -> select file -> ask for y/n -> program -> back to menu
+ * Burn bootloader -> select file -> ask for y/n -> program -> back to menu
+ * Update FPGA -> select file -> ask for y/n -> program -> back to menu
+ *
+ */
 
 void boot_run() {
   // Hold Arduino in reset.
@@ -90,15 +122,67 @@ void boot_run() {
   // Initialize text display system.
   text_init(0, 0);
 
-  // Main loop.
+  // Main loop variables.
   bool boot_done = false;
+  uint8_t current_option = 0;   // Currently selected menu option index.
+  USB_JoystickState input;      // For reading user input.
+  bool cursor_moved = false;    // Set this if cursor should be updated.
+  uint8_t new_option;           // Newly selected menu index.
+  bool had_user_input = false;  // User just made a move.
+
+  // Show the cursor.
+  move_cursor(0, current_option);
+
+  // Main loop.
   while (!boot_done) {
     // Display main menu.
     for (uint8_t i = 0; i < NUM_MENU_OPTIONS; ++i) {
       show_main_menu_option(i);
     }
 
-    // TODO: Create an actual menu system.
+    // Wait for user input. Alternatively, wait for user to release the gamepad
+    // if there was an earlier input.
+    do {
+      usb_update();
+      usb_read_joystick(&input);
+      if (has_user_input(input)) {
+        printf("Joystick: %d, %d, %04x\n", input.x, input.y, input.buttons);
+      }
+    } while (has_user_input(input) == had_user_input);
+
+    had_user_input = !had_user_input;
+
+    // Move cursor up/down.
+    if (input.y < 0) {
+      new_option = current_option ? (current_option - 1) : NUM_MENU_OPTIONS - 1;
+      cursor_moved = true;
+    } else if (input.y > 0) {
+      new_option =
+          (current_option == NUM_MENU_OPTIONS - 1) ? 0 : current_option + 1;
+      cursor_moved = true;
+    }
+
+    if (cursor_moved) {
+      // If the cursor was updated, just update the cursor on the screen.
+      move_cursor(current_option, new_option);
+      current_option = new_option;
+      cursor_moved = false;
+      continue;
+    }
+
+    // Selected the current menu option.
+    if (input.buttons & SELECT_BUTTON_MASK) {
+      switch (current_option) {
+      case MENU_RUN_PROGRAM:
+        boot_done = true;
+        break;
+      case MENU_LOAD_PROGRAM:
+      case MENU_BURN_BOOTLOADER:
+      case MENU_UPDATE_FPGA:
+        run_file_operation(current_option);
+        break;
+      }
+    }
   }
 
   // Release Arduino from reset.
