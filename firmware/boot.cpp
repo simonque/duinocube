@@ -44,6 +44,8 @@
 #define MAIN_MENU_Y                         4
 #define FILE_LIST_X                        24
 #define FILE_LIST_Y                         4
+#define CONFIRM_X                          12
+#define CONFIRM_Y          (FILE_LIST_Y + MAX_FILES_LISTED + 2)
 
 // Gamepad button masks.
 #define SELECT_BUTTON_MASK    (1 << GAMEPAD_BUTTON_1)
@@ -71,6 +73,9 @@ const char kMenuStrings[] PROGMEM = {
   "Load bootloader\0"
   "Update FPGA\0"
 };
+
+// Various message strings.
+const char kProgramConfirmText[] PROGMEM = "Program with this file?";
 
 // Given a sequence of contiguous null-terminated strings, indicated by
 // |string|, returns the Nth string where N = |menu_index|.
@@ -114,10 +119,11 @@ static void read_usb_gamepad(USB_JoystickState* input) {
 }
 
 // Update cursor location.
-static void move_cursor(uint16_t current_option, uint16_t new_option) {
+static void move_cursor(uint16_t current_option, uint16_t new_option,
+                        uint8_t menu_x, uint8_t menu_y) {
   // Erase the previous cursor and draw the new one.
-  text_render(" ", MAIN_MENU_X - 2, MAIN_MENU_Y + current_option);
-  text_render(">", MAIN_MENU_X - 2, MAIN_MENU_Y + new_option);
+  text_render(" ", menu_x - 2, menu_y + current_option);
+  text_render(">", menu_x - 2, menu_y + new_option);
 }
 
 // Returns a list of filenames in |path|. The filename strings are stored in
@@ -179,11 +185,69 @@ static uint16_t run_file_operation(uint16_t menu_index) {
 
   // Print the directory listing.
   char* filename_ptr = filenames;
-  for (uint8_t file_index = 0;
-       file_index < MAX_FILES_LISTED && strlen(filename_ptr) > 0;
-       ++file_index, filename_ptr += MAX_FILENAME_SIZE) {
-    text_render(filename_ptr, FILE_LIST_X, FILE_LIST_Y + file_index);
+  uint8_t num_files = 0;
+  while (num_files < MAX_FILES_LISTED && strlen(filename_ptr) > 0) {
+    text_render(filename_ptr, FILE_LIST_X, FILE_LIST_Y + num_files);
+    ++num_files;
+    filename_ptr += MAX_FILENAME_SIZE;
   }
+
+  // Allow the user to select a file.
+  // TODO: combine with the menu selection in boot_run();
+  bool done = false;
+  uint8_t file_index = 0;
+  uint8_t new_file_index = 0;
+  bool cursor_moved = false;
+  bool file_selected = false;
+  USB_JoystickState input;
+
+  move_cursor(file_index, new_file_index, FILE_LIST_X, FILE_LIST_Y);
+  while (!done) {
+    read_usb_gamepad(&input);
+
+    // Move cursor up/down.
+    if (input.y < 0) {
+      new_file_index = file_index ? (file_index - 1) : num_files - 1;
+      cursor_moved = true;
+    } else if (input.y > 0) {
+      new_file_index = (file_index == num_files - 1) ? 0 : file_index + 1;
+      cursor_moved = true;
+    }
+    if (cursor_moved) {
+      // If the cursor was updated, just update the cursor on the screen.
+      move_cursor(file_index, new_file_index, FILE_LIST_X, FILE_LIST_Y);
+      file_index = new_file_index;
+      cursor_moved = false;
+      continue;
+    }
+
+    if (input.buttons & SELECT_BUTTON_MASK) {
+      file_selected = true;
+    } else if (input.buttons & CANCEL_BUTTON_MASK) {
+      done = true;
+    }
+
+    if (file_selected) {
+      text_render_P(kProgramConfirmText, CONFIRM_X, CONFIRM_Y);
+
+      read_usb_gamepad(&input);
+      // TODO: Use an explicit YES/NO menu.
+      if (input.buttons & SELECT_BUTTON_MASK) {
+        // Program!
+        // TODO: Actual programming.
+        done = true;
+      }
+      // Clear the confirmation text.
+      text_clear(strlen_P(kProgramConfirmText), CONFIRM_X, CONFIRM_Y);
+    }
+  }
+
+  // Clear the menu and cursor when done.
+  for (uint8_t i = 0; i < num_files; ++i) {
+    text_clear(MAX_FILENAME_SIZE, FILE_LIST_X, FILE_LIST_Y + i);
+  }
+  // TODO: Replace the "2" with a #define.
+  text_clear(1, FILE_LIST_X - 2, FILE_LIST_Y + file_index);
 
   return result;
 }
@@ -216,7 +280,7 @@ void boot_run() {
   uint8_t new_option;           // Newly selected menu index.
 
   // Show the cursor.
-  move_cursor(0, current_option);
+  move_cursor(0, current_option, MAIN_MENU_X, MAIN_MENU_Y);
 
   // Main loop.
   while (!boot_done) {
@@ -240,7 +304,7 @@ void boot_run() {
 
     if (cursor_moved) {
       // If the cursor was updated, just update the cursor on the screen.
-      move_cursor(current_option, new_option);
+      move_cursor(current_option, new_option, MAIN_MENU_X, MAIN_MENU_Y);
       current_option = new_option;
       cursor_moved = false;
       continue;
