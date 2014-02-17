@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Simon Que
+// Copyright (C) 2014 Simon Que
 //
 // This file is part of DuinoCube.
 //
