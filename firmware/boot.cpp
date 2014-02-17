@@ -104,14 +104,18 @@ static void move_cursor(uint16_t current_option, uint16_t new_option) {
   text_render(">", MAIN_MENU_X - 2, MAIN_MENU_Y + new_option);
 }
 
-static uint16_t run_file_operation(uint16_t menu_index) {
+// Returns a list of filenames in |path|. The filename strings are stored in
+// |filenames|, spaced at intervals of |MAX_FILENAME_SIZE|. |buf_size| is the
+// allocated size of |filenames|.
+static uint16_t get_filenames(const char* path, char* filenames,
+                              uint16_t buf_size) {
   // Browse the root directory.
   // TODO: allow traversal of the file system
   FRESULT result;
   FILINFO file_info;
   DIR dir;
 
-  result = f_opendir(&dir, "/");
+  result = f_opendir(&dir, path);
   if (result != FR_OK) {
 #if defined(DEBUG)
     fprintf_P(stderr, "f_opendir() returned %d\n", result);
@@ -120,13 +124,12 @@ static uint16_t run_file_operation(uint16_t menu_index) {
   }
 
   // Store all filenames in one char array.
-  char filenames[MAX_FILENAME_SIZE * MAX_FILES_LISTED];
-  memset(filenames, 0, sizeof(filenames));
+  memset(filenames, 0, buf_size);
   // Iterate through the directory's files.
   uint16_t filename_offset = 0;
   for (result = f_readdir(&dir, &file_info);
        result == FR_OK && strlen(file_info.fname) > 0 &&
-          filename_offset < sizeof(filenames);
+          filename_offset + MAX_FILENAME_SIZE < buf_size;
        result = f_readdir(&dir, &file_info)) {
     // Skip directories.
     if (file_info.fattrib & AM_DIR) {
@@ -143,6 +146,18 @@ static uint16_t run_file_operation(uint16_t menu_index) {
 #if defined(DEBUG)
     fprintf_P(stderr, "f_readdir() returned %d\n", result);
 #endif  // defined(DEBUG)
+    return result;
+  }
+
+  return result;
+}
+
+// Get the user to select a file from the file system.
+// |menu_index| indicates the menu option that was chosen before.
+static uint16_t run_file_operation(uint16_t menu_index) {
+  char filenames[MAX_FILENAME_SIZE * MAX_FILES_LISTED];
+  uint16_t result = get_filenames("/", filenames, sizeof(filenames));
+  if (result != FR_OK) {
     return result;
   }
 
