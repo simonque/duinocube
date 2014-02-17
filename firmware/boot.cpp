@@ -145,9 +145,6 @@ void boot_run() {
     do {
       usb_update();
       usb_read_joystick(&input);
-      if (has_user_input(input)) {
-        printf("Joystick: %d, %d, %04x\n", input.x, input.y, input.buttons);
-      }
     } while (has_user_input(input) == had_user_input);
 
     had_user_input = !had_user_input;
