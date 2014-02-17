@@ -30,6 +30,10 @@
 #define RAM_WRITE    2
 #define RAM_READ     3
 
+// Apply this OR-mask to the high byte of an address to indicate a write
+// operation.
+#define CORE_WRITE_BIT_MASK      0x80
+
 // Record of a block on the shared memory heap.
 struct HeapBlock {
   // If |num_blocks_in_region| == 0, it means the is not the first block in a
@@ -100,11 +104,10 @@ void shmem_write(uint16_t addr, const void* data, uint16_t len) {
     spi_clear_ss(SELECT_RAM_BIT);
   } else {
     // Writing to core memory space.
-    // TODO: get rid of magic number.
     spi_set_ss(SELECT_CORE_BIT);
-    addr = (addr - SHARED_MEMORY_SIZE) | 0x8000;
+    addr = (addr - SHARED_MEMORY_SIZE);
 
-    spi_tx(addr >> 8);
+    spi_tx((addr >> 8) | CORE_WRITE_BIT_MASK);
     spi_tx((uint8_t) addr);
     for (uint16_t i = 0; i < len; ++i)
       spi_tx(buf[i]);
