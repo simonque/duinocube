@@ -22,6 +22,7 @@
 #include "DuinoCube_defs.h"
 #include "DuinoCube_rpc.h"
 
+#include "boot.h"
 #include "defines.h"
 #include "file.h"
 #include "printf.h"
@@ -56,6 +57,11 @@ int main() {
 #if DEBUG
   printf_P(main_str0);
 #endif
+
+  // Run the boot menu if boot mode is enabled.
+  if (boot_mode_enabled()) {
+    boot_run();
+  }
 
   // Start RPC server loop.
   rpc_server_loop();
