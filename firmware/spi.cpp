@@ -58,6 +58,23 @@ uint8_t spi_tx(uint8_t value) {
   return SPDR;
 }
 
+void spi_write(const void* data, uint16_t size) {
+  const uint8_t* buf = reinterpret_cast<const uint8_t*>(data);
+  for (uint16_t i = 0; i < size; ++i) {
+    SPDR = *buf++;
+    while(!(SPSR & (1 << SPIF)));
+  }
+}
+
+void spi_read(void* data, uint16_t size) {
+  uint8_t* buf = reinterpret_cast<uint8_t*>(data);
+  for (uint16_t i = 0; i < size; ++i) {
+    SPDR = 0;
+    while(!(SPSR & (1 << SPIF)));
+    *buf++ = SPDR;
+  }
+}
+
 void spi_set_ss(uint8_t bit) {
   // The SS pin is active low.
   PORTC &= ~(1 << bit);

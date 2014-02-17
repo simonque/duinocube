@@ -38,6 +38,12 @@ void spi_set_bit_order(uint8_t order);
 // the same operation.
 uint8_t spi_tx(uint8_t value);
 
+// Send a chunk of data over SPI. The MISO values are ignored.
+void spi_write(const void* data, uint16_t size);
+
+// Read a chunk of data over SPI. Sent data is all 0's.
+void spi_read(void* data, uint16_t size);
+
 // Functions to set and clear the SPI device select pins.
 void spi_set_ss(uint8_t bit);
 void spi_clear_ss(uint8_t bit);

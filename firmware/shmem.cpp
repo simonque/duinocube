@@ -72,8 +72,7 @@ void shmem_read(uint16_t addr, void* data, uint16_t len) {
     spi_tx(RAM_READ);
     spi_tx(addr >> 8);
     spi_tx((uint8_t) addr);
-    for (uint16_t i = 0; i < len; ++i)
-      buf[i] = spi_tx(0);
+    spi_read(buf, len);
 
     spi_clear_ss(SELECT_RAM_BIT);
   } else {
@@ -82,8 +81,7 @@ void shmem_read(uint16_t addr, void* data, uint16_t len) {
     addr -= SHARED_MEMORY_SIZE;
     spi_tx(addr >> 8);
     spi_tx((uint8_t) addr);
-    for (uint16_t i = 0; i < len; ++i)
-      buf[i] = spi_tx(0);
+    spi_read(buf, len);
 
     spi_clear_ss(SELECT_CORE_BIT);
   }
@@ -99,8 +97,7 @@ void shmem_write(uint16_t addr, const void* data, uint16_t len) {
     spi_tx(RAM_WRITE);
     spi_tx(addr >> 8);
     spi_tx((uint8_t) addr);
-    for (uint16_t i = 0; i < len; ++i)
-      spi_tx(buf[i]);
+    spi_write(buf, len);
     spi_clear_ss(SELECT_RAM_BIT);
   } else {
     // Writing to core memory space.
@@ -109,8 +106,7 @@ void shmem_write(uint16_t addr, const void* data, uint16_t len) {
 
     spi_tx((addr >> 8) | CORE_WRITE_BIT_MASK);
     spi_tx((uint8_t) addr);
-    for (uint16_t i = 0; i < len; ++i)
-      spi_tx(buf[i]);
+    spi_write(buf, len);
     spi_clear_ss(SELECT_CORE_BIT);
   }
 }
