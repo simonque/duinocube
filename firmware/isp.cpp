@@ -87,93 +87,9 @@ static void isp_reset() {
 static void isp_release() {
   ISP_PORT |= (1 << ISP_RESET_BIT);
 }
-/*
-// Starts a command operation.
-static void start_command(uint8_t command) {
-  flash_spi_select();
-  spi_tx(command);
-}
 
-// Ends a command operation.
-static void end_command() {
-  flash_spi_deselect();
-}
-
-// Sends a 24-bit address over the SPI.
-static void write_address(uint32_t address) {
-  const char* address_bytes = reinterpret_cast<const char*>(&address);
-  spi_tx(address_bytes[2]);
-  spi_tx(address_bytes[1]);
-  spi_tx(address_bytes[0]);
-}
-
-// Write enable.
-static void write_enable() {
-  start_command(COMMAND_WRITE_ENABLE);
-  end_command();
-}
-
-// Read status reg.
-static uint8_t read_status_reg() {
-  start_command(COMMAND_READ_STATUS);
-  uint8_t value = spi_tx(0);
-  end_command();
-
-  return value;
-}
-
-// Read data.
-static void read_data(uint32_t offset, char* buf, uint32_t size) {
-  start_command(COMMAND_READ_DATA);
-  write_address(offset);
-
-  // The file data bit order is reversed.
-  spi_set_bit_order(SPI_LSB_FIRST);
-  for (; size > 0; --size, ++buf) {
-    *buf = spi_tx(0);
-  }
-  spi_set_bit_order(SPI_MSB_FIRST);
-
-  end_command();
-}
-
-// Programs a page of data.
-static void page_program(uint32_t offset, const char* buf, uint16_t size) {
-  start_command(COMMAND_PAGE_PROGRAM);
-  write_address(offset);
-  if (size > page_size) {
-    size = page_size;
-  }
-
-  // The file data bit order is reversed.
-  spi_set_bit_order(SPI_LSB_FIRST);
-  for (; size > 0; --size, ++buf) {
-    spi_tx(*buf);
-  }
-  spi_set_bit_order(SPI_MSB_FIRST);
-
-  end_command();
-}
-
-// Initiates block erase.
-static void block_erase(uint32_t offset) {
-  start_command(COMMAND_BLOCK_ERASE);
-  write_address(offset);
-  end_command();
-}
-
-// Initiates chip erase.
-static void chip_erase() {
-  start_command(COMMAND_CHIP_ERASE);
-  end_command();
-}
-
-// Reads the JEDEC ID.
-*/
-
-// Programming enable sequence.
+// Programming enable.
 const uint8_t kProgEnableCommand[] = { 0xac, 0x53, 0x00, 0x00 };
-
 static bool isp_enable() {
   // The SPI clock period must be < f_target. In this case, f_target = 16 MHz.
   // f_SPI = 16 MHz / 6 = 2.67 MHz. A frequency of 2.5 MHz or f_clk / 8 is
