@@ -31,4 +31,7 @@ void text_clear(uint8_t len, uint8_t x, uint8_t y);
 // Renders text at the given location.
 void text_render(const char* text, uint8_t x, uint8_t y);
 
+// Renders text at the given location from program memory.
+void text_render_P(const char* text, uint8_t x, uint8_t y);
+
 #endif  // __TEXT_H__

@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <avr/pgmspace.h>
+
 #include "DuinoCube_core.h"
 #include "DuinoCube_defs.h"
 #include "DuinoCube_mem.h"
@@ -112,4 +114,10 @@ void text_clear(uint8_t len, uint8_t x, uint8_t y) {
 // Renders text at the given location.
 void text_render(const char* text, uint8_t x, uint8_t y) {
   core_write_data(get_text_addr(x, y), text, strlen(text));
+}
+
+void text_render_P(const char* text, uint8_t x, uint8_t y) {
+  char buf[TEXT_LINE_SIZE];
+  strncpy_P(buf, text, sizeof(buf));
+  text_render(buf, x, y);
 }
