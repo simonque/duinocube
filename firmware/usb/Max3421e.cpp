@@ -15,7 +15,6 @@ static byte vbusState;
 #define MAX_PORT_DDR      DDRD
 #define MAX_GPX           PORTD3    // General purpose data from Max3421e.
 #define MAX_INT           PORTD4    // Interrupt (active-low).
-#define MAX_RESET         PORTD5    // Chip reset (active-low).
 
 /* Functions    */
 
@@ -27,18 +26,7 @@ MAX3421E::MAX3421E()
   spi_init();
 
   // Set up the GPIO port used by Max3421e.
-  MAX_PORT |= (1 << MAX_RESET);
-  MAX_PORT_DDR |= (1 << MAX_RESET);
-  MAX_PORT_DDR &= ~((1 << MAX_GPX) | (1 << MAX_INT));
-
-  // Reset the host.  Hold nRESET low for at least 200 ns.  At 20 MHz, that is
-  // four clock cycles.
-  MAX_PORT &= ~(1 << MAX_RESET);
-  MAX_PORT &= ~(1 << MAX_RESET);
-  MAX_PORT &= ~(1 << MAX_RESET);
-  MAX_PORT &= ~(1 << MAX_RESET);
-  MAX_PORT |= (1 << MAX_RESET);
-}
+  MAX_PORT_DDR &= ~((1 << MAX_GPX) | (1 << MAX_INT));}
 
 byte MAX3421E::getVbusState( void )
 { 
