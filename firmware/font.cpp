@@ -28,7 +28,7 @@
 // Represented as one bit per pixel.
 #define RAW_FONT_CHAR_SIZE       (FONT_CHAR_SIZE / 8)
 
-void font_load_bitmap(char ch, void* data) {
+void font_load_bitmap(char ch, void* data, int pixel_value, int shadow_value) {
   uint8_t* buf = reinterpret_cast<uint8_t*>(data);
 
   // Load the raw font data.
@@ -36,10 +36,20 @@ void font_load_bitmap(char ch, void* data) {
   memcpy_P(raw_font_data, kFont8x8_basic + RAW_FONT_CHAR_SIZE * ch,
            RAW_FONT_CHAR_SIZE);
 
+  // Clear the pixel buffer first.
+  memset(buf, 0, FONT_CHAR_SIZE);
   for (uint8_t row = 0; row < FONT_CHAR_HEIGHT; ++row) {
     uint8_t line_data = raw_font_data[row];
     for (uint8_t col = 0; col < FONT_CHAR_WIDTH; ++col) {
-      *buf++ = (line_data & 1);
+      if (line_data & 1) {
+        *buf = pixel_value;   // Draw the text pixel.
+        if (col < FONT_CHAR_WIDTH - 1 && row < FONT_CHAR_HEIGHT - 1) {
+          // Draw a shadow pixel one pixel down and to the left, if it's still
+          // within the bounds of the character.
+          *(buf + FONT_CHAR_WIDTH + 1) = shadow_value;
+        }
+      }
+      ++buf;
       line_data >>= 1;
     }
   }

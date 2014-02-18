@@ -25,4 +25,6 @@
 #define MAX_FONT_CHARS     128      // Font supports characters from 0-127.
 
 // Loads the bitmap for the given character into the buffer.
-void font_load_bitmap(char ch, void* data);
+// |pixel_value| and |shadow_value| are byte values used to represent normal
+// font pixels and shadow pixels, respectively.
+void font_load_bitmap(char ch, void* data, int pixel_value, int shadow_value);

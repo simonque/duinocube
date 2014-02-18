@@ -56,9 +56,14 @@ static uint32_t g_vram_used;  // Tracks the amount of VRAM that has been used.
 #define IMAGE_TILEMAP_STRIDE    32      // Number of tiles per line of tilemap.
 
 // Palette colors.
+#define BLACK          0x00000000       // Color values.
+#define WHITE          0x00ffffff
+#define BLACK_INDEX             1       // Indexes of the colors in palette.
+#define WHITE_INDEX             2
 const uint32_t kPaletteColors[] = {
-  0x00000000,   // Black.
-  0x00ffffff,   // White.
+  0,        // This one is for transparency.
+  BLACK,
+  WHITE,
 };
 
 // Functions for accessing core graphics.
@@ -207,7 +212,7 @@ void display_text_init(uint8_t layer, uint8_t palette) {
   uint16_t offset = VRAM_BASE;
   for (uint8_t ch = 0; ch < MAX_FONT_CHARS; ++ch) {
     // Load each character's bitmap individually.
-    font_load_bitmap(ch, buf);
+    font_load_bitmap(ch, buf, WHITE_INDEX, BLACK_INDEX);
     core_write_data(offset, buf, FONT_CHAR_SIZE);
     offset += FONT_CHAR_SIZE;
   }
