@@ -24,18 +24,4 @@
 
 #include <avr/pgmspace.h>
 
-// This is the RAM buffer into which strings are copied from program memory.
-extern char printf_buffer[];
-
-// Custom printf and fprintf macros for printing strings from program memory.
-// TODO: These names collide with the stdio definitions.
-// Try to avoid a collision.
-#define fprintf_P(file, str, ...) { \
-    memcpy_PF(printf_buffer, (uint_farptr_t)str, \
-              strlen_PF((uint_farptr_t)str) + 1); \
-    fprintf(file, printf_buffer, ##__VA_ARGS__); \
-  }
-
-#define printf_P(str, ...) fprintf_P(stdout, str, ##__VA_ARGS__)
-
 #endif  // __PRINTF_F__
