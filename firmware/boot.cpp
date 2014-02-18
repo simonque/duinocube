@@ -56,6 +56,12 @@
 #define MAX_FILENAME_SIZE      13     // 8.3 format + null terminator.
 #define MAX_FILES_LISTED       16     // Only list up to this many files.
 
+// Graphics usage defs.
+
+// Layer and palette for text rendering.
+#define TEXT_LAYER_INDEX        0
+#define TEXT_PALETTE_INDEX      0
+
 // Menu options.
 enum {
   MENU_RUN_PROGRAM,
@@ -310,7 +316,7 @@ void boot_run() {
   isp_reset();
 
   // Initialize text display system.
-  text_init(0, 0);
+  text_init(TEXT_LAYER_INDEX, TEXT_PALETTE_INDEX);
 
   // Main loop variables.
   bool boot_done = false;
