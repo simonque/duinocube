@@ -20,6 +20,8 @@
 #ifndef __DUINOCUBE_DEFS_H__
 #define __DUINOCUBE_DEFS_H__
 
+#include <stdint.h>
+
 // Size of registers in bits.
 #define REG_WIDTH              16
 
@@ -111,6 +113,12 @@
 #define NUM_VRAM_BANKS         32
 #define VRAM_BANK_BEGIN         2  // VRAM spans several 16-KB banks.
 #define VRAM_BANK_END     (VRAM_BANK_BEGIN + NUM_VRAM_BANKS)
+// This macro computes the memory bank and offset within that bank, given a VRAM
+// offset.
+#define GET_VRAM_BANK(offset) \
+    (((uint32_t)(offset)) / VRAM_BANK_SIZE + VRAM_BANK_BEGIN)
+#define GET_VRAM_BANK_OFFSET(offset) \
+    (((uint32_t)(offset)) % VRAM_BANK_SIZE)
 
 // When the *_SHIFT_DATA_OFFSET bit is set, the corresponding *_DATA_OFFSET
 // register value will be interpreted as the actual address shifted left by
