@@ -149,6 +149,7 @@ static void move_cursor(uint16_t current_option, uint16_t new_option,
   display_text_render(">", menu_x - 2, menu_y + new_option);
 }
 
+// Loads the background image.
 static void load_bg_image() {
   display_bg_init(BG_LAYER_INDEX, BG_PALETTE_INDEX);
 
