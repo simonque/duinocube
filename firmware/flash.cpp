@@ -19,12 +19,10 @@
 
 #include "flash.h"
 
-#include <stdio.h>
-
 #include <avr/io.h>
-#include <avr/pgmspace.h>
 
 #include "file.h"
+#include "printf.h"
 #include "spi.h"
 
 // Control pin definitions.

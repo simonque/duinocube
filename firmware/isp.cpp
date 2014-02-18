@@ -19,13 +19,12 @@
 
 #include "isp.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include <avr/io.h>
-#include <avr/pgmspace.h>
 
 #include "file.h"
+#include "printf.h"
 #include "spi.h"
 #include "timer.h"
 #include "utils.h"

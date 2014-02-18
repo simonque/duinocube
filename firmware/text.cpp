@@ -19,15 +19,13 @@
 
 #include "text.h"
 
-#include <stdio.h>
 #include <string.h>
-
-#include <avr/pgmspace.h>
 
 #include "DuinoCube_core.h"
 #include "DuinoCube_defs.h"
 #include "DuinoCube_mem.h"
 #include "font.h"
+#include "printf.h"
 #include "shmem.h"
 
 // Store the text rendering params here.

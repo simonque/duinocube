@@ -1,11 +1,9 @@
 /* Copyright 2009-2011 Oleg Mazurov, Circuits At Home, http://www.circuitsathome.com */
 /* USB functions */
 
-#include <stdio.h>
-
-#include <avr/pgmspace.h>
-
 #include "Usb.h"
+
+#include "printf.h"
 
 static byte usb_error = 0;
 static byte usb_task_state;

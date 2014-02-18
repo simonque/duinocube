@@ -19,16 +19,15 @@
 
 #include "boot.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include <avr/io.h>
-#include <avr/pgmspace.h>
 
 #include "DuinoCube_gamepad.h"
 #include "FatFS/ff.h"
 #include "file.h"
 #include "isp.h"
+#include "printf.h"
 #include "text.h"
 #include "usb.h"
 #include "utils.h"

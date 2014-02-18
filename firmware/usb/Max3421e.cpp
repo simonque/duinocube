@@ -1,15 +1,13 @@
 /* Copyright 2009-2011 Oleg Mazurov, Circuits At Home, http://www.circuitsathome.com */
 /* MAX3421E USB host controller support */
 
-#include <stdio.h>
+#include "Max3421e.h"
 
 #include <avr/io.h>
-#include <avr/pgmspace.h>
 
 #include "defines.h"
+#include "printf.h"
 #include "spi.h"
-
-#include "Max3421e.h"
 
 static byte vbusState;
 
