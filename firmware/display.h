@@ -22,6 +22,16 @@
 
 #include <stdint.h>
 
+// Initializes background image rendering using a particular layer and palette.
+void display_bg_init(uint8_t layer, uint8_t palette);
+
+// Load image data from file.  Assumes that the image is cut into 16x16 tiles.
+void display_bg_load_image(const char* filename,
+                           uint16_t width, uint16_t height);
+
+// Load palette data from file.
+void display_bg_load_palette(const char* filename);
+
 // Initializes text rendering using a particular layer and palette.
 void display_text_init(uint8_t layer, uint8_t palette);
 

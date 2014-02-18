@@ -58,9 +58,21 @@
 
 // Graphics usage defs.
 
+// Layer and palette for background image.
+#define BG_LAYER_INDEX          0
+#define BG_PALETTE_INDEX        0
+
 // Layer and palette for text rendering.
-#define TEXT_LAYER_INDEX        0
-#define TEXT_PALETTE_INDEX      0
+#define TEXT_LAYER_INDEX        3
+#define TEXT_PALETTE_INDEX      3
+
+// Background image files.
+static const char kBGImageDataFile[] PROGMEM = "data/angels.raw";
+static const char kBGImagePaletteFile[] PROGMEM = "data/angels.pal";
+
+// Background image dimensions.
+#define BG_IMAGE_WIDTH        320
+#define BG_IMAGE_HEIGHT       240
 
 // Menu options.
 enum {
@@ -135,6 +147,16 @@ static void move_cursor(uint16_t current_option, uint16_t new_option,
   // Erase the previous cursor and draw the new one.
   display_text_render(" ", menu_x - 2, menu_y + current_option);
   display_text_render(">", menu_x - 2, menu_y + new_option);
+}
+
+static void load_bg_image() {
+  display_bg_init(BG_LAYER_INDEX, BG_PALETTE_INDEX);
+
+  char filename[32];
+  strncpy_P(filename, kBGImagePaletteFile, sizeof(filename));
+  display_bg_load_palette(filename);
+  strncpy_P(filename, kBGImageDataFile, sizeof(filename));
+  display_bg_load_image(filename, BG_IMAGE_WIDTH, BG_IMAGE_HEIGHT);
 }
 
 // Returns a list of filenames in |path|. The filename strings are stored in
@@ -317,6 +339,9 @@ void boot_run() {
 
   // Initialize text display system.
   display_text_init(TEXT_LAYER_INDEX, TEXT_PALETTE_INDEX);
+
+  // Load background image.
+  load_bg_image();
 
   // Main loop variables.
   bool boot_done = false;
