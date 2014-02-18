@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with DuinoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// Text display functions.
+// Display functions.
 
-#include "text.h"
+#include "display.h"
 
 #include <string.h>
 
@@ -62,7 +62,7 @@ static inline uint16_t get_text_addr(uint8_t x, uint8_t y) {
 }
 
 // Initializes text rendering using a particular layer and palette.
-void text_init(uint8_t layer, uint8_t palette) {
+void display_text_init(uint8_t layer, uint8_t palette) {
   g_params.layer = layer;
   g_params.palette = palette;
   g_params.tilemap_addr = TILEMAP(layer);
@@ -103,19 +103,19 @@ void text_init(uint8_t layer, uint8_t palette) {
 }
 
 // Clears |length| characters at the given location.
-void text_clear(uint8_t len, uint8_t x, uint8_t y) {
+void display_text_clear(uint8_t len, uint8_t x, uint8_t y) {
   uint8_t buf[256];
   memset(buf, 0, len);
   core_write_data(get_text_addr(x, y), buf, len);
 }
 
 // Renders text at the given location.
-void text_render(const char* text, uint8_t x, uint8_t y) {
+void display_text_render(const char* text, uint8_t x, uint8_t y) {
   core_write_data(get_text_addr(x, y), text, strlen(text));
 }
 
-void text_render_P(const char* text, uint8_t x, uint8_t y) {
+void display_text_render_P(const char* text, uint8_t x, uint8_t y) {
   char buf[TEXT_LINE_SIZE];
   strncpy_P(buf, text, sizeof(buf));
-  text_render(buf, x, y);
+  display_text_render(buf, x, y);
 }

@@ -15,23 +15,23 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with DuinoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// Text display functions.
+// Display functions.
 
-#ifndef __TEXT_H__
-#define __TEXT_H__
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
 
 #include <stdint.h>
 
 // Initializes text rendering using a particular layer and palette.
-void text_init(uint8_t layer, uint8_t palette);
+void display_text_init(uint8_t layer, uint8_t palette);
 
 // Clears |length| characters at the given location.
-void text_clear(uint8_t len, uint8_t x, uint8_t y);
+void display_text_clear(uint8_t len, uint8_t x, uint8_t y);
 
 // Renders text at the given location.
-void text_render(const char* text, uint8_t x, uint8_t y);
+void display_text_render(const char* text, uint8_t x, uint8_t y);
 
 // Renders text at the given location from program memory.
-void text_render_P(const char* text, uint8_t x, uint8_t y);
+void display_text_render_P(const char* text, uint8_t x, uint8_t y);
 
-#endif  // __TEXT_H__
+#endif  // __DISPLAY_H__

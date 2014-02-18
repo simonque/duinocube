@@ -25,10 +25,10 @@
 
 #include "DuinoCube_gamepad.h"
 #include "FatFS/ff.h"
+#include "display.h"
 #include "file.h"
 #include "isp.h"
 #include "printf.h"
-#include "text.h"
 #include "usb.h"
 #include "utils.h"
 
@@ -105,7 +105,7 @@ static void show_main_menu_option(uint16_t menu_index) {
   char text[TEXT_BUFFER_SIZE];
   strcpy_P(text, get_substring(kMenuStrings, menu_index));
 
-  text_render(text, MAIN_MENU_X, MAIN_MENU_Y + menu_index);
+  display_text_render(text, MAIN_MENU_X, MAIN_MENU_Y + menu_index);
 }
 
 // Returns true if the user provided some gamepad input.
@@ -133,8 +133,8 @@ static void read_usb_gamepad(USB_JoystickState* input) {
 static void move_cursor(uint16_t current_option, uint16_t new_option,
                         uint8_t menu_x, uint8_t menu_y) {
   // Erase the previous cursor and draw the new one.
-  text_render(" ", menu_x - 2, menu_y + current_option);
-  text_render(">", menu_x - 2, menu_y + new_option);
+  display_text_render(" ", menu_x - 2, menu_y + current_option);
+  display_text_render(">", menu_x - 2, menu_y + new_option);
 }
 
 // Returns a list of filenames in |path|. The filename strings are stored in
@@ -192,17 +192,17 @@ void program_file(uint16_t menu_index, const char* filename) {
   {
     uint16_t handle = file_open(filename, FA_READ);
     if (!handle) {
-      text_render_P(kFileOpenErrorText, STATUS_X, STATUS_Y);
+      display_text_render_P(kFileOpenErrorText, STATUS_X, STATUS_Y);
       break;
     }
-    text_render_P(kProgrammingText, STATUS_X, STATUS_Y);
+    display_text_render_P(kProgrammingText, STATUS_X, STATUS_Y);
     // TODO: Check for programming errors.
     // TODO: Have a progress bar.
     uint16_t result = isp_program(handle);
 #if defined(DEBUG)
     printf_P(PSTR("isp_program() returned %d\n"), result);
 #endif  // defined(DEBUG)
-    text_render_P(kDoneText, STATUS_X, STATUS_Y);
+    display_text_render_P(kDoneText, STATUS_X, STATUS_Y);
     file_close(handle);
     break;
   }
@@ -212,7 +212,7 @@ void program_file(uint16_t menu_index, const char* filename) {
   case MENU_BURN_BOOTLOADER:
   case MENU_UPDATE_FPGA:
   default:
-    text_render_P(kNotSupportedText, STATUS_X, STATUS_Y);
+    display_text_render_P(kNotSupportedText, STATUS_X, STATUS_Y);
     break;
   }
 }
@@ -230,7 +230,7 @@ static uint16_t run_file_operation(uint16_t menu_index) {
   char* filename_ptr = filenames;
   uint8_t num_files = 0;
   while (num_files < MAX_FILES_LISTED && strlen(filename_ptr) > 0) {
-    text_render(filename_ptr, FILE_LIST_X, FILE_LIST_Y + num_files);
+    display_text_render(filename_ptr, FILE_LIST_X, FILE_LIST_Y + num_files);
     ++num_files;
     filename_ptr += MAX_FILENAME_SIZE;
   }
@@ -271,7 +271,7 @@ static uint16_t run_file_operation(uint16_t menu_index) {
     }
 
     if (file_selected) {
-      text_render_P(kProgramConfirmText, CONFIRM_X, CONFIRM_Y);
+      display_text_render_P(kProgramConfirmText, CONFIRM_X, CONFIRM_Y);
 
       read_usb_gamepad(&input);
       // TODO: Use an explicit YES/NO menu.
@@ -283,16 +283,16 @@ static uint16_t run_file_operation(uint16_t menu_index) {
         done = true;
       }
       // Clear the confirmation text.
-      text_clear(strlen_P(kProgramConfirmText), CONFIRM_X, CONFIRM_Y);
+      display_text_clear(strlen_P(kProgramConfirmText), CONFIRM_X, CONFIRM_Y);
     }
   }
 
   // Clear the menu and cursor when done.
   for (uint8_t i = 0; i < num_files; ++i) {
-    text_clear(MAX_FILENAME_SIZE, FILE_LIST_X, FILE_LIST_Y + i);
+    display_text_clear(MAX_FILENAME_SIZE, FILE_LIST_X, FILE_LIST_Y + i);
   }
   // TODO: Replace the "2" with a #define.
-  text_clear(1, FILE_LIST_X - 2, FILE_LIST_Y + file_index);
+  display_text_clear(1, FILE_LIST_X - 2, FILE_LIST_Y + file_index);
 
   return result;
 }
@@ -316,7 +316,7 @@ void boot_run() {
   isp_reset();
 
   // Initialize text display system.
-  text_init(TEXT_LAYER_INDEX, TEXT_PALETTE_INDEX);
+  display_text_init(TEXT_LAYER_INDEX, TEXT_PALETTE_INDEX);
 
   // Main loop variables.
   bool boot_done = false;
