@@ -28,12 +28,17 @@
 #include "printf.h"
 #include "shmem.h"
 
-// Store the text rendering params here.
+// Track resource usage.
 static struct {
-  uint8_t layer;
-  uint8_t palette;
-  uint16_t tilemap_addr;
-} g_params;
+  bool initialized;           // Set this flag if the resource has been setup.
+  uint8_t layer;              // Tile layer index.
+  uint16_t tilemap_addr;      // Cached address of tile layer data.
+  uint8_t palette;            // Palette index.
+  uint32_t vram_offset;       // VRAM offset.
+  uint32_t vram_size;         // VRAM data size.
+} g_text_params;    // For text rendering.
+
+static uint32_t g_vram_used;  // Tracks the amount of VRAM that has been used.
 
 // Converts a Core memory address to shared memory space.
 #define CORE_TO_SHMEM_ADDR(addr) ((addr) + SHARED_MEMORY_SIZE)
@@ -58,14 +63,23 @@ static void core_write_word(uint16_t addr, uint16_t value) {
 
 // Convert text coordinates to a tilemap memory offset.
 static inline uint16_t get_text_addr(uint8_t x, uint8_t y) {
-  return g_params.tilemap_addr + TEXT_LINE_SIZE * y + x;
+  return g_text_params.tilemap_addr + TEXT_LINE_SIZE * y + x;
 }
 
 // Initializes text rendering using a particular layer and palette.
 void display_text_init(uint8_t layer, uint8_t palette) {
-  g_params.layer = layer;
-  g_params.palette = palette;
-  g_params.tilemap_addr = TILEMAP(layer);
+  // For now, support only one text layer.
+  if (g_text_params.initialized) {
+    return;
+  }
+  g_text_params.initialized = true;
+  g_text_params.layer = layer;
+  g_text_params.tilemap_addr = TILEMAP(layer);
+  g_text_params.palette = palette;
+  g_text_params.vram_offset = g_vram_used;
+  g_text_params.vram_size = MAX_FONT_CHARS * FONT_CHAR_SIZE;
+  // Increment the VRAM usage counter.
+  g_vram_used += g_text_params.vram_size;
 
   // TODO: Reset the Core.
 
@@ -90,7 +104,7 @@ void display_text_init(uint8_t layer, uint8_t palette) {
   memset(buf, 0, sizeof(buf));
   core_write_word(REG_MEM_BANK, TILEMAP_BANK);
   for (uint16_t offset = 0; offset < TILEMAP_SIZE; offset += sizeof(buf)) {
-    core_write_data(g_params.tilemap_addr + offset, buf, sizeof(buf));
+    core_write_data(g_text_params.tilemap_addr + offset, buf, sizeof(buf));
   }
 
   // Enable the tile layer.
@@ -98,8 +112,10 @@ void display_text_init(uint8_t layer, uint8_t palette) {
                   (1 << TILE_LAYER_ENABLED) |
                   (1 << TILE_ENABLE_8x8) |
                   (1 << TILE_ENABLE_8_BIT) |
+                  (1 << TILE_SHIFT_DATA_OFFSET) |
                   (palette << TILE_PALETTE_START));
-  core_write_word(TILE_LAYER_REG(layer, TILE_DATA_OFFSET), 0);
+  core_write_word(TILE_LAYER_REG(layer, TILE_DATA_OFFSET),
+                  LARGE_VRAM_DATA_OFFSET(g_text_params.vram_offset));
 }
 
 // Clears |length| characters at the given location.
