@@ -100,6 +100,9 @@ const char kNotSupportedText[] PROGMEM = "Operation not supported.";
 const char kProgrammingText[] PROGMEM = "Starting programming operation.";
 const char kDoneText[] PROGMEM = "Done!";
 
+// Store the length of the last status message so we know how much to erase.
+static uint16_t last_status_message_len;
+
 // Given a sequence of contiguous null-terminated strings, indicated by
 // |string|, returns the Nth string where N = |menu_index|.
 static const char* get_substring(const char* string, uint16_t menu_index) {
@@ -147,6 +150,18 @@ static void move_cursor(uint16_t current_option, uint16_t new_option,
   // Erase the previous cursor and draw the new one.
   display_text_render(" ", menu_x - 2, menu_y + current_option);
   display_text_render(">", menu_x - 2, menu_y + new_option);
+}
+
+// Update the status message. Erases the previous status.
+static void display_status(const char* text, bool is_progmem) {
+  display_text_clear(last_status_message_len, STATUS_X, STATUS_Y);
+  if (is_progmem) {
+    display_text_render_P(text, STATUS_X, STATUS_Y);
+    last_status_message_len = strlen_P(text);
+  } else {
+    display_text_render(text, STATUS_X, STATUS_Y);
+    last_status_message_len = strlen(text);
+  }
 }
 
 // Loads the background image.
@@ -215,17 +230,17 @@ void program_file(uint16_t menu_index, const char* filename) {
   {
     uint16_t handle = file_open(filename, FA_READ);
     if (!handle) {
-      display_text_render_P(kFileOpenErrorText, STATUS_X, STATUS_Y);
+      display_status(kFileOpenErrorText, true);
       break;
     }
-    display_text_render_P(kProgrammingText, STATUS_X, STATUS_Y);
+    display_status(kProgrammingText, true);
     // TODO: Check for programming errors.
     // TODO: Have a progress bar.
     uint16_t result = isp_program(handle);
 #if defined(DEBUG)
     printf_P(PSTR("isp_program() returned %d\n"), result);
 #endif  // defined(DEBUG)
-    display_text_render_P(kDoneText, STATUS_X, STATUS_Y);
+    display_status(kDoneText, true);
     file_close(handle);
     break;
   }
@@ -235,7 +250,7 @@ void program_file(uint16_t menu_index, const char* filename) {
   case MENU_BURN_BOOTLOADER:
   case MENU_UPDATE_FPGA:
   default:
-    display_text_render_P(kNotSupportedText, STATUS_X, STATUS_Y);
+    display_status(kNotSupportedText, true);
     break;
   }
 }
