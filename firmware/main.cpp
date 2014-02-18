@@ -52,8 +52,6 @@ int main() {
   file_init();
   usb_init();
 
-  rpc_init();
-
 #if DEBUG
   printf_P(main_str0);
 #endif
@@ -63,7 +61,8 @@ int main() {
     boot_run();
   }
 
-  // Start RPC server loop.
+  // Start RPC server.
+  rpc_init();
   rpc_server_loop();
 
   return 0;
