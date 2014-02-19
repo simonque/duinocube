@@ -96,7 +96,7 @@ const char kMenuStrings[] PROGMEM = {
 // Various message strings.
 const char kProgramConfirmText[] PROGMEM = "Program with this file?";
 const char kFileOpenErrorText[] PROGMEM = "Could not open file.";
-const char kNotSupportedText[] PROGMEM = "Operation not supported.";
+const char kNotSupportedText[] PROGMEM = "Operation not yet supported.";
 const char kProgrammingText[] PROGMEM = "Starting programming operation.";
 const char kDoneText[] PROGMEM = "Done!";
 
