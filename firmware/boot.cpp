@@ -200,7 +200,7 @@ static uint16_t get_filenames(const char* path, char* filenames,
   uint16_t filename_offset = 0;
   for (result = f_readdir(&dir, &file_info);
        result == FR_OK && strlen(file_info.fname) > 0 &&
-          filename_offset + MAX_FILENAME_SIZE < buf_size;
+          filename_offset + MAX_FILENAME_SIZE <= buf_size;
        result = f_readdir(&dir, &file_info)) {
     // Skip directories.
     if (file_info.fattrib & AM_DIR) {
