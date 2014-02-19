@@ -41,6 +41,7 @@
 
 // SYS_CTRL register fields.
 #define REG_SYS_CTRL_VRAM_ACCESS      0     // Enable MPU access to VRAM.
+#define REG_SYS_CTRL_RESET           15     // Device reset.
 
 // Collision table.
 #define COLL_BASE          0x0200
