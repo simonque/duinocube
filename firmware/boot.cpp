@@ -353,6 +353,9 @@ void boot_run() {
   // Hold Arduino in reset.
   isp_reset();
 
+  // Initialize display.
+  display_init();
+
   // Initialize text display system.
   display_text_init(TEXT_LAYER_INDEX, TEXT_PALETTE_INDEX);
 
@@ -414,4 +417,7 @@ void boot_run() {
 
   // Release Arduino from reset.
   isp_release();
+
+  // Reset the display again, so that the program will start with a clean slate.
+  display_init();
 }

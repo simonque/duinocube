@@ -79,6 +79,20 @@ static inline uint16_t get_text_addr(uint8_t x, uint8_t y) {
   return g_text_params.tilemap_addr + TEXT_LINE_SIZE * y + x;
 }
 
+void display_init() {
+  // TODO: provide a reset register in hardware.
+  // Reset the camera.
+  core_write_word(REG_SCROLL_X, 0);
+  core_write_word(REG_SCROLL_Y, 0);
+
+  // Reset all tile layers.
+  uint16_t buf[NUM_TILE_REGISTERS];
+  memset(buf, 0, sizeof(buf));
+  for (uint8_t layer = 0; layer < NUM_TILE_LAYERS; ++layer) {
+    core_write_data(TILE_LAYER_REG(layer, 0), buf, sizeof(buf));
+  }
+}
+
 void display_bg_init(uint8_t layer, uint8_t palette) {
   // For now, support only one background image layer.
   if (g_bg_params.initialized) {

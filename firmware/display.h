@@ -22,6 +22,9 @@
 
 #include <stdint.h>
 
+// Resets the display system.
+void display_init();
+
 // Initializes background image rendering using a particular layer and palette.
 void display_bg_init(uint8_t layer, uint8_t palette);
 
