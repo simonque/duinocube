@@ -237,6 +237,8 @@ void program_file(uint16_t menu_index, const char* filename) {
     // TODO: Check for programming errors.
     // TODO: Have a progress bar.
     uint16_t result = isp_program(handle);
+    isp_reset();    // Reset the Arduino again so it doesn't misbehave.
+                    // TODO: restructure this code so it isn't necessary.
 #if defined(DEBUG)
     printf_P(PSTR("isp_program() returned %d\n"), result);
 #endif  // defined(DEBUG)
