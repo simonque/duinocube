@@ -122,8 +122,6 @@ void display_bg_load_image(const char* filename,
   for (uint32_t offset = 0; offset < size; offset += size_read) {
     size_read = file_read(handle, buf, sizeof(buf));
     core_write_data(VRAM_BASE + vram_bank_offset, buf, size_read);
-printf_P(PSTR("Wr %u b to 0x%x w/ bk=%u\n"), size_read,
-         VRAM_BASE + vram_bank_offset, vram_bank);
     vram_bank_offset += size_read;
     // Check for end of VRAM bank. Update to the next bank if necessary.
     if (vram_bank_offset >= VRAM_BANK_SIZE) {
