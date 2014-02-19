@@ -380,6 +380,7 @@ void boot_run() {
 
     USB_JoystickState input;
     read_usb_gamepad(&input);
+    display_status("", false);   // Reset the status when the user makes a move.
 
     // Move cursor up/down.
     if (input.y < 0) {
