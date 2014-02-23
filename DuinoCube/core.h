@@ -29,6 +29,33 @@ class DuinoCubeCore {
   // Initialize and teardown functions.
   static void begin();
 
+  // System control functions.
+  static void moveCamera(int16_t x, int16_t y);
+  static void waitForEvent(unt16_t event);
+
+  // Data loading functions.
+  static bool loadPalette(const char* filename, uint8_t palette_index);
+  static bool loadTilemap(const char* filename, uint8_t tilemap_index);
+  static uint32_t loadImageData(const char* filename, uint32_t vram_offset);
+
+  // Tile layer functions.
+  static void enableTileLayer(uint8_t layer_index);
+  static void disableTileLayer(uint8_t layer_index);
+  static void moveTileLayer(uint8_t layer_index, int16_t x, int16_t y);
+  static void setTileLayerProperty(uint8_t layer_index, uint16_t property,
+                                   uint16_t value);
+
+  // Sprite functions.
+  static void enableSprite(uint8_t sprite_index);
+  static void disableSprite(uint8_t sprite_index);
+  static void moveSprite(uint8_t sprite_index, int16_t x, int16_t y);
+  static void setSpriteProperty(uint8_t sprite_index, uint16_t property,
+                                uint16_t value);
+
+  // TODO: the preceding functions are higher level functions than the
+  // memory-level access functions that follow. The former should replace the
+  // latter as Core API. The below functions should become private.
+
   // Functions to read/write bytes and words.
   static uint8_t readByte(uint16_t addr);
   static void writeByte(uint16_t addr, uint8_t data);
