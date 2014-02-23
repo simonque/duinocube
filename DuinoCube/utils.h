@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Simon Que
+// Copyright (C) 2014 Simon Que
 //
 // This file is part of DuinoCube.
 //
@@ -15,35 +15,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with DuinoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// Main DuinoCube library for Arduino.
+// DuinoCube utility functions.
 
-#ifndef __DUINOCUBE_H__
-#define __DUINOCUBE_H__
+#ifndef __DUINOCUBE_UTILS_H__
+#define __DUINOCUBE_UTILS_H__
 
-#include "core.h"
-#include "file.h"
-#include "gamepad.h"
-#include "mem.h"
-#include "rpc.h"
-#include "system.h"
-#include "usb.h"
-#include "utils.h"
+// Returns the number of elements in a static array.
+#define ARRAY_SIZE(array)     (sizeof(array) / sizeof(array[0]))
 
-class DuinoCubeClass {
- public:
-  // Initializes all subsystems.
-  static void begin();
-
-  // Objects for accessing subsystems.
-  static DuinoCube::Core Core;
-  static DuinoCube::File File;
-  static DuinoCube::Gamepad Gamepad;
-  static DuinoCube::Mem Mem;
-  static DuinoCube::RPC RPC;
-  static DuinoCube::System Sys;
-  static DuinoCube::USB USB;
-};
-
-extern DuinoCubeClass DC;
-
-#endif  // __DUINOCUBE_H__
+#endif  // __DUINOCUBE_UTILS_H__
