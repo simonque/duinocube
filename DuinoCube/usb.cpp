@@ -27,9 +27,11 @@
 #define NULL              0
 #endif
 
-static DuinoCubeRPC rpc;
+namespace DuinoCube {
 
-GamepadState DuinoCubeUSB::readJoystick() {
+static RPC rpc;
+
+GamepadState USB::readJoystick() {
   GamepadState state;
 
   RPC_UsbReadJoystickArgs args;
@@ -40,3 +42,5 @@ GamepadState DuinoCubeUSB::readJoystick() {
   state.y = args.out.y;
   return state;
 }
+
+}  // namespace DuinoCube

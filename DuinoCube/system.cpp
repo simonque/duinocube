@@ -27,9 +27,11 @@
 
 extern SPIClass SPI;
 
-static DuinoCubeRPC rpc;    // For controlling RPC subsystem.
+namespace DuinoCube {
 
-void DuinoCubeSystem::begin() {
+static RPC rpc;    // For controlling RPC subsystem.
+
+void System::begin() {
   // Set up the system shield SPI interface.
   SET_PIN(RAM_SELECT_PIN, HIGH);
   SET_PIN(RAM_SELECT_DIR, OUTPUT);
@@ -46,7 +48,7 @@ void DuinoCubeSystem::begin() {
   rpc.begin();
 }
 
-void DuinoCubeSystem::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
+void System::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   SET_PIN(RAM_SELECT_PIN, LOW);
 
   // The SPI RAM uses MSB first mode.
@@ -61,7 +63,7 @@ void DuinoCubeSystem::readSharedRAM(uint16_t addr, void* data, uint16_t size) {
   SET_PIN(RAM_SELECT_PIN, HIGH);
 }
 
-void DuinoCubeSystem::writeSharedRAM(
+void System::writeSharedRAM(
     uint16_t addr, const void* data, uint16_t size) {
   SET_PIN(RAM_SELECT_PIN, LOW);
 
@@ -77,3 +79,4 @@ void DuinoCubeSystem::writeSharedRAM(
   SET_PIN(RAM_SELECT_PIN, HIGH);
 }
 
+}  // namespace DuinoCube

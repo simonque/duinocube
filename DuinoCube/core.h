@@ -24,7 +24,9 @@
 
 #include "core_defs.h"
 
-class DuinoCubeCore {
+namespace DuinoCube {
+
+class Core {
  public:
   // Initialize and teardown functions.
   static void begin();
@@ -66,5 +68,7 @@ class DuinoCubeCore {
   static void readData(uint16_t addr, void* data, uint16_t size);
   static void writeData(uint16_t addr, const void* data, uint16_t size);
 };
+
+}  // namespace DuinoCube
 
 #endif  // __DUINOCUBE_CORE_H__

@@ -27,12 +27,14 @@
 #include "rpc_file.h"
 #include "system.h"
 
-// Local handles to other DuinoCube classes.
-static DuinoCubeCore core;
-static DuinoCubeSystem sys;
-static DuinoCubeRPC rpc;
+namespace DuinoCube {
 
-uint16_t DuinoCubeFile::open(const char* filename, uint16_t mode) {
+// Local handles to other DuinoCube classes.
+static Core core;
+static System sys;
+static RPC rpc;
+
+uint16_t File::open(const char* filename, uint16_t mode) {
   RPC_FileOpenArgs args;
   args.in.filename_addr = STRING_BUF_ADDR;
   args.in.mode          = mode;
@@ -47,15 +49,14 @@ uint16_t DuinoCubeFile::open(const char* filename, uint16_t mode) {
   return args.out.handle;
 }
 
-void DuinoCubeFile::close(uint16_t handle) {
+void File::close(uint16_t handle) {
   RPC_FileCloseArgs args;
   args.in.handle = handle;
 
   rpc.exec(RPC_CMD_FILE_CLOSE, &args.in, sizeof(args.in), NULL, 0);
 }
 
-uint16_t DuinoCubeFile::read(
-    uint16_t handle, uint16_t dst_addr, uint16_t size) {
+uint16_t File::read(uint16_t handle, uint16_t dst_addr, uint16_t size) {
   RPC_FileReadArgs args;
   args.in.handle     = handle;
   args.in.dst_addr   = dst_addr;
@@ -68,8 +69,7 @@ uint16_t DuinoCubeFile::read(
   return args.out.size_read;
 }
 
-uint16_t DuinoCubeFile::write(
-    uint16_t handle, uint16_t src_addr, uint16_t size) {
+uint16_t File::write(uint16_t handle, uint16_t src_addr, uint16_t size) {
   RPC_FileWriteArgs args;
   args.in.handle     = handle;
   args.in.src_addr   = src_addr;
@@ -82,8 +82,7 @@ uint16_t DuinoCubeFile::write(
   return args.out.size_written;
 }
 
-uint16_t DuinoCubeFile::readToCore(
-    uint16_t handle, uint16_t dst_addr, uint16_t size) {
+uint16_t File::readToCore(uint16_t handle, uint16_t dst_addr, uint16_t size) {
   // The Core memory space is at 0x8000, from the coprocessor's point of view.
   // TODO: get rid of magic number.
   // TODO: consider a better memory mapping scheme.
@@ -91,7 +90,7 @@ uint16_t DuinoCubeFile::readToCore(
   return size_read;
 }
 
-uint32_t DuinoCubeFile::size(uint16_t handle) {
+uint32_t File::size(uint16_t handle) {
   RPC_FileSizeArgs args;
   args.in.handle = handle;
 
@@ -102,10 +101,12 @@ uint32_t DuinoCubeFile::size(uint16_t handle) {
   return args.out.size;
 }
 
-void DuinoCubeFile::seek(uint16_t handle, uint32_t offset) {
+void File::seek(uint16_t handle, uint32_t offset) {
   RPC_FileSeekArgs args;
   args.in.handle = handle;
   args.in.offset = offset;
 
   rpc.exec(RPC_CMD_FILE_SEEK, &args.in, sizeof(args.in), NULL, 0);
 }
+
+}  // namespace DuinoCube

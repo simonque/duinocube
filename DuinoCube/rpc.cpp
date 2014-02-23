@@ -32,13 +32,12 @@
 
 extern SPIClass SPI;
 
+namespace DuinoCube {
+
 // For accessing other DuinoCube system shield functions.
-static DuinoCubeSystem sys;
+static System sys;
 
-// For accessing Core.
-static DuinoCubeCore core;
-
-void DuinoCubeRPC::begin() {
+void RPC::begin() {
   SET_PIN(RPC_CLIENT_COMMAND_DIR, OUTPUT);
   writeCommand(RPC_CMD_NONE);
 
@@ -50,7 +49,7 @@ void DuinoCubeRPC::begin() {
   SET_PIN(RPC_RESET_DIR, INPUT);
 }
 
-uint16_t DuinoCubeRPC::hello(uint16_t buf_addr) {
+uint16_t RPC::hello(uint16_t buf_addr) {
   RPC_HelloArgs args;
   args.in.buf_addr = buf_addr;
   uint16_t status = exec(RPC_CMD_HELLO, &args.in, sizeof(args.in), NULL, 0);
@@ -58,7 +57,7 @@ uint16_t DuinoCubeRPC::hello(uint16_t buf_addr) {
   return status;
 }
 
-uint16_t DuinoCubeRPC::invert(uint16_t buf_addr, uint16_t size) {
+uint16_t RPC::invert(uint16_t buf_addr, uint16_t size) {
   RPC_InvertArgs args;
   args.in.buf_addr = buf_addr;
   args.in.size     = size;
@@ -67,14 +66,14 @@ uint16_t DuinoCubeRPC::invert(uint16_t buf_addr, uint16_t size) {
   return status;
 }
 
-uint16_t DuinoCubeRPC::readCoreID() {
+uint16_t RPC::readCoreID() {
   RPC_ReadCoreIDArgs args;
   uint16_t status = exec(RPC_CMD_READ_CORE_ID,
                          NULL, 0, &args.out, sizeof(args.out));
   return args.out.id;
 }
 
-void DuinoCubeRPC::setCommandStatus(uint8_t status) {
+void RPC::setCommandStatus(uint8_t status) {
   switch (status) {
   case RPC_CLIENT_COMMAND:
     SET_PIN(RPC_CLIENT_COMMAND_PIN, LOW);
@@ -85,7 +84,7 @@ void DuinoCubeRPC::setCommandStatus(uint8_t status) {
   }
 }
 
-void DuinoCubeRPC::writeCommand(uint8_t command) {
+void RPC::writeCommand(uint8_t command) {
   if (command == RPC_CMD_NONE) {
     setCommandStatus(RPC_CLIENT_NO_COMMAND);
   } else {
@@ -94,7 +93,7 @@ void DuinoCubeRPC::writeCommand(uint8_t command) {
   }
 }
 
-uint8_t DuinoCubeRPC::readServerStatus() {
+uint8_t RPC::readServerStatus() {
   switch (GET_PIN(RPC_SERVER_STATUS_PIN)) {
   case HIGH:
     return RPC_SERVER_BUSY;
@@ -104,11 +103,11 @@ uint8_t DuinoCubeRPC::readServerStatus() {
   return RPC_SERVER_IDLE;
 }
 
-void DuinoCubeRPC::waitForServerStatus(uint8_t status) {
+void RPC::waitForServerStatus(uint8_t status) {
   while (readServerStatus() != status);
 }
 
-uint16_t DuinoCubeRPC::exec(uint8_t command,
+uint16_t RPC::exec(uint8_t command,
                             const void* in_args, uint8_t in_size,
                             void* out_args, uint8_t out_size) {
   // Wait for the server to be ready.
@@ -135,3 +134,5 @@ uint16_t DuinoCubeRPC::exec(uint8_t command,
   // TODO: implement status codes.
   return 0;
 }
+
+}  // namespace DuinoCube

@@ -24,10 +24,11 @@
 #include "rpc.h"
 #include "rpc_mem.h"
 
-static DuinoCubeRPC rpc;    // For RPC layer access.
+namespace DuinoCube {
 
-void DuinoCubeMemory::stat(uint16_t* total_free_size,
-                           uint16_t* largest_free_size) {
+static RPC rpc;    // For RPC layer access.
+
+void Mem::stat(uint16_t* total_free_size, uint16_t* largest_free_size) {
   RPC_MemStatArgs args;
 
   rpc.exec(RPC_CMD_MEM_STAT, NULL, 0, &args.out, sizeof(args.out));
@@ -38,7 +39,7 @@ void DuinoCubeMemory::stat(uint16_t* total_free_size,
     *largest_free_size = args.out.largest_free_size;
 }
 
-uint16_t DuinoCubeMemory::alloc(uint16_t size) {
+uint16_t Mem::alloc(uint16_t size) {
   RPC_MemAllocArgs args;
   args.in.size = size;
 
@@ -49,9 +50,11 @@ uint16_t DuinoCubeMemory::alloc(uint16_t size) {
   return args.out.addr;
 }
 
-void DuinoCubeMemory::free(uint16_t addr) {
+void Mem::free(uint16_t addr) {
   RPC_MemFreeArgs args;
   args.in.addr = addr;
 
   rpc.exec(RPC_CMD_MEM_FREE, &args.in, sizeof(args.in), NULL, 0);
 }
+
+}  // namespace DuinoCube

@@ -42,10 +42,14 @@ struct GamepadState {
   int16_t x, y;         // Position of stick.
 };
 
-class DuinoCubeGamepad {
+namespace DuinoCube {
+
+class Gamepad {
  public:
   // Returns gamepad button/stick values.
   static GamepadState readGamepad();
 };
+
+}  // namespace DuinoCube
 
 #endif  // __DUINOCUBE_GAMEPAD_H__

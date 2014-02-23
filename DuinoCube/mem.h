@@ -39,7 +39,9 @@
     (SHARED_MEMORY_SIZE - SHARED_MEMORY_HEAP_START)
 #define SHARED_MEMORY_BLOCK_SIZE     256  // Size of heap alloc chunk.
 
-class DuinoCubeMemory {
+namespace DuinoCube {
+
+class Mem {
  public:
   // Gets stats about shared memory allocation usage.
   static void stat(uint16_t* free_size, uint16_t* largest_size);
@@ -48,5 +50,7 @@ class DuinoCubeMemory {
   static uint16_t alloc(uint16_t size);
   static void free(uint16_t addr);
 };
+
+}  // namespace DuinoCube
 
 #endif  // __DUINOCUBE_MEM_H__

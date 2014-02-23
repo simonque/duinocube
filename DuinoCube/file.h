@@ -26,7 +26,9 @@
 // TODO: Add more defines.
 #define FILE_READ_ONLY    0x01
 
-class DuinoCubeFile {
+namespace DuinoCube {
+
+class File {
  public:
   // File I/O functions.
   static uint16_t open(const char* filename, uint16_t mode);
@@ -41,5 +43,7 @@ class DuinoCubeFile {
   // increase the file size.
   static void seek(uint16_t handle, uint32_t offset);
 };
+
+}  // namespace DuinoCube
 
 #endif  // __DUINOCUBE_FILE_H__

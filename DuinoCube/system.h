@@ -36,7 +36,9 @@
 
 #define RAM_SEQUENTIAL    0x40   // Sets sequential access mode.
 
-class DuinoCubeSystem {
+namespace DuinoCube {
+
+class System {
  public:
   static void begin();
 
@@ -44,5 +46,7 @@ class DuinoCubeSystem {
   static void readSharedRAM(uint16_t addr, void* data, uint16_t size);
   static void writeSharedRAM(uint16_t addr, const void* data, uint16_t size);
 };
+
+}  // namespace DuinoCube
 
 #endif  // __DUINOCUBE_SYSTEM_H__

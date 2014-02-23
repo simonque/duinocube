@@ -24,10 +24,14 @@
 
 struct GamepadState;  // Struct containing gamepad state data.
 
-class DuinoCubeUSB {
+namespace DuinoCube {
+
+class USB {
  public:
   // Returns joystick button/stick values.
   static GamepadState readJoystick();
 };
+
+}  // namespace DuinoCube
 
 #endif  // __DUINOCUBE_USB_H__

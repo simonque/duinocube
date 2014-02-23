@@ -30,9 +30,9 @@
 
 extern SPIClass SPI;
 
-DuinoCubeCore DuinoCube::Core;
-DuinoCubeFile DuinoCube::File;
-DuinoCubeSystem DuinoCube::Sys;
+DuinoCube::Core DuinoCubeClass::Core;
+DuinoCube::File DuinoCubeClass::File;
+DuinoCube::System DuinoCubeClass::Sys;
 
 static FILE uart_stdout;  // For linking UART to printf, etc.
 static int uart_putchar (char c, FILE *stream) {
@@ -40,7 +40,7 @@ static int uart_putchar (char c, FILE *stream) {
   return 0;
 }
 
-void DuinoCube::begin() {
+void DuinoCubeClass::begin() {
   // Initialize SPI.
   SPI.begin();
   SPI.setBitOrder(MSBFIRST);

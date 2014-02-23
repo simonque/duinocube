@@ -28,21 +28,21 @@
 #include "system.h"
 #include "usb.h"
 
-class DuinoCube {
+class DuinoCubeClass {
  public:
   // Initializes all subsystems.
   static void begin();
 
   // Objects for accessing subsystems.
-  static DuinoCubeCore Core;
-  static DuinoCubeFile File;
-  static DuinoCubeGamepad Gamepad;
-  static DuinoCubeMemory Mem;
-  static DuinoCubeRPC RPC;
-  static DuinoCubeSystem Sys;
-  static DuinoCubeUSB USB;
+  static DuinoCube::Core Core;
+  static DuinoCube::File File;
+  static DuinoCube::Gamepad Gamepad;
+  static DuinoCube::Mem Mem;
+  static DuinoCube::RPC RPC;
+  static DuinoCube::System Sys;
+  static DuinoCube::USB USB;
 };
 
-extern DuinoCube DC;
+extern DuinoCubeClass DC;
 
 #endif  // __DUINOCUBE_H__

@@ -28,7 +28,9 @@
 
 extern SPIClass SPI;
 
-void DuinoCubeCore::begin() {
+namespace DuinoCube {
+
+void Core::begin() {
   SET_PIN(CORE_SELECT_DIR, OUTPUT);
 
   // A rising edge on SS resets the SPI interface logic.
@@ -36,7 +38,7 @@ void DuinoCubeCore::begin() {
   SET_PIN(CORE_SELECT_PIN, HIGH);
 }
 
-void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
+void Core::writeData(uint16_t addr, const void* data, uint16_t size) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
@@ -49,7 +51,7 @@ void DuinoCubeCore::writeData(uint16_t addr, const void* data, uint16_t size) {
   SET_PIN(CORE_SELECT_PIN, HIGH);
 }
 
-void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
+void Core::readData(uint16_t addr, void* data, uint16_t size) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
@@ -62,7 +64,7 @@ void DuinoCubeCore::readData(uint16_t addr, void* data, uint16_t size) {
   SET_PIN(CORE_SELECT_PIN, HIGH);
 }
 
-void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
+void Core::writeByte(uint16_t addr, uint8_t data) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
@@ -72,7 +74,7 @@ void DuinoCubeCore::writeByte(uint16_t addr, uint8_t data) {
   SET_PIN(CORE_SELECT_PIN, HIGH);
 }
 
-uint8_t DuinoCubeCore::readByte(uint16_t addr) {
+uint8_t Core::readByte(uint16_t addr) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
@@ -84,7 +86,7 @@ uint8_t DuinoCubeCore::readByte(uint16_t addr) {
   return result;
 }
 
-void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
+void Core::writeWord(uint16_t addr, uint16_t data) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(highByte(addr) | WRITE_BIT_MASK);
@@ -95,7 +97,7 @@ void DuinoCubeCore::writeWord(uint16_t addr, uint16_t data) {
   SET_PIN(CORE_SELECT_PIN, HIGH);
 }
 
-uint16_t DuinoCubeCore::readWord(uint16_t addr) {
+uint16_t Core::readWord(uint16_t addr) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 
   SPI.transfer(highByte(addr) & ~WRITE_BIT_MASK);
@@ -111,3 +113,5 @@ uint16_t DuinoCubeCore::readWord(uint16_t addr) {
 
   return value_16;
 }
+
+}  // namespace DuinoCube

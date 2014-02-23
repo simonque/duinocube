@@ -32,10 +32,13 @@
 
 #define ESPLORA_JOYSTICK_MAX     512
 #define ESPLORA_JOYSTICK_MIN     (-512)
-GamepadState DuinoCubeGamepad::readGamepad() {
+
+namespace DuinoCube {
+
+GamepadState Gamepad::readGamepad() {
   GamepadState state;
 #if defined(__AVR_ATmega328P__)
-  DuinoCubeUSB usb;
+  USB usb;
   state = usb.readJoystick();
 
 #elif defined(__AVR_ATmega32U4__)
@@ -60,3 +63,5 @@ GamepadState DuinoCubeGamepad::readGamepad() {
 #endif
   return state;
 }
+
+}  // namespace DuinoCube

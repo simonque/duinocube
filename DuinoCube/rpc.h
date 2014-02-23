@@ -92,7 +92,9 @@ typedef struct {
   } out;
 } RPC_ReadCoreIDArgs;
 
-class DuinoCubeRPC {
+namespace DuinoCube {
+
+class RPC {
  public:
   static void begin();
 
@@ -116,7 +118,8 @@ class DuinoCubeRPC {
 
   // Waits for the RPC Server status to become |status|.
   static void waitForServerStatus(uint8_t status);
-
 };
+
+}  // namespace DuinoCube
 
 #endif  // __DUINOCUBE_RPC_H__
