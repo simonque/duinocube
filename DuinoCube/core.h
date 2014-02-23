@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#include "defs.h"
+#include "core_defs.h"
 
 class DuinoCubeCore {
  public:

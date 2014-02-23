@@ -17,8 +17,8 @@
 
 // DuinoCube memory and register definitions.
 
-#ifndef __DUINOCUBE_DEFS_H__
-#define __DUINOCUBE_DEFS_H__
+#ifndef __DUINOCUBE_CORE_DEFS_H__
+#define __DUINOCUBE_CORE_DEFS_H__
 
 #include <stdint.h>
 
@@ -216,4 +216,4 @@
 #define SPRITE_REF_XY_Y_END       13
 #define SPRITE_REF_XY_Y_WIDTH (SPRITE_REF_XY_Y_END - SPRITE_REF_XY_Y_START + 1)
 
-#endif  // __DUINOCUBE_DEFS_H__
+#endif  // __DUINOCUBE_CORE_DEFS_H__
