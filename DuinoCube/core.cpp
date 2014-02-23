@@ -22,6 +22,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+#include "file.h"
 #include "pins.h"
 
 #define WRITE_BIT_MASK      0x80
@@ -29,6 +30,8 @@
 extern SPIClass SPI;
 
 namespace DuinoCube {
+
+static File file;
 
 void Core::begin() {
   SET_PIN(CORE_SELECT_DIR, OUTPUT);
@@ -78,6 +81,77 @@ void Core::waitForEvent(uint16_t events) {
       break;
     }
   }
+}
+
+bool Core::loadPalette(const char* filename, uint8_t palette_index) {
+  uint16_t handle = file.open(filename, FILE_READ_ONLY);
+  if (!handle) {
+    return false;
+  }
+  uint32_t file_size = file.size(handle);
+  uint32_t size_read =
+      file.readToCore(handle, PALETTE(palette_index), file_size);
+
+  file.close(handle);
+  return (file_size == size_read);
+}
+
+bool Core::loadTilemap(const char* filename, uint8_t tilemap_index) {
+  uint16_t handle = file.open(filename, FILE_READ_ONLY);
+  if (!handle) {
+    return false;
+  }
+
+  writeWord(REG_MEM_BANK, TILEMAP_BANK);
+
+  uint32_t file_size = file.size(handle);
+  uint32_t size_read =
+      file.readToCore(handle, TILEMAP(tilemap_index), file_size);
+
+  file.close(handle);
+  return (file_size == size_read);
+}
+
+uint32_t Core::loadImageData(const char* filename, uint32_t vram_offset) {
+  uint16_t handle = file.open(filename, FILE_READ_ONLY);
+  if (!handle) {
+    return false;
+  }
+
+  uint32_t file_size = file.size(handle);
+
+  // Allow access to the VRAM.
+  writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
+
+  uint32_t total_size_read = 0;
+  while (true) {
+    // Calculate the bank and offset within the bank.
+    uint16_t bank_offset = vram_offset % VRAM_BANK_SIZE;
+
+    // Select the current bank.
+    writeWord(REG_MEM_BANK, VRAM_BANK_BEGIN + (vram_offset / VRAM_BANK_SIZE));
+
+    uint16_t bank_size_remaining = VRAM_BANK_SIZE - bank_offset;
+    uint16_t size_read =
+        file.readToCore(handle, VRAM_BASE + bank_offset, bank_size_remaining);
+    // Exit conditions: reached end of data or reached file size.
+    if (size_read == 0) {
+      break;
+    }
+    total_size_read += size_read;
+    if (total_size_read >= file_size) {
+      break;
+    }
+
+    // Go to the next bank.
+    vram_offset += bank_size_remaining;
+  }
+  file.close(handle);
+
+  // Turn off access to VRAM.
+  writeWord(REG_SYS_CTRL, (0 << REG_SYS_CTRL_VRAM_ACCESS));
+
+  return total_size_read;
 }
 
 void Core::writeData(uint16_t addr, const void* data, uint16_t size) {

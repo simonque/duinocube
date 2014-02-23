@@ -66,17 +66,10 @@ static void load() {
   printf("Loading palettes.\n");
   for (int i = 0; i < sizeof(palette_files) / sizeof(palette_files[0]); ++i) {
     const char* filename = palette_files[i];
-    uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
-    if (!handle) {
-      printf("Could not open file %s.\n", filename);
+    if (!DC.Core.loadPalette(filename, i)) {
+      printf("Error loading palette from file %s.\n", filename);
       continue;
     }
-    uint16_t file_size = DC.File.size(handle);
-    printf("File %s is 0x%x bytes\n", filename, file_size);
-    printf("Wrote 0x%x bytes to 0x%x\n",
-           DC.File.readToCore(handle, PALETTE(i), file_size), PALETTE(i));
-    DC.File.close(handle);
-
     *palettes[i] = i;
   }
 
@@ -85,51 +78,24 @@ static void load() {
   printf("Layers: %d\n", sizeof(layer_files) / sizeof(layer_files[0]));
   for (int i = 0; i < sizeof(layer_files) / sizeof(layer_files[0]); ++i) {
     const char* filename = layer_files[i];
-    uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
-    if (!handle) {
-      printf("Could not open file %s.\n", filename);
+    if (!DC.Core.loadTilemap(filename, i)) {
+      printf("Error loading tilemap from file %s.\n", filename);
       continue;
     }
-    uint16_t file_size = DC.File.size(handle);
-    printf("File %s is 0x%x bytes\n", filename, file_size);
-    DC.Core.writeWord(REG_MEM_BANK, TILEMAP_BANK);
-    printf("Wrote 0x%x bytes to 0x%x\n",
-           DC.File.readToCore(handle, TILEMAP(i), file_size), TILEMAP(i));
-    DC.Core.writeWord(REG_MEM_BANK, 0);
-    DC.File.close(handle);
   }
 
   // Load images.
   printf("Loading images.\n");
-  uint16_t addr = VRAM_BASE;
-  uint16_t bank = VRAM_BANK_BEGIN;
+  uint32_t vram_offset = 0;
   for (int i = 0; i < sizeof(image_files) / sizeof(image_files[0]); ++i) {
     const char* filename = image_files[i];
-    uint16_t handle = DC.File.open(filename, FILE_READ_ONLY);
-    if (!handle) {
+    uint32_t size_read = DC.Core.loadImageData(filename, vram_offset);
+    if (size_read == 0) {
       printf("Could not open file %s.\n", filename);
       continue;
     }
-    uint16_t file_size = DC.File.size(handle);
-    printf("File %s is 0x%x bytes\n", filename, file_size);
-    DC.Core.writeWord(REG_MEM_BANK, bank);
-    DC.Core.writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_VRAM_ACCESS));
-    printf("Wrote 0x%x bytes to 0x%x, bank = %u\n",
-           DC.File.readToCore(handle, addr, file_size), addr, bank);
-    DC.Core.writeWord(REG_MEM_BANK, 0);
-    DC.Core.writeWord(REG_SYS_CTRL, 0);
-
-    *vram_offsets[i] =
-        (addr - VRAM_BASE) + VRAM_BANK_SIZE * (bank - VRAM_BANK_BEGIN);
-
-    addr += file_size;
-    // TODO: this assumes that the individual data reads won't cross the bank
-    // boundaries.
-    while (addr >= VRAM_BASE + VRAM_BANK_SIZE) {
-      addr -= VRAM_BANK_SIZE;
-      bank += 1;
-    }
-    DC.File.close(handle);
+    *vram_offsets[i] = vram_offset;
+    vram_offset += size_read;
   }
 }
 
