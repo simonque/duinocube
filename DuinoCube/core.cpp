@@ -33,12 +33,18 @@ namespace DuinoCube {
 
 static File file;
 
+// Static member variables.
+Core::TileRegs Core::s_tile_regs[NUM_TILE_LAYERS];
+
 void Core::begin() {
   SET_PIN(CORE_SELECT_DIR, OUTPUT);
 
   // A rising edge on SS resets the SPI interface logic.
   SET_PIN(CORE_SELECT_PIN, LOW);
   SET_PIN(CORE_SELECT_PIN, HIGH);
+
+  // Clear cached tile register values.
+  memset(s_tile_regs, 0, sizeof(s_tile_regs));
 }
 
 void Core::moveCamera(int16_t x, int16_t y) {
@@ -152,6 +158,52 @@ uint32_t Core::loadImageData(const char* filename, uint32_t vram_offset) {
   writeWord(REG_SYS_CTRL, (0 << REG_SYS_CTRL_VRAM_ACCESS));
 
   return total_size_read;
+}
+
+void Core::enableTileLayer(uint8_t layer_index) {
+  TileRegs& regs = s_tile_regs[layer_index];
+  regs.enabled = 1;
+  writeData(TILE_LAYER_REG(layer_index, TILE_CTRL_0), &regs, sizeof(regs));
+}
+
+void Core::disableTileLayer(uint8_t layer_index) {
+  TileRegs& regs = s_tile_regs[layer_index];
+  regs.enabled = 0;
+  writeData(TILE_LAYER_REG(layer_index, TILE_CTRL_0), &regs, sizeof(regs));
+}
+
+void Core::moveTileLayer(uint8_t layer_index, int16_t x, int16_t y) {
+  struct {
+    int16_t x, y;
+  } values;
+  values.x = x;
+  values.y = y;
+
+  // Block copy both x and y values at the same time.
+  writeData(TILE_LAYER_REG(layer_index, TILE_OFFSET_X),
+            &values, sizeof(values));
+}
+
+void Core::setTileLayerProperty(uint8_t layer_index, uint16_t property,
+                                uint16_t value) {
+  TileRegs& regs = s_tile_regs[layer_index];
+  switch (property) {
+  case TILE_PROP_FLAGS:
+    // Apply the flags. Be sure not to touch the other parts of the register
+    // value.
+    regs.value &= ~TILE_FLAGS_MASK;
+    regs.value |= (value & TILE_FLAGS_MASK);
+    writeData(TILE_LAYER_REG(layer_index, TILE_CTRL_0), &regs, sizeof(regs));
+    break;
+  case TILE_PROP_PALETTE:
+    regs.palette = value;
+    writeData(TILE_LAYER_REG(layer_index, TILE_CTRL_0), &regs, sizeof(regs));
+    break;
+  default:
+    // Otherwise, treat the property index as a register value.
+    writeWord(TILE_LAYER_REG(layer_index, property), value);
+    break;
+  }
 }
 
 void Core::writeData(uint16_t addr, const void* data, uint16_t size) {

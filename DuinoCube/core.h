@@ -30,6 +30,25 @@
 #define CORE_EVENT_HBLANK_BEGIN   (1 << 2)
 #define CORE_EVENT_HBLANK_END     (1 << 3)
 
+// Tile property values.
+#define TILE_PROP_FLAGS              0
+#define TILE_PROP_PALETTE            1
+#define TILE_PROP_DATA_OFFSET        TILE_DATA_OFFSET
+#define TILE_PROP_TRANSP_VALUE       TILE_COLOR_KEY
+#define TILE_PROP_EMPTY_VALUE        TILE_EMPTY_VALUE
+
+// For setting the TILE_PROP_FLAGS property.
+#define TILE_FLAGS_ENABLE_TEXT       \
+    ((1 << TILE_ENABLE_8_BIT) | (1 << TILE_ENABLE_8x8))
+#define TILE_FLAGS_ENABLE_TRANSP     (1 << TILE_ENABLE_TRANSP)
+#define TILE_FLAGS_ENABLE_FLIP       (1 << TILE_ENABLE_FLIP)
+#define TILE_FLAGS_ENABLE_EMPTY      (1 << TILE_ENABLE_NOP)
+
+// The combination of all the above flag values.
+#define TILE_FLAGS_MASK              \
+    (TILE_FLAGS_ENABLE_TEXT | TILE_FLAGS_ENABLE_TRANSP | \
+     TILE_FLAGS_ENABLE_FLIP | TILE_FLAGS_ENABLE_EMPTY)
+
 namespace DuinoCube {
 
 class Core {
@@ -73,6 +92,30 @@ class Core {
   // Functions to read/write block data.
   static void readData(uint16_t addr, void* data, uint16_t size);
   static void writeData(uint16_t addr, const void* data, uint16_t size);
+
+ private:
+  // Cached copy of tile registers.
+  union TileRegs {
+    struct {
+      // Bit fields for the first register, TILE_CTRL_1.
+      uint8_t enabled:1;
+      uint8_t enable_8x8:1;
+      uint8_t enable_8_bit:1;
+      uint8_t enable_empty_tile:1;
+      uint8_t enable_scrolling:1;
+      uint8_t enable_transparency:1;
+      uint8_t enable_alpha:1;
+      uint8_t enable_color:1;
+      uint8_t enable_wrap_x:1;
+      uint8_t enable_wrap_y:1;
+      uint8_t enable_flip:1;
+      uint8_t shift_data_offset:1;
+      uint8_t palette:4;
+    };
+    // TODO: Support TILE_CTRL_1.
+    uint16_t value;
+  };
+  static TileRegs s_tile_regs[NUM_TILE_LAYERS];
 };
 
 }  // namespace DuinoCube

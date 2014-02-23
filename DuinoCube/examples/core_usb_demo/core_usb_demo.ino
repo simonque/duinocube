@@ -20,6 +20,10 @@
 #include <DuinoCube.h>
 #include <SPI.h>
 
+#define CLOUD_LAYER             3       // Cloud layer index.
+#define EMPTY_TILE         0x1fff       // Empty tile value.
+#define COLOR_KEY            0xff       // Transparent pixel value.
+
 // Files to load.
 const char* image_files[] = {
   "data/tileset.raw",
@@ -111,42 +115,23 @@ struct Sprite {
 static Sprite player_sprite;
 
 static void draw() {
-  // Set up tile layer registers.
-  // TODO: explain value.
-  word landscape_tile_ctrl0_value =
-      (1 << TILE_LAYER_ENABLED) |
-      (1 << TILE_ENABLE_NOP) |
-      (1 << TILE_ENABLE_TRANSP) |
-      (1 << TILE_ENABLE_FLIP) |
-      (landscape_pal << TILE_PALETTE_START);
-  word clouds_tile_ctrl0_value =
-      (1 << TILE_LAYER_ENABLED) |
-      (1 << TILE_ENABLE_NOP) |
-      (1 << TILE_ENABLE_TRANSP) |
-      (1 << TILE_ENABLE_FLIP) |
-      (clouds_pal << TILE_PALETTE_START);
+  for (int layer = 0; layer < ARRAY_SIZE(layer_files); ++layer) {
+    uint8_t palette = (layer == CLOUD_LAYER) ? clouds_pal : landscape_pal;
+    uint16_t offset = (layer == CLOUD_LAYER) ? clouds_offset : landscape_offset;
 
-  struct TileLayerInfo {
-    uint16_t ctrl0, empty, color_key, offset;
-  };
+    // Set layer properties.
+    DC.Core.setTileLayerProperty(layer, TILE_PROP_FLAGS,
+                                 (TILE_FLAGS_ENABLE_EMPTY |
+                                  TILE_FLAGS_ENABLE_TRANSP |
+                                  TILE_FLAGS_ENABLE_FLIP));
+    DC.Core.setTileLayerProperty(layer, TILE_PROP_PALETTE, palette);
+    DC.Core.setTileLayerProperty(layer, TILE_PROP_EMPTY_VALUE, EMPTY_TILE);
+    DC.Core.setTileLayerProperty(layer, TILE_PROP_TRANSP_VALUE, COLOR_KEY);
+    DC.Core.setTileLayerProperty(layer, TILE_PROP_DATA_OFFSET, offset);
+    DC.Core.moveTileLayer(layer, 0, 0);
 
-  const TileLayerInfo layer_info[] = {
-    // TODO: explain the meaning of the values.
-    { landscape_tile_ctrl0_value, 0x1fff, 0xff, landscape_offset },
-    { landscape_tile_ctrl0_value, 0x1fff, 0xff, landscape_offset },
-    { landscape_tile_ctrl0_value, 0x1fff, 0xff, landscape_offset },
-    { clouds_tile_ctrl0_value, 0x1fff, 0xff, clouds_offset },
-  };
-
-  for (int i = 0; i < sizeof(layer_files) / sizeof(layer_files[0]); ++i) {
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_CTRL_0), layer_info[i].ctrl0);
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_EMPTY_VALUE), layer_info[i].empty);
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_COLOR_KEY),
-                      layer_info[i].color_key);
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_DATA_OFFSET),
-                      layer_info[i].offset);
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_OFFSET_X), 0);
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_OFFSET_Y), 0);
+    // Turn the layer.
+    DC.Core.enableTileLayer(layer);
   }
 
   // Set up sprite.
@@ -214,7 +199,7 @@ void loop() {
   int8_t dx = 0;
   int8_t dy = 0;
 
-  uint8_t sprite_z = 3;
+  uint8_t sprite_z = CLOUD_LAYER;
 
   const int step = 8;
   for (uint16_t i = 0; ; i += step) {
@@ -342,8 +327,7 @@ void loop() {
     DC.Core.moveCamera(scroll_x, scroll_y);
 
     // Scroll the cloud layer independently.
-    DC.Core.writeWord(TILE_LAYER_REG(3, TILE_OFFSET_X), clouds_x);
-    DC.Core.writeWord(TILE_LAYER_REG(3, TILE_OFFSET_Y), clouds_y);
+    DC.Core.moveTileLayer(CLOUD_LAYER, clouds_x, clouds_y);
 
     // Update the sprite.
     DC.Core.writeWord(SPRITE_REG(0, SPRITE_CTRL_0), sprite_ctrl0_value);
