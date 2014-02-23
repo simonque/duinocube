@@ -38,6 +38,48 @@ void Core::begin() {
   SET_PIN(CORE_SELECT_PIN, HIGH);
 }
 
+void Core::moveCamera(int16_t x, int16_t y) {
+  // Store these in a contiguous struct so it can be block copied to save time.
+  // This works as long as REG_SCROLL_X and REG_SCROLL_Y are contiguous.
+  struct {
+    int16_t x, y;
+  } values;
+  values.x = x;
+  values.y = y;
+
+  writeData(REG_SCROLL_X, &values, sizeof(values));
+}
+
+void Core::waitForEvent(uint16_t events) {
+  // Generate two masks. |true_mask| is a mask used to detect if certain bits
+  // in a bitfield are set to 1. |false_mask| is used to detect if certain bits
+  // are set to 0.
+  uint16_t true_mask = 0;
+  uint16_t false_mask = 0;
+
+  // TODO: This part could probably be optimized for speed and size with the
+  // proper event definitions.
+  if (events & CORE_EVENT_VBLANK_BEGIN) {
+    true_mask |= (1 << REG_VBLANK);
+  }
+  if (events & CORE_EVENT_VBLANK_END) {
+    false_mask |= (1 << REG_VBLANK);
+  }
+  if (events & CORE_EVENT_HBLANK_BEGIN) {
+    true_mask |= (1 << REG_HBLANK);
+  }
+  if (events & CORE_EVENT_HBLANK_END) {
+    false_mask |= (1 << REG_HBLANK);
+  }
+
+  while (true) {
+    uint16_t status = readWord(REG_OUTPUT_STATUS);
+    if ((true_mask & status) || (false_mask & status)) {
+      break;
+    }
+  }
+}
+
 void Core::writeData(uint16_t addr, const void* data, uint16_t size) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 

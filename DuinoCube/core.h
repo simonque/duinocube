@@ -24,6 +24,12 @@
 
 #include "core_defs.h"
 
+// Event masks used by waitForEvent().
+#define CORE_EVENT_VBLANK_BEGIN   (1 << 0)
+#define CORE_EVENT_VBLANK_END     (1 << 1)
+#define CORE_EVENT_HBLANK_BEGIN   (1 << 2)
+#define CORE_EVENT_HBLANK_END     (1 << 3)
+
 namespace DuinoCube {
 
 class Core {
@@ -33,7 +39,7 @@ class Core {
 
   // System control functions.
   static void moveCamera(int16_t x, int16_t y);
-  static void waitForEvent(unt16_t event);
+  static void waitForEvent(uint16_t event);
 
   // Data loading functions.
   static bool loadPalette(const char* filename, uint8_t palette_index);

@@ -233,8 +233,7 @@ void setup() {
 
 void loop() {
   // Start camera at (0, 0).
-  DC.Core.writeWord(REG_SCROLL_X, 0);
-  DC.Core.writeWord(REG_SCROLL_Y, 0);
+  DC.Core.moveCamera(0, 0);
 
   int16_t scroll_x = 0;
   int16_t scroll_y = 0;
@@ -254,7 +253,7 @@ void loop() {
   const int step = 8;
   for (uint16_t i = 0; ; i += step) {
     // Wait for visible, non-vblanked region to do computations.
-    while ((DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+    DC.Core.waitForEvent(CORE_EVENT_VBLANK_END);
 
     // Read user input.
     GamepadState gamepad = DC.Gamepad.readGamepad();
@@ -371,11 +370,10 @@ void loop() {
     uint16_t clouds_y = -(i / 16);
 
     // Wait for Vblank.
-    while (!(DC.Core.readWord(REG_OUTPUT_STATUS) & (1 << REG_VBLANK)));
+    DC.Core.waitForEvent(CORE_EVENT_VBLANK_BEGIN);
 
     // Scroll the camera.
-    DC.Core.writeWord(REG_SCROLL_X, scroll_x);
-    DC.Core.writeWord(REG_SCROLL_Y, scroll_y);
+    DC.Core.moveCamera(scroll_x, scroll_y);
 
     // Scroll the cloud layer independently.
     DC.Core.writeWord(TILE_LAYER_REG(3, TILE_OFFSET_X), clouds_x);
