@@ -17,11 +17,12 @@
 
 // DuinoCube Core shield library for Arduino.
 
+#include "core.h"
+
 #include <Arduino.h>
 #include <SPI.h>
 
-#include "DuinoCube_core.h"
-#include "DuinoCube_pins.h"
+#include "pins.h"
 
 #define WRITE_BIT_MASK      0x80
 

@@ -17,15 +17,15 @@
 
 // DuinoCube File I/O library for Arduino.
 
+#include "file.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#include "DuinoCube_core.h"
-#include "DuinoCube_rpc.h"
-#include "DuinoCube_rpc_file.h"
-#include "DuinoCube_system.h"
-
-#include "DuinoCube_file.h"
+#include "core.h"
+#include "rpc.h"
+#include "rpc_file.h"
+#include "system.h"
 
 // Local handles to other DuinoCube classes.
 static DuinoCubeCore core;

@@ -15,29 +15,28 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with DuinoCube.  If not, see <http://www.gnu.org/licenses/>.
 
-// DuinoCube library for the DuinoCube audio/video core.
+// DuinoCube USB library for Arduino.
 
-#ifndef __DUINOCUBE_CORE_H__
-#define __DUINOCUBE_CORE_H__
+#include "usb.h"
 
-#include <stdint.h>
+#include "gamepad.h"
+#include "rpc.h"
+#include "rpc_usb.h"
 
-#include "DuinoCube_defs.h"
+#ifndef NULL
+#define NULL              0
+#endif
 
-class DuinoCubeCore {
- public:
-  // Initialize and teardown functions.
-  static void begin();
+static DuinoCubeRPC rpc;
 
-  // Functions to read/write bytes and words.
-  static uint8_t readByte(uint16_t addr);
-  static void writeByte(uint16_t addr, uint8_t data);
-  static uint16_t readWord(uint16_t addr);
-  static void writeWord(uint16_t addr, uint16_t data);
+GamepadState DuinoCubeUSB::readJoystick() {
+  GamepadState state;
 
-  // Functions to read/write block data.
-  static void readData(uint16_t addr, void* data, uint16_t size);
-  static void writeData(uint16_t addr, const void* data, uint16_t size);
-};
+  RPC_UsbReadJoystickArgs args;
+  rpc.exec(RPC_CMD_USB_READ_JOYSTICK, NULL, 0, &args.out, sizeof(args.out));
 
-#endif  // __DUINOCUBE_CORE_H__
+  state.buttons = args.out.buttons;
+  state.x = args.out.x;
+  state.y = args.out.y;
+  return state;
+}

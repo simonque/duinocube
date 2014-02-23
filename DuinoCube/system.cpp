@@ -20,10 +20,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#include "DuinoCube_pins.h"
-#include "DuinoCube_rpc.h"
+#include "pins.h"
+#include "rpc.h"
 
-#include "DuinoCube_system.h"
+#include "system.h"
 
 extern SPIClass SPI;
 

@@ -19,8 +19,8 @@
 
 #include <avr/io.h>
 
-#include "DuinoCube_defs.h"
-#include "DuinoCube_rpc.h"
+#include "DuinoCube/defs.h"
+#include "DuinoCube/rpc.h"
 
 #include "boot.h"
 #include "defines.h"

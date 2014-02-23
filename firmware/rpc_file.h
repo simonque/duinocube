@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#include "DuinoCube_rpc_file.h"
+#include "DuinoCube/rpc_file.h"
 
 void rpc_file_open();
 void rpc_file_close();

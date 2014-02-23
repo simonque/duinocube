@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include "DuinoCube_rpc.h"
+#include "DuinoCube/rpc.h"
 
 #include "file.h"
 #include "shmem.h"

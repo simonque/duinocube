@@ -17,8 +17,8 @@
 
 // DuinoCube remote procedure call functions for USB host.
 
-#include "DuinoCube_rpc.h"
-#include "DuinoCube_rpc_usb.h"
+#include "DuinoCube/rpc.h"
+#include "DuinoCube/rpc_usb.h"
 
 #include "shmem.h"
 #include "usb.h"

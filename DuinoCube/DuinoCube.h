@@ -20,13 +20,13 @@
 #ifndef __DUINOCUBE_H__
 #define __DUINOCUBE_H__
 
-#include "DuinoCube_core.h"
-#include "DuinoCube_file.h"
-#include "DuinoCube_gamepad.h"
-#include "DuinoCube_mem.h"
-#include "DuinoCube_rpc.h"
-#include "DuinoCube_system.h"
-#include "DuinoCube_usb.h"
+#include "core.h"
+#include "file.h"
+#include "gamepad.h"
+#include "mem.h"
+#include "rpc.h"
+#include "system.h"
+#include "usb.h"
 
 class DuinoCube {
  public:

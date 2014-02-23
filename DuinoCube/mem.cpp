@@ -17,12 +17,12 @@
 
 // DuinoCube System Shield shared memory allocation library.
 
+#include "mem.h"
+
 #include <stdio.h>
 
-#include "DuinoCube_rpc.h"
-#include "DuinoCube_rpc_mem.h"
-
-#include "DuinoCube_mem.h"
+#include "rpc.h"
+#include "rpc_mem.h"
 
 static DuinoCubeRPC rpc;    // For RPC layer access.
 

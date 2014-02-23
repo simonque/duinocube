@@ -23,7 +23,7 @@
 
 #include <avr/io.h>
 
-#include "DuinoCube_gamepad.h"
+#include "DuinoCube/gamepad.h"
 #include "FatFS/ff.h"
 #include "display.h"
 #include "file.h"

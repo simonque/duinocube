@@ -17,14 +17,14 @@
 
 // DuinoCube RPC subsystem library for Arduino.
 
+#include "rpc.h"
+
 #include <Arduino.h>
 #include <SPI.h>
 
-#include "DuinoCube_core.h"
-#include "DuinoCube_pins.h"
-#include "DuinoCube_system.h"
-
-#include "DuinoCube_rpc.h"
+#include "core.h"
+#include "pins.h"
+#include "system.h"
 
 #define NUM_RESET_CYCLES     4   // Atmega 328 requires 2.5 us reset pulse.
                                  // At 16 MHz with F = F_osc / 2, that's 2.5

@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#include "DuinoCube_mem.h"
+#include "mem.h"
 
 // Server and client status values.
 #define RPC_SERVER_BUSY            0    // Server is executing a command.

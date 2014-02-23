@@ -19,10 +19,10 @@
 
 #include <string.h>
 
-#include "DuinoCube_rpc.h"
-#include "DuinoCube_rpc_file.h"
-#include "DuinoCube_rpc_mem.h"
-#include "DuinoCube_rpc_usb.h"
+#include "DuinoCube/rpc.h"
+#include "DuinoCube/rpc_file.h"
+#include "DuinoCube/rpc_mem.h"
+#include "DuinoCube/rpc_usb.h"
 
 #include "defines.h"
 #include "printf.h"

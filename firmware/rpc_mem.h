@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-#include "DuinoCube_rpc_mem.h"
+#include "DuinoCube/rpc_mem.h"
 
 void rpc_mem_stat();
 void rpc_mem_alloc();

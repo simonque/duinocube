@@ -17,8 +17,8 @@
 
 // DuinoCube remote procedure call functions for memory allocation.
 
-#include "DuinoCube_mem.h"
-#include "DuinoCube_rpc_mem.h"
+#include "DuinoCube/mem.h"
+#include "DuinoCube/rpc_mem.h"
 
 #include "shmem.h"
 

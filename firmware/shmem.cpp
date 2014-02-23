@@ -19,7 +19,7 @@
 
 #include <string.h>
 
-#include "DuinoCube_mem.h"
+#include "DuinoCube/mem.h"
 
 #include "defines.h"
 #include "printf.h"

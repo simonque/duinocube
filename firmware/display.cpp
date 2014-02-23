@@ -21,9 +21,9 @@
 
 #include <string.h>
 
-#include "DuinoCube_core.h"
-#include "DuinoCube_defs.h"
-#include "DuinoCube_mem.h"
+#include "DuinoCube/core.h"
+#include "DuinoCube/defs.h"
+#include "DuinoCube/mem.h"
 #include "FatFS/ff.h"
 #include "file.h"
 #include "font.h"

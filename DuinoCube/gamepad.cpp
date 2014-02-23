@@ -17,10 +17,10 @@
 
 // DuinoCube Gamepad library for Arduino.
 
-#include "DuinoCube_gamepad.h"
+#include "gamepad.h"
 
 #if defined(__AVR_ATmega328P__)
-  #include "DuinoCube_usb.h"
+  #include "usb.h"
 
 #elif defined(__AVR_ATmega32U4__)
   #include "Esplora.h"
