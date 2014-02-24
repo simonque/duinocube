@@ -27,19 +27,19 @@
 #define PLAYER_SPRITE           0       // Index of player-controlled sprite.
 
 // Files to load.
-const char* image_files[] = {
+const char* kImageFiles[] = {
   "data/tileset.raw",
   "data/clouds.raw",
   "data/sprite32.raw",
 };
 
-const char* palette_files[] = {
+const char* kPaletteFiles[] = {
   "data/tileset.pal",
   "data/clouds.pal",
   "data/sprites.pal",
 };
 
-const char* layer_files[] = {
+const char* kTilemapFiles[] = {
   "data/desert0.lay",
   "data/desert1.lay",
   "data/desert2.lay",
@@ -61,8 +61,8 @@ static uint8_t* palettes[] = { &landscape_pal, &clouds_pal, &sprites_pal };
 static void load() {
   // Load palettes.
   printf("Loading palettes.\n");
-  for (int i = 0; i < sizeof(palette_files) / sizeof(palette_files[0]); ++i) {
-    const char* filename = palette_files[i];
+  for (int i = 0; i < ARRAY_SIZE(kPaletteFiles); ++i) {
+    const char* filename = kPaletteFiles[i];
     if (!DC.Core.loadPalette(filename, i)) {
       printf("Error loading palette from file %s.\n", filename);
       continue;
@@ -72,9 +72,8 @@ static void load() {
 
   // Load layers.
   printf("Loading layers.\n");
-  printf("Layers: %d\n", sizeof(layer_files) / sizeof(layer_files[0]));
-  for (int i = 0; i < sizeof(layer_files) / sizeof(layer_files[0]); ++i) {
-    const char* filename = layer_files[i];
+  for (int i = 0; i < ARRAY_SIZE(kTilemapFiles); ++i) {
+    const char* filename = kTilemapFiles[i];
     if (!DC.Core.loadTilemap(filename, i)) {
       printf("Error loading tilemap from file %s.\n", filename);
       continue;
@@ -84,8 +83,8 @@ static void load() {
   // Load images.
   printf("Loading images.\n");
   uint32_t vram_offset = 0;
-  for (int i = 0; i < sizeof(image_files) / sizeof(image_files[0]); ++i) {
-    const char* filename = image_files[i];
+  for (int i = 0; i < ARRAY_SIZE(kImageFiles); ++i) {
+    const char* filename = kImageFiles[i];
     uint32_t size_read = DC.Core.loadImageData(filename, vram_offset);
     if (size_read == 0) {
       printf("Could not open file %s.\n", filename);
@@ -108,7 +107,7 @@ struct Sprite {
 static Sprite player_sprite;
 
 static void draw() {
-  for (int layer = 0; layer < ARRAY_SIZE(layer_files); ++layer) {
+  for (int layer = 0; layer < ARRAY_SIZE(kTilemapFiles); ++layer) {
     uint8_t palette = (layer == CLOUD_LAYER) ? clouds_pal : landscape_pal;
     uint16_t offset = (layer == CLOUD_LAYER) ? clouds_offset : landscape_offset;
 
