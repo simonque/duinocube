@@ -224,8 +224,6 @@ void loop() {
         !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_4))) {
       new_flip_flags = SPRITE_FLIP_DIAG;
     }
-    if (old_flip_flags != new_flip_flags)
-      printf("0x%04x -> 0x%04x\n", old_flip_flags, new_flip_flags);
 
     // L1 and R1 cycle sprite through different images.
     int sprite_image_index =
