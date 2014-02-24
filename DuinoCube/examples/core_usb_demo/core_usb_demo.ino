@@ -59,12 +59,9 @@ static uint8_t landscape_pal, clouds_pal, sprites_pal;
 static uint8_t* palettes[] = { &landscape_pal, &clouds_pal, &sprites_pal };
 
 static void load() {
-  DC.Core.writeWord(REG_MEM_BANK, 0);
-  DC.Core.writeWord(REG_SYS_CTRL, 0);
-
   // Reset tile layers and sprites.
   for (int i = 0; i < NUM_TILE_LAYERS; ++i)
-    DC.Core.writeWord(TILE_LAYER_REG(i, TILE_CTRL_0), 0);
+    DC.Core.disableTileLayer(i);
   for (int i = 0; i < NUM_SPRITES; ++i)
     DC.Core.disableSprite(i);
 
