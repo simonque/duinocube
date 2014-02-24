@@ -43,6 +43,14 @@ void Core::begin() {
   SET_PIN(CORE_SELECT_PIN, LOW);
   SET_PIN(CORE_SELECT_PIN, HIGH);
 
+  // Reset the system.
+  writeWord(REG_SYS_CTRL, (1 << REG_SYS_CTRL_RESET));
+  // Sprites have to be disabled manually. The register reset doesn't reset
+  // them.
+  for (uint16_t i = 0; i < NUM_SPRITES; ++i) {
+    disableSprite(i);
+  }
+
   // Clear cached tile register values.
   memset(s_tile_regs, 0, sizeof(s_tile_regs));
 }
