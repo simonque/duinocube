@@ -59,12 +59,6 @@ static uint8_t landscape_pal, clouds_pal, sprites_pal;
 static uint8_t* palettes[] = { &landscape_pal, &clouds_pal, &sprites_pal };
 
 static void load() {
-  // Reset tile layers and sprites.
-  for (int i = 0; i < NUM_TILE_LAYERS; ++i)
-    DC.Core.disableTileLayer(i);
-  for (int i = 0; i < NUM_SPRITES; ++i)
-    DC.Core.disableSprite(i);
-
   // Load palettes.
   printf("Loading palettes.\n");
   for (int i = 0; i < sizeof(palette_files) / sizeof(palette_files[0]); ++i) {
