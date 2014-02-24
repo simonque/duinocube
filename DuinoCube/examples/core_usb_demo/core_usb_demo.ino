@@ -26,6 +26,9 @@
 
 #define PLAYER_SPRITE           0       // Index of player-controlled sprite.
 
+#define MOVEMENT_STEP           8       // Amount by which to increment movement
+                                        // counter each game cycle.
+
 // Files to load.
 const char* kImageFiles[] = {
   "data/tileset.raw",
@@ -188,8 +191,7 @@ void loop() {
 
   uint8_t sprite_z = CLOUD_LAYER;
 
-  const int step = 8;
-  for (uint16_t i = 0; ; i += step) {
+  for (uint16_t movement_count = 0; true; movement_count += MOVEMENT_STEP) {
     // Wait for visible, non-vblanked region to do computations.
     DC.Core.waitForEvent(CORE_EVENT_VBLANK_END);
 
@@ -291,8 +293,8 @@ void loop() {
       scroll_y = player_sprite.y + SPRITE_HEIGHT - SCREEN_HEIGHT;
 
     // Update the cloud movement.
-    uint16_t clouds_x = (i / 8);
-    uint16_t clouds_y = -(i / 16);
+    uint16_t clouds_x = (movement_count / 8);
+    uint16_t clouds_y = -(movement_count / 16);
 
     // Wait for Vblank.
     DC.Core.waitForEvent(CORE_EVENT_VBLANK_BEGIN);
