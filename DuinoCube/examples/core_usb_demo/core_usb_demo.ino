@@ -98,9 +98,6 @@ static void load() {
 // Contains the location of a sprite.
 struct Sprite {
   int16_t x, y;                // Location.
-  int8_t dx, dy;               // Sprite speed.
-  int8_t step_x, step_y;       // |dx| and |dy| steps are taken per frame.
-  uint16_t ctrl0_value;        // Value of the SPRITE_CTRL_0 register.
   uint16_t offset;             // Offset of image data.
 };
 
@@ -137,9 +134,7 @@ static void draw() {
   // Set transparency.
   DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_TRANSP_VALUE, COLOR_KEY);
   // Set location.
-  player_sprite.x = 0;
-  player_sprite.y = 0;
-  DC.Core.moveSprite(PLAYER_SPRITE, player_sprite.x, player_sprite.y);
+  DC.Core.moveSprite(PLAYER_SPRITE, 0, 0);
   // Set palette.
   DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_PALETTE, sprites_pal);
   // Set flags.
@@ -148,6 +143,11 @@ static void draw() {
 
   // Enable the sprite.
   DC.Core.enableSprite(PLAYER_SPRITE);
+
+  // Initialize the player sprite data structure.
+  player_sprite.x = 0;
+  player_sprite.y = 0;
+  player_sprite.offset = sprites_offset;
 }
 
 void setup() {
