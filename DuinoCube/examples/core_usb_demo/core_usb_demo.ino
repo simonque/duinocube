@@ -24,6 +24,8 @@
 #define EMPTY_TILE         0x1fff       // Empty tile value.
 #define COLOR_KEY            0xff       // Transparent pixel value.
 
+#define PLAYER_SPRITE           0       // Index of player-controlled sprite.
+
 // Files to load.
 const char* image_files[] = {
   "data/tileset.raw",
@@ -64,7 +66,7 @@ static void load() {
   for (int i = 0; i < NUM_TILE_LAYERS; ++i)
     DC.Core.writeWord(TILE_LAYER_REG(i, TILE_CTRL_0), 0);
   for (int i = 0; i < NUM_SPRITES; ++i)
-    DC.Core.writeWord(SPRITE_REG(i, SPRITE_CTRL_0), 0);
+    DC.Core.disableSprite(i);
 
   // Load palettes.
   printf("Loading palettes.\n");
@@ -135,32 +137,27 @@ static void draw() {
   }
 
   // Set up sprite.
-  uint16_t sprite_index = 0;
 
   // Set to 32x32 size.
-  DC.Core.writeWord(SPRITE_REG(sprite_index, SPRITE_CTRL_1),
-                    (1 << SPRITE_HSIZE_1) | (1 << SPRITE_VSIZE_1));
-
+  DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_WIDTH, SPRITE_SIZE_32);
+  DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_HEIGHT, SPRITE_SIZE_32);
   // Set image data offset.
-  DC.Core.writeWord(SPRITE_REG(sprite_index, SPRITE_DATA_OFFSET),
-                    sprites_offset);
-
+  DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_DATA_OFFSET,
+                            sprites_offset);
   // Set transparency.
-  DC.Core.writeWord(SPRITE_REG(sprite_index, SPRITE_COLOR_KEY), 0xff);
-
+  DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_TRANSP_VALUE, COLOR_KEY);
   // Set location.
   player_sprite.x = 0;
   player_sprite.y = 0;
-  DC.Core.writeWord(SPRITE_REG(sprite_index, SPRITE_OFFSET_X), player_sprite.x);
-  DC.Core.writeWord(SPRITE_REG(sprite_index, SPRITE_OFFSET_Y), player_sprite.y);
+  DC.Core.moveSprite(PLAYER_SPRITE, player_sprite.x, player_sprite.y);
+  // Set palette.
+  DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_PALETTE, sprites_pal);
+  // Set flags.
+  DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_FLAGS,
+                            SPRITE_FLAGS_ENABLE_TRANSP);
 
-  // Finally, turn on sprite.
-  uint16_t sprite_ctrl0_value = (1 << SPRITE_ENABLED) |
-                                (1 << SPRITE_ENABLE_TRANSP) |
-                                (1 << SPRITE_ENABLE_SCROLL) |
-                                (sprites_pal << SPRITE_PALETTE_START);
-  DC.Core.writeWord(SPRITE_REG(sprite_index, SPRITE_CTRL_0),
-                    sprite_ctrl0_value);
+  // Enable the sprite.
+  DC.Core.enableSprite(PLAYER_SPRITE);
 }
 
 void setup() {
@@ -194,7 +191,7 @@ void loop() {
   prev_gamepad.x = 0;
   prev_gamepad.y = 0;
 
-  uint16_t old_flip_flags = 0;
+  uint16_t old_flip_flags = SPRITE_FLIP_NONE;
 
   int8_t dx = 0;
   int8_t dy = 0;
@@ -213,33 +210,22 @@ void loop() {
     uint16_t new_flip_flags = old_flip_flags;
     if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_1)) &&
         !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_1))) {
-      new_flip_flags = 0;
+      new_flip_flags = SPRITE_FLIP_NONE;
     }
     if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_2)) &&
         !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_2))) {
-      new_flip_flags = (1 << SPRITE_FLIP_Y) | (1 << SPRITE_FLIP_XY);
+      new_flip_flags = (SPRITE_FLIP_VERT | SPRITE_FLIP_DIAG);
     }
     if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_3)) &&
         !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_3))) {
-      new_flip_flags = (1 << SPRITE_FLIP_Y);
+      new_flip_flags = SPRITE_FLIP_VERT;
     }
     if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_4)) &&
         !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_4))) {
-      new_flip_flags = (1 << SPRITE_FLIP_XY);
+      new_flip_flags = SPRITE_FLIP_DIAG;
     }
     if (old_flip_flags != new_flip_flags)
       printf("0x%04x -> 0x%04x\n", old_flip_flags, new_flip_flags);
-
-    // Read the SPRITE_CTRL_0 register and clear the flip bits.
-    uint16_t sprite_ctrl0_value =
-        DC.Core.readWord(SPRITE_REG(0, SPRITE_CTRL_0));
-    if (new_flip_flags != old_flip_flags) {
-      sprite_ctrl0_value &= ~(1 << SPRITE_FLIP_X);
-      sprite_ctrl0_value &= ~(1 << SPRITE_FLIP_Y);
-      sprite_ctrl0_value &= ~(1 << SPRITE_FLIP_XY);
-      sprite_ctrl0_value |= new_flip_flags;
-    }
-    old_flip_flags = new_flip_flags;
 
     // L1 and R1 cycle sprite through different images.
     int sprite_image_index =
@@ -330,10 +316,14 @@ void loop() {
     DC.Core.moveTileLayer(CLOUD_LAYER, clouds_x, clouds_y);
 
     // Update the sprite.
-    DC.Core.writeWord(SPRITE_REG(0, SPRITE_CTRL_0), sprite_ctrl0_value);
-    DC.Core.writeWord(SPRITE_REG(0, SPRITE_DATA_OFFSET), player_sprite.offset);
-    DC.Core.writeWord(SPRITE_REG(0, SPRITE_OFFSET_X), player_sprite.x);
-    DC.Core.writeWord(SPRITE_REG(0, SPRITE_OFFSET_Y), player_sprite.y);
-    DC.Core.writeWord(REG_SPRITE_Z, sprite_z);
+    if (new_flip_flags != old_flip_flags) {
+      DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_ORIENTATION,
+                                new_flip_flags);
+      old_flip_flags = new_flip_flags;
+    }
+    DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_DATA_OFFSET,
+                              player_sprite.offset);
+    DC.Core.moveSprite(PLAYER_SPRITE, player_sprite.x, player_sprite.y);
+    DC.Core.setSpriteDepth(sprite_z);
   }
 }

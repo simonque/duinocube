@@ -206,6 +206,75 @@ void Core::setTileLayerProperty(uint8_t layer_index, uint16_t property,
   }
 }
 
+void Core::setSpriteDepth(uint8_t depth) {
+  writeWord(REG_SPRITE_Z, depth);
+}
+
+void Core::enableSprite(uint8_t sprite_index) {
+  uint16_t reg_value = readWord(SPRITE_REG(sprite_index, SPRITE_CTRL_0));
+  reg_value |= (1 << SPRITE_ENABLED);
+  writeWord(SPRITE_REG(sprite_index, SPRITE_CTRL_0), reg_value);
+}
+
+void Core::disableSprite(uint8_t sprite_index) {
+  uint16_t reg_value = readWord(SPRITE_REG(sprite_index, SPRITE_CTRL_0));
+  reg_value &= ~(1 << SPRITE_ENABLED);
+  writeWord(SPRITE_REG(sprite_index, SPRITE_CTRL_0), reg_value);
+}
+
+void Core::moveSprite(uint8_t sprite_index, int16_t x, int16_t y) {
+  struct {
+    int16_t x, y;
+  } values;
+  values.x = x;
+  values.y = y;
+
+  // Block copy both x and y values at the same time.
+  writeData(SPRITE_REG(sprite_index, SPRITE_OFFSET_X), &values, sizeof(values));
+}
+
+void Core::setSpriteProperty(uint8_t sprite_index, uint16_t property,
+                             uint16_t value) {
+  uint8_t& index = sprite_index;
+  SpriteRegs regs;
+  switch (property) {
+  case SPRITE_PROP_FLAGS:
+    // Apply the flags. Be sure not to touch the other parts of the register
+    // value.
+    regs.values[SPRITE_CTRL_0] = readWord(SPRITE_REG(index, SPRITE_CTRL_0));
+    regs.values[SPRITE_CTRL_0] &= ~SPRITE_FLAGS_MASK;
+    regs.values[SPRITE_CTRL_0] |= (value & SPRITE_FLAGS_MASK);
+    writeWord(SPRITE_REG(index, SPRITE_CTRL_0), regs.values[SPRITE_CTRL_0]);
+    break;
+  case SPRITE_PROP_ORIENTATION:
+    regs.values[SPRITE_CTRL_0] = readWord(SPRITE_REG(index, SPRITE_CTRL_0));
+    regs.values[SPRITE_CTRL_0] &= ~SPRITE_FLIP_MASK;
+    regs.values[SPRITE_CTRL_0] |= (value & SPRITE_FLIP_MASK);
+    writeWord(SPRITE_REG(index, SPRITE_CTRL_0), regs.values[SPRITE_CTRL_0]);
+    break;
+  case SPRITE_PROP_PALETTE:
+    regs.values[SPRITE_CTRL_0] = readWord(SPRITE_REG(index, SPRITE_CTRL_0));
+    regs.palette = value;
+    writeWord(SPRITE_REG(index, SPRITE_CTRL_0), regs.values[SPRITE_CTRL_0]);
+    break;
+  case SPRITE_PROP_WIDTH:
+  case SPRITE_PROP_HEIGHT:
+    regs.values[SPRITE_CTRL_1] = readWord(SPRITE_REG(index, SPRITE_CTRL_1));
+    if (property == SPRITE_PROP_WIDTH) {
+      regs.width = value;
+    } else {
+      regs.height = value;
+    }
+    writeWord(SPRITE_REG(index, SPRITE_CTRL_1), regs.values[SPRITE_CTRL_1]);
+    break;
+  default:
+    // Otherwise, treat the property type as a register value.
+    // Make sure to adjust the property type by |NUM_SPRITE_REGS|.
+    writeWord(SPRITE_REG(index, property - NUM_SPRITE_REGS), value);
+    break;
+  }
+}
+
 void Core::writeData(uint16_t addr, const void* data, uint16_t size) {
   SET_PIN(CORE_SELECT_PIN, LOW);
 

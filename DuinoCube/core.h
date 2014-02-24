@@ -49,6 +49,36 @@
     (TILE_FLAGS_ENABLE_TEXT | TILE_FLAGS_ENABLE_TRANSP | \
      TILE_FLAGS_ENABLE_FLIP | TILE_FLAGS_ENABLE_EMPTY)
 
+// Property type values used by setSpriteProperty().
+#define SPRITE_PROP_FLAGS             0
+#define SPRITE_PROP_ORIENTATION       1
+#define SPRITE_PROP_PALETTE           2
+#define SPRITE_PROP_WIDTH             3
+#define SPRITE_PROP_HEIGHT            4
+
+// These properties have their own registers but the register indexes overlap
+// with the preceding values. The solution: offset by |NUM_SPRITE_REGS|.
+#define SPRITE_PROP_DATA_OFFSET       (SPRITE_DATA_OFFSET + NUM_SPRITE_REGS)
+#define SPRITE_PROP_TRANSP_VALUE      (SPRITE_COLOR_KEY + NUM_SPRITE_REGS)
+
+// Flag values that can be OR'd together.
+#define SPRITE_FLAGS_ENABLE_TRANSP    (1 << SPRITE_ENABLE_TRANSP)
+#define SPRITE_FLAGS_MASK      (SPRITE_FLAGS_ENABLE_TRANSP)
+
+// Sprite orientation values.
+#define SPRITE_FLIP_HORIZ             (1 << SPRITE_FLIP_X)
+#define SPRITE_FLIP_VERT              (1 << SPRITE_FLIP_Y)
+#define SPRITE_FLIP_DIAG              (1 << SPRITE_FLIP_XY)
+#define SPRITE_FLIP_NONE              0
+#define SPRITE_FLIP_MASK      \
+    (SPRITE_FLIP_HORIZ | SPRITE_FLIP_VERT | SPRITE_FLIP_DIAG)
+
+// Sprite dimension values.
+#define SPRITE_SIZE_8         0
+#define SPRITE_SIZE_16        1
+#define SPRITE_SIZE_32        2
+#define SPRITE_SIZE_64        3
+
 namespace DuinoCube {
 
 class Core {
@@ -73,6 +103,7 @@ class Core {
                                    uint16_t value);
 
   // Sprite functions.
+  static void setSpriteDepth(uint8_t depth);
   static void enableSprite(uint8_t sprite_index);
   static void disableSprite(uint8_t sprite_index);
   static void moveSprite(uint8_t sprite_index, int16_t x, int16_t y);
@@ -116,6 +147,31 @@ class Core {
     uint16_t value;
   };
   static TileRegs s_tile_regs[NUM_TILE_LAYERS];
+
+  // Cached copy of sprite registers.
+  // These are not cached beyond the local scope because there are too many
+  // sprites.
+  union SpriteRegs {
+    struct {
+      // SPRITE_CTRL_0
+      uint8_t enabled:1;
+      uint8_t padding:3;
+      uint8_t enable_scrolling:1;
+      uint8_t enable_transparency:1;
+      uint8_t enable_alpha:1;
+      uint8_t enable_color:1;
+      uint8_t flip_x:1;
+      uint8_t flip_y:1;
+      uint8_t flip_xy:1;
+      uint8_t shift_data_offset:1;
+      uint8_t palette:4;
+
+      // SPRITE_CTRL_1
+      uint8_t width:2;
+      uint8_t height:2;
+    };
+    uint16_t values[2];
+  };
 };
 
 }  // namespace DuinoCube
