@@ -19,7 +19,6 @@
 
 #include <avr/io.h>
 
-#include "DuinoCube/defs.h"
 #include "DuinoCube/rpc.h"
 
 #include "boot.h"

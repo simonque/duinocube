@@ -22,7 +22,7 @@
 #include <string.h>
 
 #include "DuinoCube/core.h"
-#include "DuinoCube/defs.h"
+#include "DuinoCube/core_defs.h"
 #include "DuinoCube/mem.h"
 #include "FatFS/ff.h"
 #include "file.h"
