@@ -32,7 +32,7 @@ extern SPIClass SPI;
 
 DuinoCube::Core DuinoCubeClass::Core;
 DuinoCube::File DuinoCubeClass::File;
-DuinoCube::System DuinoCubeClass::Sys;
+DuinoCube::RPC DuinoCubeClass::RPC;
 
 static FILE uart_stdout;  // For linking UART to printf, etc.
 static int uart_putchar (char c, FILE *stream) {
@@ -64,5 +64,7 @@ void DuinoCubeClass::begin() {
 #endif  // defined(__AVR_ATmega32U4__)
 
   Core.begin();
-  Sys.begin();
+
+  // Set up the RPC server and client.
+  RPC.begin();
 }

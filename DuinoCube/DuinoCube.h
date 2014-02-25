@@ -40,7 +40,6 @@ class DuinoCubeClass {
   static DuinoCube::Gamepad Gamepad;
   static DuinoCube::Mem Mem;
   static DuinoCube::RPC RPC;
-  static DuinoCube::System Sys;
   static DuinoCube::USB USB;
 };
 
