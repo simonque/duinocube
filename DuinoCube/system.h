@@ -22,12 +22,6 @@
 
 #include <stdint.h>
 
-// SPI opcodes.
-#define OP_WRITE_COMMAND     1
-#define OP_READ_STATUS       2
-#define OP_ACCESS_RAM        3
-#define OP_RESET             7
-
 // Shared RAM opcodes.
 #define RAM_ST_READ          5   // Read/write status register.
 #define RAM_ST_WRITE         1
