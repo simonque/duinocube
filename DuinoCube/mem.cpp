@@ -21,12 +21,59 @@
 
 #include <stdio.h>
 
+#include <SPI.h>
+
+#include "pins.h"
 #include "rpc.h"
 #include "rpc_mem.h"
 
 namespace DuinoCube {
 
 static RPC rpc;    // For RPC layer access.
+
+void Mem::begin() {
+  // Set up the system shield SPI interface.
+  SET_PIN(RAM_SELECT_PIN, HIGH);
+  SET_PIN(RAM_SELECT_DIR, OUTPUT);
+
+  // Set up the shared RAM for sequential access.
+  SET_PIN(RAM_SELECT_PIN, LOW);
+
+  SPI.transfer(RAM_ST_WRITE);
+  SPI.transfer(RAM_SEQUENTIAL);
+
+  SET_PIN(RAM_SELECT_PIN, HIGH);
+}
+
+void Mem::read(uint16_t addr, void* data, uint16_t size) {
+  SET_PIN(RAM_SELECT_PIN, LOW);
+
+  // The SPI RAM uses MSB first mode.
+  SPI.transfer(RAM_READ);
+  SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
+
+  char* buf = (char*)data;
+  for (uint16_t i = 0; i < size; ++i)
+    buf[i] = SPI.transfer(0);
+
+  SET_PIN(RAM_SELECT_PIN, HIGH);
+}
+
+void Mem::write(uint16_t addr, const void* data, uint16_t size) {
+  SET_PIN(RAM_SELECT_PIN, LOW);
+
+  // The SPI RAM uses MSB first mode.
+  SPI.transfer(RAM_WRITE);
+  SPI.transfer(highByte(addr));
+  SPI.transfer(lowByte(addr));
+
+  const char* buf = (const char*)data;
+  for (uint16_t i = 0; i < size; ++i)
+    SPI.transfer(buf[i]);
+
+  SET_PIN(RAM_SELECT_PIN, HIGH);
+}
 
 void Mem::stat(uint16_t* total_free_size, uint16_t* largest_free_size) {
   RPC_MemStatArgs args;

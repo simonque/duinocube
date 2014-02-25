@@ -195,7 +195,7 @@ static void setup_sprites() {
     movement.step_y = 0;
 
     // Store movement data in shared memory.
-    DC.Sys.writeSharedRAM(addr, &movement, sizeof(movement));
+    DC.Mem.write(addr, &movement, sizeof(movement));
   }
 
   for (int i = 0; i < NUM_SPRITES_DRAWN; ++i) {
@@ -280,7 +280,7 @@ void loop() {
   for (int i = 0; i < NUM_SPRITES_DRAWN; ++i, addr += sizeof(SpriteMovement)) {
     // Load movement data from shared memory.
     if (i % NUM_MOVEMENTS_TO_READ == 0)
-      DC.Sys.readSharedRAM(addr, movements, sizeof(movements));
+      DC.Mem.read(addr, movements, sizeof(movements));
     SpriteMovement& movement = movements[i % NUM_MOVEMENTS_TO_READ];
 
     // Update the location and movement counter.
@@ -297,7 +297,7 @@ void loop() {
     }
 
     // Write the updated movement data back to shared memory.
-    DC.Sys.writeSharedRAM(addr, &movement, sizeof(movement));
+    DC.Mem.write(addr, &movement, sizeof(movement));
 
     // Adjust the sprites if they move off screen -- shift them to the other
     // side so they re-enter the visible area quickly.  This way they spend

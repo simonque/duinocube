@@ -180,7 +180,7 @@ void loadLevelToTilemapEdges(uint16_t scroll_x, uint16_t scroll_y) {
       uint16_t tile_value = DEFAULT_EMPTY_TILE_VALUE;
       for (int j = 0; j < ARRAY_SIZE(kOffsetsToLoad); ++j) {
         uint16_t offset = kOffsetsToLoad[j];
-        DC.Sys.readSharedRAM(
+        DC.Mem.read(
             g_level_buffer + level_offset + offset * sizeof(tile_value),
             &tile_value, sizeof(tile_value));
         DC.Core.writeWord(

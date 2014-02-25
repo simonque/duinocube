@@ -25,14 +25,13 @@
 #include "core.h"
 #include "rpc.h"
 #include "rpc_file.h"
-#include "system.h"
 
 namespace DuinoCube {
 
 // Local handles to other DuinoCube classes.
 static Core core;
-static System sys;
 static RPC rpc;
+static Mem mem;
 
 uint16_t File::open(const char* filename, uint16_t mode) {
   RPC_FileOpenArgs args;
@@ -40,7 +39,7 @@ uint16_t File::open(const char* filename, uint16_t mode) {
   args.in.mode          = mode;
 
   // Copy the name string to shared memory (including null terminator).
-  sys.writeSharedRAM(STRING_BUF_ADDR, filename, strlen(filename) + 1);
+  mem.write(STRING_BUF_ADDR, filename, strlen(filename) + 1);
 
   rpc.exec(RPC_CMD_FILE_OPEN,
            &args.in, sizeof(args.in),

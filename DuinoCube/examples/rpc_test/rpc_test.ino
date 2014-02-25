@@ -32,7 +32,7 @@ void loop() {
 
   // Call Hello(), should get a "hello world" string back.
   DC.RPC.hello(addr);
-  DC.Sys.readSharedRAM(addr, buf, sizeof(buf));
+  DC.Mem.read(addr, buf, sizeof(buf));
   printf("Hello() returned: %s\n", buf);
 
   // Call Invert() to flip all the bits in a string.
@@ -40,13 +40,13 @@ void loop() {
   const char str[] = "The quick brown fox jumps over the lazy dog.";
   int string_length = strlen(str);
   buf[string_length] = 0;   // Add a null terminator to the destination buffer.
-  DC.Sys.writeSharedRAM(addr, str, string_length);
+  DC.Mem.write(addr, str, string_length);
   DC.RPC.invert(addr, string_length);
-  DC.Sys.readSharedRAM(addr, buf, string_length);
+  DC.Mem.read(addr, buf, string_length);
   printf("Invert(str) = %s\n", buf);
 
   DC.RPC.invert(addr, string_length);
-  DC.Sys.readSharedRAM(addr, buf, string_length);
+  DC.Mem.read(addr, buf, string_length);
   printf("Invert(Invert(str)) = %s\n", buf);
 
   while(1);

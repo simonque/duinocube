@@ -163,7 +163,7 @@ uint16_t loadLevel(const char* base_filename, int tilemap_index) {
       uint16_t tilemap_offset = y * TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE;
 
       uint8_t tilemap_line[TILEMAP_WIDTH * TILEMAP_ENTRY_SIZE];
-      DC.Sys.readSharedRAM(level_buffer + level_offset, tilemap_line,
+      DC.Mem.read(level_buffer + level_offset, tilemap_line,
                            sizeof(tilemap_line));
       DC.Core.writeData(TILEMAP(tilemap_index) + tilemap_offset,
                         tilemap_line, sizeof(tilemap_line));
@@ -206,7 +206,7 @@ void loadChick(const char* base_filename, uint32_t vram_addr) {
       uint16_t src_offset = subframe.x + CHICK_WIDTH * subframe.y;
       for (int y = subframe.y; y < subframe.y + subframe.h; ++y) {
         // Read a subframe line into the local line buffer.
-        DC.Sys.readSharedRAM(buffer + src_offset, line_buffer, subframe.w);
+        DC.Mem.read(buffer + src_offset, line_buffer, subframe.w);
 
         // Copy it to VRAM.
         copyDataToVRAM(line_buffer, vram_addr + dst_offset, subframe.w);

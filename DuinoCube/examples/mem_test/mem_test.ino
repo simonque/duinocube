@@ -187,17 +187,17 @@ static void test_access() {
   uint16_t addr = DC.Mem.alloc(sizeof(buffer));
   EXPECT_NE(addr, 0);
   memset(buffer, 0, sizeof(buffer));
-  DC.Sys.writeSharedRAM(addr, buffer, sizeof(buffer));
+  DC.Mem.write(addr, buffer, sizeof(buffer));
 
   // Read it back to make sure it was cleared.
-  DC.Sys.readSharedRAM(addr, buffer, sizeof(buffer));
+  DC.Mem.read(addr, buffer, sizeof(buffer));
   for (uint16_t i = 0; i < sizeof(buffer) / sizeof(buffer[0]); ++i)
     EXPECT_EQ(buffer[i], 0);
 
   // Write test string to RAM and read it back.
-  DC.Sys.writeSharedRAM(addr, string, strlen(string) + 1);
+  DC.Mem.write(addr, string, strlen(string) + 1);
   memset(buffer, 0, sizeof(buffer));
-  DC.Sys.readSharedRAM(addr, buffer, strlen(string) + 1);
+  DC.Mem.read(addr, buffer, strlen(string) + 1);
 
   printf("Read back: %s\n", buffer);
   printf("Expecting: %s\n", string);

@@ -25,7 +25,6 @@
 #include "gamepad.h"
 #include "mem.h"
 #include "rpc.h"
-#include "system.h"
 #include "usb.h"
 #include "utils.h"
 

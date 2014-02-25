@@ -24,7 +24,6 @@
 
 #include "core.h"
 #include "pins.h"
-#include "system.h"
 
 #define NUM_RESET_CYCLES     4   // Atmega 328 requires 2.5 us reset pulse.
                                  // At 16 MHz with F = F_osc / 2, that's 2.5
@@ -34,8 +33,8 @@ extern SPIClass SPI;
 
 namespace DuinoCube {
 
-// For accessing other DuinoCube system shield functions.
-static System sys;
+// For accessing memory.
+static Mem mem;
 
 void RPC::begin() {
   SET_PIN(RPC_CLIENT_COMMAND_DIR, OUTPUT);
@@ -88,7 +87,7 @@ void RPC::writeCommand(uint8_t command) {
   if (command == RPC_CMD_NONE) {
     setCommandStatus(RPC_CLIENT_NO_COMMAND);
   } else {
-    sys.writeSharedRAM(RPC_COMMAND_ADDR, &command, sizeof(command));
+    mem.write(RPC_COMMAND_ADDR, &command, sizeof(command));
     setCommandStatus(RPC_CLIENT_COMMAND);
   }
 }
@@ -116,7 +115,7 @@ uint16_t RPC::exec(uint8_t command,
 
   // Write the command input args to memory.
   if (in_args && in_size > 0)
-    sys.writeSharedRAM(RPC_INPUT_ARG_ADDR, in_args, in_size);
+    mem.write(RPC_INPUT_ARG_ADDR, in_args, in_size);
 
   // Issue the command and wait for acknowledgment.
   writeCommand(command);
@@ -129,7 +128,7 @@ uint16_t RPC::exec(uint8_t command,
   waitForServerStatus(RPC_SERVER_IDLE);
 
   if (out_args && out_size > 0)
-    sys.readSharedRAM(RPC_OUTPUT_ARG_ADDR, out_args, out_size);
+    mem.read(RPC_OUTPUT_ARG_ADDR, out_args, out_size);
 
   // TODO: implement status codes.
   return 0;

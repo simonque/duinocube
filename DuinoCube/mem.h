@@ -39,16 +39,31 @@
     (SHARED_MEMORY_SIZE - SHARED_MEMORY_HEAP_START)
 #define SHARED_MEMORY_BLOCK_SIZE     256  // Size of heap alloc chunk.
 
+// Shared RAM opcodes.
+#define RAM_ST_READ          5   // Read/write status register.
+#define RAM_ST_WRITE         1
+#define RAM_READ             3   // Read/write memory.
+#define RAM_WRITE            2
+
+#define RAM_SEQUENTIAL    0x40   // Sets sequential access mode.
+
 namespace DuinoCube {
 
 class Mem {
  public:
+  // Sets up shared memory.
+  void begin();
+
   // Gets stats about shared memory allocation usage.
   static void stat(uint16_t* free_size, uint16_t* largest_size);
 
   // Alloc and free shared memory.
   static uint16_t alloc(uint16_t size);
   static void free(uint16_t addr);
+
+  // Copy data to/from shared memory.
+  void read(uint16_t addr, void* data, uint16_t size);
+  void write(uint16_t addr, const void* data, uint16_t size);
 };
 
 }  // namespace DuinoCube

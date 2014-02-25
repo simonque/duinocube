@@ -50,17 +50,17 @@ void loop() {
 
     // Copy the file contents into a buffer.
     memset(buf, 0, sizeof(buf));
-    DC.Sys.readSharedRAM(addr, buf, size_read);
+    DC.Mem.read(addr, buf, size_read);
     printf("Read string: %s\n", buf);
 
     // Clear the shared memory.
     memset(buf, 0, sizeof(buf));
-    DC.Sys.writeSharedRAM(addr, buf, sizeof(buf));
+    DC.Mem.write(addr, buf, sizeof(buf));
 
     // Reset the file pointer halfway and do it again.
     DC.File.seek(handle, size_read / 2);
     DC.File.read(handle, addr, sizeof(buf));
-    DC.Sys.readSharedRAM(addr, buf, size_read);
+    DC.Mem.read(addr, buf, size_read);
     printf("Half string: %s\n", buf);
 
     DC.File.close(handle);

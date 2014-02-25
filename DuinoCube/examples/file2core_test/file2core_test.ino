@@ -84,7 +84,7 @@ static void test_file_copy(const char* filename,
   uint64_t checksum = 0;
   for (uint16_t offset = 0; offset < size; offset += sizeof(checksum)) {
     uint64_t value;
-    DC.Sys.readSharedRAM(buf_addr + offset, &value, sizeof(value));
+    DC.Mem.read(buf_addr + offset, &value, sizeof(value));
     checksum += value;
   }
   DC.Mem.free(buf_addr);

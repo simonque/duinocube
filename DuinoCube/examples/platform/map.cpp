@@ -51,7 +51,7 @@ uint8_t getTileYOffset(uint16_t value) {
 bool isEmptyTile(uint16_t x, uint16_t y) {
   uint16_t tile_value = 0;
   uint16_t offset = sizeof(tile_value) * (x + y * LEVEL_WIDTH);
-  DC.Sys.readSharedRAM(g_walk_buffer + offset, &tile_value, sizeof(tile_value));
+  DC.Mem.read(g_walk_buffer + offset, &tile_value, sizeof(tile_value));
 
   return (tile_value == DEFAULT_EMPTY_TILE_VALUE);
 }
