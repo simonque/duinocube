@@ -99,6 +99,9 @@ static void load() {
 }
 
 static void draw() {
+  // Start camera at (0, 0).
+  DC.Core.moveCamera(0, 0);
+
   for (int layer = 0; layer < ARRAY_SIZE(kTilemapFiles); ++layer) {
     uint8_t palette = (layer == CLOUD_LAYER) ? clouds_pal : landscape_pal;
     uint16_t offset = (layer == CLOUD_LAYER) ? clouds_offset : landscape_offset;
@@ -166,9 +169,6 @@ struct Sprite {
 };
 
 void loop() {
-  // Start camera at (0, 0).
-  DC.Core.moveCamera(0, 0);
-
   // Initialize the player sprite data structure.
   Sprite player_sprite;
   player_sprite.x = 0;
