@@ -98,14 +98,6 @@ static void load() {
   }
 }
 
-// Contains the location of a sprite.
-struct Sprite {
-  int16_t x, y;                // Location.
-  uint16_t offset;             // Offset of image data.
-};
-
-static Sprite player_sprite;
-
 static void draw() {
   for (int layer = 0; layer < ARRAY_SIZE(kTilemapFiles); ++layer) {
     uint8_t palette = (layer == CLOUD_LAYER) ? clouds_pal : landscape_pal;
@@ -146,11 +138,6 @@ static void draw() {
 
   // Enable the sprite.
   DC.Core.enableSprite(PLAYER_SPRITE);
-
-  // Initialize the player sprite data structure.
-  player_sprite.x = 0;
-  player_sprite.y = 0;
-  player_sprite.offset = sprites_offset;
 }
 
 void setup() {
@@ -172,9 +159,21 @@ void setup() {
 
 #define MAX_MOVEMENT_SPEED      3
 
+// Contains the location of a sprite.
+struct Sprite {
+  int16_t x, y;                // Location.
+  uint16_t offset;             // Offset of image data.
+};
+
 void loop() {
   // Start camera at (0, 0).
   DC.Core.moveCamera(0, 0);
+
+  // Initialize the player sprite data structure.
+  Sprite player_sprite;
+  player_sprite.x = 0;
+  player_sprite.y = 0;
+  player_sprite.offset = sprites_offset;
 
   int16_t scroll_x = 0;
   int16_t scroll_y = 0;
