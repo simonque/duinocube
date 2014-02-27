@@ -102,6 +102,9 @@ static void draw() {
   // Start camera at (0, 0).
   DC.Core.moveCamera(0, 0);
 
+  // Set the sprite rendering depth to be just below the cloud layer.
+  DC.Core.setSpriteDepth(CLOUD_LAYER - 1);
+
   for (int layer = 0; layer < ARRAY_SIZE(kTilemapFiles); ++layer) {
     uint8_t palette = (layer == CLOUD_LAYER) ? clouds_pal : landscape_pal;
     uint16_t offset = (layer == CLOUD_LAYER) ? clouds_offset : landscape_offset;
@@ -194,7 +197,7 @@ void loop() {
   int8_t dy = 0;
 
   // Adjustable sprite rendering depth relative to tile layers.
-  uint8_t sprite_z = CLOUD_LAYER;
+  uint8_t sprite_z = CLOUD_LAYER - 1;
 
   // This loop never exits. It just keeps running and increments the movement
   // counter.
