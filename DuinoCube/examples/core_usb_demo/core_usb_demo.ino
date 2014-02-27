@@ -192,9 +192,11 @@ void loop() {
   // Adjustable sprite rendering depth relative to tile layers.
   uint8_t sprite_z = CLOUD_LAYER - 1;
 
-  // This loop never exits. It just keeps running and increments the movement
-  // counter.
-  for (uint16_t movement_count = 0; true; movement_count += MOVEMENT_STEP) {
+  // Counter for moving the clouds.
+  uint16_t movement_count = 0;
+
+  // This loop runs forever.
+  while (true) {
     // Wait for visible, non-vblanked region to do computations.
     DC.Core.waitForEvent(CORE_EVENT_VBLANK_END);
 
@@ -298,6 +300,7 @@ void loop() {
     // Update the cloud movement.
     uint16_t clouds_x = (movement_count / 8);
     uint16_t clouds_y = -(movement_count / 16);
+    movement_count += MOVEMENT_STEP;
 
     // Wait for Vblank.
     DC.Core.waitForEvent(CORE_EVENT_VBLANK_BEGIN);
