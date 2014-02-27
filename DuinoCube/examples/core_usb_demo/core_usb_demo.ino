@@ -165,18 +165,11 @@ void setup() {
 
 #define MAX_MOVEMENT_SPEED      3
 
-// Contains the location of a sprite.
-struct Sprite {
-  int16_t x, y;                // Location.
-  uint16_t offset;             // Offset of image data.
-};
-
 void loop() {
-  // Initialize the player sprite data structure.
-  Sprite player_sprite;
-  player_sprite.x = 0;
-  player_sprite.y = 0;
-  player_sprite.offset = sprites_offset;
+  // Initialize the player sprite location and image address.
+  int16_t player_x = 0;
+  int16_t player_y = 0;
+  uint16_t player_offset = sprites_offset;
 
   // Current camera location.
   int16_t scroll_x = 0;
@@ -229,7 +222,7 @@ void loop() {
 
     // L1 and R1 cycle sprite through different images.
     int sprite_image_index =
-        (player_sprite.offset - sprites_offset) / SPRITE_SIZE;
+        (player_offset - sprites_offset) / SPRITE_SIZE;
     if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_L1)) &&
         !(prev_gamepad.buttons & (1 << GAMEPAD_BUTTON_L1))) {
       --sprite_image_index;
@@ -241,7 +234,7 @@ void loop() {
     // Adjust for valid image index values.
     sprite_image_index =
         (sprite_image_index + NUM_SPRITE_IMAGES) % NUM_SPRITE_IMAGES;
-    player_sprite.offset = sprites_offset + sprite_image_index * SPRITE_SIZE;
+    player_offset = sprites_offset + sprite_image_index * SPRITE_SIZE;
 
     // L2 and R2 buttons to change sprite Z-level.
     if ((gamepad.buttons & (1 << GAMEPAD_BUTTON_R2)) &&
@@ -261,7 +254,7 @@ void loop() {
         dx = -1;
       else if (dx > -MAX_MOVEMENT_SPEED)
         --dx;
-      player_sprite.x += dx;
+      player_x += dx;
     }
     else if (gamepad.x > 0) {
       // Use acceleration.
@@ -269,7 +262,7 @@ void loop() {
         dx = 1;
       else if (dx < MAX_MOVEMENT_SPEED)
         ++dx;
-      player_sprite.x += dx;
+      player_x += dx;
     }
 
     if (gamepad.y < 0) {
@@ -278,7 +271,7 @@ void loop() {
         dy = -1;
       else if (dy > -MAX_MOVEMENT_SPEED)
         --dy;
-      player_sprite.y += dy;
+      player_y += dy;
     }
     else if (gamepad.y > 0) {
       // Use acceleration.
@@ -286,21 +279,21 @@ void loop() {
         dy = 1;
       else if (dy < MAX_MOVEMENT_SPEED)
         ++dy;
-      player_sprite.y += dy;
+      player_y += dy;
     }
 
     // Save the current gamepad state for the next cycle.
     prev_gamepad = gamepad;
 
-    if (player_sprite.x < scroll_x)
-      scroll_x = player_sprite.x;
-    else if (player_sprite.x >= scroll_x + SCREEN_WIDTH - SPRITE_WIDTH)
-      scroll_x = player_sprite.x + SPRITE_WIDTH - SCREEN_WIDTH;
+    if (player_x < scroll_x)
+      scroll_x = player_x;
+    else if (player_x >= scroll_x + SCREEN_WIDTH - SPRITE_WIDTH)
+      scroll_x = player_x + SPRITE_WIDTH - SCREEN_WIDTH;
 
-    if (player_sprite.y < scroll_y)
-      scroll_y = player_sprite.y;
-    else if (player_sprite.y >= scroll_y + SCREEN_HEIGHT - SPRITE_HEIGHT)
-      scroll_y = player_sprite.y + SPRITE_HEIGHT - SCREEN_HEIGHT;
+    if (player_y < scroll_y)
+      scroll_y = player_y;
+    else if (player_y >= scroll_y + SCREEN_HEIGHT - SPRITE_HEIGHT)
+      scroll_y = player_y + SPRITE_HEIGHT - SCREEN_HEIGHT;
 
     // Update the cloud movement.
     uint16_t clouds_x = (movement_count / 8);
@@ -322,8 +315,8 @@ void loop() {
       old_flip_flags = new_flip_flags;
     }
     DC.Core.setSpriteProperty(PLAYER_SPRITE, SPRITE_PROP_DATA_OFFSET,
-                              player_sprite.offset);
-    DC.Core.moveSprite(PLAYER_SPRITE, player_sprite.x, player_sprite.y);
+                              player_offset);
+    DC.Core.moveSprite(PLAYER_SPRITE, player_x, player_y);
     DC.Core.setSpriteDepth(sprite_z);
   }
 }
