@@ -195,8 +195,10 @@ void loop() {
   // Counter for moving the clouds.
   uint16_t movement_count = 0;
 
-  // This loop runs forever.
-  while (true) {
+  // This loop runs forever. In a real game, set |done| to true at some point so
+  // that the loop exits (e.g. to the main menu).
+  bool done = false;
+  while (!done) {
     // Wait for visible, non-vblanked region to do computations.
     DC.Core.waitForEvent(CORE_EVENT_VBLANK_END);
 
