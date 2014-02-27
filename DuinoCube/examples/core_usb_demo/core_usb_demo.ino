@@ -175,21 +175,29 @@ void loop() {
   player_sprite.y = 0;
   player_sprite.offset = sprites_offset;
 
+  // Current camera location.
   int16_t scroll_x = 0;
   int16_t scroll_y = 0;
 
+  // Keep a copy of the previous gamepad state to detect button press and
+  // release events.
   GamepadState prev_gamepad;
   prev_gamepad.buttons = 0;
   prev_gamepad.x = 0;
   prev_gamepad.y = 0;
 
+  // Keep track of changes in orientation.
   uint16_t old_flip_flags = SPRITE_FLIP_NONE;
 
+  // Player movement speed based on gamepad input.
   int8_t dx = 0;
   int8_t dy = 0;
 
+  // Adjustable sprite rendering depth relative to tile layers.
   uint8_t sprite_z = CLOUD_LAYER;
 
+  // This loop never exits. It just keeps running and increments the movement
+  // counter.
   for (uint16_t movement_count = 0; true; movement_count += MOVEMENT_STEP) {
     // Wait for visible, non-vblanked region to do computations.
     DC.Core.waitForEvent(CORE_EVENT_VBLANK_END);
