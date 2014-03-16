@@ -33,6 +33,19 @@
 #define ESPLORA_JOYSTICK_MAX     512
 #define ESPLORA_JOYSTICK_MIN     (-512)
 
+// Esplora joystick values less than this threshold get converted to 0.
+#define ESPLORA_ZERO_THRESHOLD      32
+
+// Normalizes Esplora joystick values so that values with absolute value less
+// than |ESPLORA_ZERO_THRESHOLD| become 0.
+// TODO: add gamepad calibration.
+static int GetAdjustedEsploraJoystickValue(int value) {
+  if (value < ESPLORA_ZERO_THRESHOLD && value > -ESPLORA_ZERO_THRESHOLD) {
+    return 0;
+  }
+  return value;
+}
+
 namespace DuinoCube {
 
 GamepadState Gamepad::readGamepad() {
@@ -53,8 +66,8 @@ GamepadState Gamepad::readGamepad() {
 
   // For some reason, the Esplora joystick is negative on the right and positive
   // on the left. It needs to be inverted.
-  state.x = -Esplora.readJoystickX();
-  state.y = Esplora.readJoystickY();
+  state.x = GetAdjustedEsploraJoystickValue(-Esplora.readJoystickX());
+  state.y = GetAdjustedEsploraJoystickValue(Esplora.readJoystickY());
   return state;
 
 #elif defined(__AVR_ATmega1280__) || (__AVR_ATmega2560__)
