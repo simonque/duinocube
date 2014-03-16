@@ -135,6 +135,9 @@ static void test_alloc() {
   uint16_t prev_total, prev_largest;
   DC.Mem.stat(&prev_total, &prev_largest);
 
+  printf("Total free memory: %d\n", prev_total);
+  printf("Largest block of free memory: %d\n", prev_largest);
+
   // Clear allocated address array.
   memset(alloc_addrs, 0, sizeof(alloc_addrs));
 
