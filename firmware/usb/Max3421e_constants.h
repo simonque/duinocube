@@ -8,7 +8,7 @@
 
 #if defined(ARDUINO)
 
-#if defined(__AVR_ATmega1280__) || (__AVR_ATmega2560__)
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   #define SCK_PIN   52
   #define MISO_PIN  50
   #define MOSI_PIN  51

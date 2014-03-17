@@ -25,7 +25,7 @@
 #elif defined(__AVR_ATmega32U4__)
   #include "Esplora.h"
 
-#elif defined(__AVR_ATmega1280__) || (__AVR_ATmega2560__)
+#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   #error "Arduinos with Atmega1280 and Atmega2560 not yet supported."
 
 #endif
@@ -70,7 +70,7 @@ GamepadState Gamepad::readGamepad() {
   state.y = GetAdjustedEsploraJoystickValue(Esplora.readJoystickY());
   return state;
 
-#elif defined(__AVR_ATmega1280__) || (__AVR_ATmega2560__)
+#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   #error "Arduinos with Atmega1280 and Atmega2560 not yet supported."
 
 #endif
