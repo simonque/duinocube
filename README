@@ -10,7 +10,8 @@ Contents:
               this library to the Arduino environment using Sketch -> Import
               Library -> Add library.
 
-  examples/   Sample Arduino sketches that test the various parts of DuinoCube
+  DuinoCube/examples/
+              Sample Arduino sketches that test the various parts of DuinoCube
               as well as DuinoCube as a whole.  Use them as an example for
               writing your own apps.
 
